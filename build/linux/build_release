@@ -1,0 +1,23 @@
+#!/bin/sh
+
+exe_name=spdaemon
+
+obj_path=../../obj/release
+bin_path=../../bin/release
+
+if mkdir -p "$obj_path"
+then
+	make -C "$obj_path" -f ../../Makefile \
+		program_name="$exe_name" \
+		compile_flags="-O3 -DNDEBUG" \
+		libraries="-lrt" \
+		link_flags="-s"
+
+	if [ -e "$obj_path/$exe_name" ]
+	then
+		if mkdir -p "$bin_path"
+		then
+			mv -f "$obj_path/$exe_name" "$bin_path"
+		fi
+	fi
+fi
