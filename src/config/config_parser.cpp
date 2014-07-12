@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009 Ilya Golovenko
-//    This file is part of spdaemon.
+//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -19,16 +19,18 @@
 //---------------------------------------------------------------------------
 
 // Application headers
-#include "config_parser.hpp"
+#include <config/config_parser.hpp>
 
 // BOOST headers
 #include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
 
 // STL headers
 #include <iostream>
 #include <iomanip>
 
+
+namespace chat
+{
 
 config_parser::config_parser() :
     state_(state_start),
@@ -37,7 +39,7 @@ config_parser::config_parser() :
 {
 }
 
-const config_entry config_parser::parse(const std::string& data)
+config_entry config_parser::parse(std::string const& data)
 {
     reset();
 
@@ -242,10 +244,9 @@ bool config_parser::consume(int c)
 void config_parser::add_config_entry()
 {
     if(state_ == state_simple_value)
-        boost::trim_right(value_);
+        boost::algorithm::trim_right(value_);
 
-    entries_.top().add_entry(
-        config_entry(name_, value_));
+    entries_.top().add_entry(config_entry(name_, value_));
 }
 
 void config_parser::start_new_block()
@@ -270,35 +271,35 @@ bool config_parser::end_current_block()
 
 bool config_parser::is_alpha(int c) const
 {
-    return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
 
 bool config_parser::is_digit(int c) const
 {
-    return (c >= '0' && c <= '9');
+    return c >= '0' && c <= '9';
 }
 
 bool config_parser::is_alnum(int c) const
 {
-    return (is_alpha(c) || is_digit(c));
+    return is_alpha(c) || is_digit(c);
 }
 
 bool config_parser::is_charsym(int c) const
 {
-    return (is_alnum(c) || c == '_' || c == '-');
+    return is_alnum(c) || c == '_' || c == '-';
 }
 
 bool config_parser::is_newline(int c) const
 {
-    return (c == '\r' || c == '\n');
+    return c == '\r' || c == '\n';
 }
 
 bool config_parser::is_space(int c) const
 {
-    return (is_newline(c) || c == ' ' || c == '\t');
+    return is_newline(c) || c == ' ' || c == '\t';
 }
 
-const std::string config_parser::get_error_message(int c) const
+std::string config_parser::get_error_message(int c) const
 {
     std::ostringstream message;
 
@@ -338,3 +339,5 @@ const std::string config_parser::get_error_message(int c) const
 
     return message.str();
 }
+
+}   // namespace chat

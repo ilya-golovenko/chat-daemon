@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009 Ilya Golovenko
-//    This file is part of spdaemon.
+//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -17,56 +17,59 @@
 //    along with spdaemon. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
-#ifndef _filter_host_hpp
-#define _filter_host_hpp
+#ifndef _chat_filter_host_hpp
+#define _chat_filter_host_hpp
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
+#pragma once
 #endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 // BOOST headers
-#include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
-
-// ASIO headers
-#include <asio.hpp>
+#include <boost/asio.hpp>
 
 // STL headers
 #include <cstddef>
-#include <ctime>
+#include <chrono>
 
 
-class filter_host;
-typedef boost::shared_ptr<filter_host> filter_host_ptr;
+namespace chat
+{
 
-class filter_host :
-    private boost::noncopyable
+class filter_host
 {
 public:
-    static filter_host_ptr create(const asio::ip::address& address);
+    explicit filter_host(boost::asio::ip::address const& address);
 
-public:
-    filter_host(const asio::ip::address& address);
-
-    const asio::ip::address& address() const;
-    boost::uint64_t last_conn_time() const;
+    filter_host(filter_host const&) = delete;
+    filter_host& operator=(filter_host const&) = delete;
 
     void add_connection();
-    void block(std::time_t duration);
 
-    std::size_t conn_per_minute() const;
-    std::size_t connection_count() const;
+    void block(std::chrono::seconds const& duration);
 
+    boost::asio::ip::address const& get_address() const;
+
+    std::chrono::seconds get_block_duration() const;
+
+    std::size_t get_connections_per_minute() const;
+    std::size_t get_connection_count() const;
+
+    bool is_tracking_expired() const;
     bool is_block_expired() const;
-    std::time_t get_block_duration() const;
 
 private:
-    asio::ip::address address_;
-    std::time_t block_end_time_;
-    boost::uint64_t first_conn_time_;
-    boost::uint64_t last_conn_time_;
+    typedef std::chrono::steady_clock clock;
+    typedef clock::time_point clock_time_point;
+
+private:
+    clock_time_point first_conn_time_;
+    clock_time_point last_conn_time_;
+    clock_time_point block_end_time_;
+    boost::asio::ip::address address_;
+    double connections_per_minute_;
     std::size_t connection_count_;
-    std::size_t conn_per_minute_;  // 1 corresponds to 0.001 conn/min
 };
 
-#endif  // _filter_host_hpp
+}   // namespace chat
+
+#endif  // _chat_filter_host_hpp

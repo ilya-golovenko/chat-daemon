@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009 Ilya Golovenko
-//    This file is part of spdaemon.
+//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -19,48 +19,35 @@
 //---------------------------------------------------------------------------
 
 // Application headers
-#include "config_entry.hpp"
-#include "config_entry_set.hpp"
-#include "config_entry_impl.hpp"
+#include <config/config_entry.hpp>
+#include <config/config_entry_set.hpp>
+#include <config/config_entry_impl.hpp>
 
-// BOOST headers
-#include <boost/make_shared.hpp>
 
+namespace chat
+{
 
 config_entry::config_entry() :
-    impl_(boost::make_shared<config_entry_impl>())
+    impl_(std::make_shared<config_entry_impl>())
 {
 }
 
-config_entry::config_entry(const std::string& name) :
-    impl_(boost::make_shared<config_entry_impl>(name))
+config_entry::config_entry(std::string const& name) :
+    impl_(std::make_shared<config_entry_impl>(name))
 {
 }
 
-config_entry::config_entry(const std::string& name, const std::string& value) :
-    impl_(boost::make_shared<config_entry_impl>(name, value))
+config_entry::config_entry(std::string const& name, std::string const& value) :
+    impl_(std::make_shared<config_entry_impl>(name, value))
 {
 }
 
-config_entry::config_entry(const config_entry& other) :
-    impl_(other.impl_)
-{
-}
-
-config_entry& config_entry::operator=(const config_entry& other)
-{
-    if(&other != this)
-        impl_ = other.impl_;
-
-    return *this;
-}
-
-const std::string& config_entry::get_name() const
+std::string const& config_entry::get_name() const
 {
     return impl_->get_name();
 }
 
-const std::string& config_entry::get_value() const
+std::string const& config_entry::get_value() const
 {
     return impl_->get_value();
 }
@@ -70,17 +57,19 @@ bool config_entry::has_value() const
     return impl_->has_value();
 }
 
-void config_entry::add_entry(const config_entry& entry)
+void config_entry::add_entry(config_entry const& entry)
 {
     impl_->add_entry(entry);
 }
 
-const config_entry config_entry::get_entry(const std::string& path) const
+config_entry config_entry::get_entry(std::string const& path) const
 {
     return impl_->get_entry(path);
 }
 
-const config_entry_set config_entry::get_entries(const std::string& path) const
+config_entry_set config_entry::get_entries(std::string const& path) const
 {
     return impl_->get_entries(path);
 }
+
+}   // namespace chat

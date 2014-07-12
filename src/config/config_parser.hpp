@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009 Ilya Golovenko
-//    This file is part of spdaemon.
+//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -17,31 +17,33 @@
 //    along with spdaemon. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
-#ifndef _config_parser_hpp
-#define _config_parser_hpp
+#ifndef _chat_config_parser_hpp
+#define _chat_config_parser_hpp
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
+#pragma once
 #endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 // Application headers
-#include "config_entry.hpp"
-
-// BOOST headers
-#include <boost/noncopyable.hpp>
+#include <config/config_entry.hpp>
 
 // STL headers
 #include <string>
 #include <stack>
 
 
-class config_parser :
-    private boost::noncopyable
+namespace chat
+{
+
+class config_parser
 {
 public:
     config_parser();
 
-    const config_entry parse(const std::string& data);
+    config_parser(config_parser const&) = delete;
+    config_parser& operator=(config_parser const&) = delete;
+
+    config_entry parse(std::string const& data);
 
 private:
     void reset();
@@ -59,7 +61,7 @@ private:
     bool is_newline(int c) const;
     bool is_space(int c) const;
 
-    const std::string get_error_message(int c) const;
+    std::string get_error_message(int c) const;
 
 private:
     enum state
@@ -82,4 +84,6 @@ private:
     std::stack<config_entry> entries_;
 };
 
-#endif  // _config_parser_hpp
+}   // namespace chat
+
+#endif  // _chat_config_parser_hpp

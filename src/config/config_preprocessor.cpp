@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009 Ilya Golovenko
-//    This file is part of spdaemon.
+//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -19,142 +19,147 @@
 //---------------------------------------------------------------------------
 
 // Application headers
-#include "config_preprocessor.hpp"
+#include <config/config_preprocessor.hpp>
 
+
+namespace chat
+{
 
 config_preprocessor::config_preprocessor() :
-	state_(state_start),
-	comment_(false)
+    state_(state_start),
+    comment_(false)
 {
 }
 
-const std::string config_preprocessor::process(const std::string& data)
+std::string config_preprocessor::process(std::string const& data)
 {
-	reset();
+    reset();
 
-	data_.clear();
-	data_.reserve(data.size());
+    data_.clear();
+    data_.reserve(data.size());
 
-	std::string::const_iterator it = data.begin();
-	std::string::const_iterator end = data.end();
+    std::string::const_iterator it = data.begin();
+    std::string::const_iterator end = data.end();
 
-	while(it != end)
-	{
-		if(consume(*it))
-			add_current_char(*it);
+    while(it != end)
+    {
+        if(consume(*it))
+            add_current_char(*it);
 
-		++it;
-	}
+        ++it;
+    }
 
-	return data_;
+    return data_;
 }
 
 void config_preprocessor::reset()
 {
-	comment_ = false;
-	state_ = state_start;
+    comment_ = false;
+    state_ = state_start;
 }
 
 bool config_preprocessor::consume(int c)
 {
-	switch(state_)
-	{
-		case state_start:
-			if(c == '/')
-			{
-				state_ = state_comment_start;
-				return false;
-			}
-			else if(c == '#')
-			{
-				comment_ = true;
-				state_ = state_line_comment;
-			}
-			else if(c == '\"')
-			{
-				state_ = state_quoted_value;
-			}
-			break;
+    switch(state_)
+    {
+        case state_start:
+            if(c == '/')
+            {
+                state_ = state_comment_start;
+                return false;
+            }
+            else if(c == '#')
+            {
+                comment_ = true;
+                state_ = state_line_comment;
+            }
+            else if(c == '\"')
+            {
+                state_ = state_quoted_value;
+            }
+            break;
 
-		case state_comment_start:
-			if(c == '/')
-			{
-				comment_ = true;
-				data_.push_back(' ');
-				state_ = state_line_comment;
-			}
-			else if(c == '*')
-			{
-				comment_ = true;
-				data_.push_back(' ');
-				state_ = state_c_comment;
-			}
-			else
-			{
-				data_.push_back('/');
-				state_ = state_start;
-			}
-			break;
+        case state_comment_start:
+            if(c == '/')
+            {
+                comment_ = true;
+                data_.push_back(' ');
+                state_ = state_line_comment;
+            }
+            else if(c == '*')
+            {
+                comment_ = true;
+                data_.push_back(' ');
+                state_ = state_c_comment;
+            }
+            else
+            {
+                data_.push_back('/');
+                state_ = state_start;
+            }
+            break;
 
-		case state_line_comment:
-			if(is_newline(c))
-			{
-				comment_ = false;
-				state_ = state_start;
-			}
-			break;
+        case state_line_comment:
+            if(is_newline(c))
+            {
+                comment_ = false;
+                state_ = state_start;
+            }
+            break;
 
-		case state_c_comment:
-			if(c == '*')
-				state_ = state_c_comment_finish;
-			break;
+        case state_c_comment:
+            if(c == '*')
+                state_ = state_c_comment_finish;
+            break;
 
-		case state_c_comment_finish:
-			if(c == '/')
-			{
-				comment_ = false;
-				data_.push_back(' ');
-				state_ = state_start;
-				return false;
-			}
-			else if(c != '*')
-			{
-				state_ = state_c_comment;
-			}
-			break;
+        case state_c_comment_finish:
+            if(c == '/')
+            {
+                comment_ = false;
+                data_.push_back(' ');
+                state_ = state_start;
+                return false;
+            }
+            else if(c != '*')
+            {
+                state_ = state_c_comment;
+            }
+            break;
 
-		case state_quoted_value:
-			if(c == '\"')
-				state_ = state_start;
-			else if(c == '\\')
-				state_ = state_escaped_value;
-			break;
+        case state_quoted_value:
+            if(c == '\"')
+                state_ = state_start;
+            else if(c == '\\')
+                state_ = state_escaped_value;
+            break;
 
-		case state_escaped_value:
-			state_ = state_quoted_value;
-			break;
-	}
+        case state_escaped_value:
+            state_ = state_quoted_value;
+            break;
+    }
 
-	return true;
+    return true;
 }
 
 void config_preprocessor::add_current_char(int c)
 {
-	if(c != '\r')
-	{
-		if(comment_ && !is_space(c))
-			data_.push_back(' ');
-		else
-			data_.push_back(c);
-	}
+    if(c != '\r')
+    {
+        if(comment_ && !is_space(c))
+            data_.push_back(' ');
+        else
+            data_.push_back(c);
+    }
 }
 
 bool config_preprocessor::is_newline(int c) const
 {
-	return (c == '\r' || c == '\n');
+    return c == '\r' || c == '\n';
 }
 
 bool config_preprocessor::is_space(int c) const
 {
-	return (is_newline(c) || c == ' ' || c == '\t');
+    return is_newline(c) || c == ' ' || c == '\t';
 }
+
+}   // namespace chat

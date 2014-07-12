@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009 Ilya Golovenko
-//    This file is part of spdaemon.
+//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -19,47 +19,28 @@
 //---------------------------------------------------------------------------
 
 // Application headers
-#include "config_exception.hpp"
+#include <config/config_exception.hpp>
 
 
-config_error::config_error(const std::string& message) :
+namespace chat
+{
+
+config_error::config_error(std::string const& message) :
     message_(message),
     line_(-1),
     column_(-1)
 {
 }
 
-config_error::config_error(const std::string& message, int line, int column) :
+config_error::config_error(std::string const& message, int line, int column) :
     message_(message),
     line_(line),
     column_(column)
 {
 }
 
-config_error::config_error(const config_error& other) :
-    std::exception(other)
-{
-    assign(other);
-}
-
-config_error& config_error::operator=(const config_error& other)
-{
-    assign(other);
-    return *this;
-}
-
 config_error::~config_error() throw()
 {
-}
-
-void config_error::assign(const config_error& other)
-{
-    if(&other != this)
-    {
-        message_ = other.message_;
-        line_ = other.line_;
-        column_ = other.column_;
-    }
 }
 
 const char* config_error::what() const throw()
@@ -67,7 +48,7 @@ const char* config_error::what() const throw()
     return message_.c_str();
 }
 
-const std::string& config_error::message() const throw()
+std::string const& config_error::message() const throw()
 {
     return message_;
 }
@@ -81,3 +62,5 @@ int config_error::column() const throw()
 {
     return column_;
 }
+
+}   // namespace chat

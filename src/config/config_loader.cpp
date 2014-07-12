@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009 Ilya Golovenko
-//    This file is part of spdaemon.
+//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -19,13 +19,15 @@
 //---------------------------------------------------------------------------
 
 // Application headers
-#include "config_loader.hpp"
-#include "config_exception.hpp"
-#include "config_manager.hpp"
-#include "config_generator.hpp"
-#include <file_utils.hpp>
-#include <log_common.hpp>
-#include <common.hpp>
+#include <config/config_loader.hpp>
+#include <config/config_exception.hpp>
+#include <config/config_manager.hpp>
+#include <config/config_generator.hpp>
+#include <misc/file_utils.hpp>
+#include <app/constants.hpp>
+
+// MISSIO headers
+#include <missio/logging/common.hpp>
 
 // STL headers
 #include <sstream>
@@ -33,9 +35,12 @@
 #include <sstream>
 
 
+namespace chat
+{
+
 config_data config_loader::config_;
 
-const config_data& config_loader::get_config()
+config_data const& config_loader::get_config()
 {
     return config_;
 }
@@ -44,7 +49,7 @@ void config_loader::load_configuration()
 {
     if(!util::file::exists(files::config))
     {
-        LOGNOT("generating configuration");
+        LOG_COMP_NOTICE(config_loader, "generating configuration");
 
         config_generator generator;
 
@@ -56,10 +61,10 @@ void config_loader::load_configuration()
 
     try
     {
-        LOGNOT("loading configuration");
+        LOG_COMP_NOTICE(config_loader, "loading configuration");
         manager.load_configuration(files::config);
     }
-    catch(config_error& e)
+    catch(config_error const& e)
     {
         std::ostringstream message;
 
@@ -108,7 +113,6 @@ void config_loader::load_configuration()
     config_.chat.leave_timeout = timeouts.get<long>("leave", 600);
     config_.chat.connect_timeout = timeouts.get<long>("connect", 15);
 
-    config_.chat.antivirus_hack = chat.get<bool>("antivirus_hack", false);
     config_.chat.message_history = chat.get<std::size_t>("message_history", 50);
 
     config_.chat.http_server_endpoint = chat.get<std::string>("http_server", "127.0.0.1");
@@ -198,3 +202,5 @@ void config_loader::load_configuration()
     config_entry_set addresses = frontend.get_entries("address");
     config_.frontend.addresses = addresses.as<std::string>("127.0.0.1");
 }
+
+}   // namespace chat

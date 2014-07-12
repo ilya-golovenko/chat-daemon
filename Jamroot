@@ -1,0 +1,104 @@
+
+import modules ;
+
+path-constant TOP : . ;
+path-constant SRC : src ;
+path-constant OBJ : obj ;
+path-constant BIN : bin ;
+path-constant DEPENDS : depends ;
+
+path-constant MISSIO_ROOT : $(DEPENDS)/missio ;
+
+BOOST_ROOT = [ modules.peek : BOOST_ROOT ] ;
+
+if ! $(BOOST_ROOT)
+{
+    echo ;
+    echo "Required environment variable BOOST_ROOT is not set" ;
+    echo "Please set it to point to the root of BOOST distribution" ;
+    exit ;
+}
+
+use-project /boost : $(BOOST_ROOT) ;
+
+use-project /missio : $(MISSIO_ROOT) ;
+
+project /chat/daemon
+    :
+        requirements
+        <link>static
+        <threading>multi
+        <include>$(SRC)
+        <include>$(MISSIO_ROOT)
+        <include>$(BOOST_ROOT)
+        <define>BOOST_ALL_NO_LIB
+        <define>BOOST_SYSTEM_NO_DEPRECATED
+        <define>BOOST_FILESYSTEM_VERSION=3
+        <define>BOOST_FILESYSTEM_NO_DEPRECATE
+        <define>BOOST_SPIRIT_USE_PHOENIX_V3
+        <toolset>msvc:<define>WIN32
+        <toolset>msvc:<define>_WIN32
+        <toolset>msvc:<define>NOMINMAX
+        <toolset>msvc:<define>_WIN32_WINNT=0x0600
+        <toolset>msvc:<define>WIN32_LEAN_AND_MEAN
+        <toolset>msvc:<define>_SCL_SECURE_NO_WARNINGS
+        <toolset>msvc:<define>_SCL_SECURE_NO_DEPRECATE
+        <toolset>msvc:<define>_CRT_SECURE_NO_WARNINGS
+        <toolset>msvc:<define>_CRT_SECURE_NO_DEPRECATE
+        <toolset>msvc:<define>_CRT_NONSTDC_NO_DEPRECATE
+        <toolset>msvc:<warnings>on
+        <toolset>msvc:<cxxflags>/wd4100
+        <toolset>msvc:<cxxflags>/wd4512
+        <toolset>msvc:<runtime-link>static
+        <toolset>msvc:<exception-handling>on
+        <toolset>msvc:<asynch-exceptions>on
+        <toolset>gcc:<warnings>all
+        <toolset>gcc:<cxxflags>-Wextra
+        <toolset>gcc:<cxxflags>-Wno-long-long
+        <toolset>gcc:<cxxflags>-Wno-unused-parameter
+        <toolset>gcc:<cxxflags>-std=c++0x
+        <toolset>gcc:<runtime-link>shared
+        <toolset>gcc,<target-os>linux:<cxxflags>-rdynamic
+        <toolset>gcc,<target-os>linux:<cxxflags>-export-dynamic
+    :
+        default-build release debug
+    :
+        source-location $(SRC)
+    :
+        build-dir $(OBJ)
+    ;
+
+# Windows libraries
+lib psapi ;
+lib user32 ;
+lib shlwapi ;
+lib dbghelp ;
+
+exe spdaemon
+    :
+        ## sources ##
+        [ glob-tree *.cpp *.c : .svn ]
+        /missio/logging//missio_logging
+        /boost/system//boost_system
+        /boost/thread//boost_thread
+        /boost/date_time//boost_date_time
+        /boost/filesystem//boost_filesystem
+        /boost/program_options//boost_program_options
+    :
+        ## requirements ##
+        <target-os>windows:<library>psapi
+        <target-os>windows:<library>user32
+        <target-os>windows:<library>shlwapi
+        <target-os>windows:<library>dbghelp
+    ;
+
+install install-chat-daemon
+    :
+        ## sources ##
+        spdaemon
+    :
+        ## build requirements ##
+        <variant>debug:<location>$(BIN)/debug
+        <variant>profile:<location>$(BIN)/profile
+        <variant>release:<location>$(BIN)/release
+    ;

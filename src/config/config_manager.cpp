@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009 Ilya Golovenko
-//    This file is part of spdaemon.
+//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -19,29 +19,34 @@
 //---------------------------------------------------------------------------
 
 // Application headers
-#include "config_manager.hpp"
-#include <file_utils.hpp>
-#include <singleton.hpp>
+#include <config/config_manager.hpp>
+#include <misc/file_utils.hpp>
 
+
+namespace chat
+{
 
 config_manager& config_manager::instance()
 {
-    return util::singleton<config_manager>::instance();
+    static config_manager instance;
+    return instance;
 }
 
-void config_manager::load_configuration(const std::string& filename)
+void config_manager::load_configuration(std::string const& filename)
 {
     std::string data = util::file::read_text(filename);
     data = config_preprocessor().process(data);
     root_ = config_parser().parse(data);
 }
 
-const config_entry config_manager::get_entry(const std::string& path) const
+config_entry config_manager::get_entry(std::string const& path) const
 {
     return root_.get_entry(path);
 }
 
-const config_entry_set config_manager::get_entries(const std::string& path) const
+config_entry_set config_manager::get_entries(std::string const& path) const
 {
     return root_.get_entries(path);
 }
+
+}   // namespace chat

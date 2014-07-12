@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009 Ilya Golovenko
-//    This file is part of spdaemon.
+//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -17,65 +17,65 @@
 //    along with spdaemon. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
-#ifndef _filter_rule_hpp
-#define _filter_rule_hpp
+#ifndef _chat_filter_rule_hpp
+#define _chat_filter_rule_hpp
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
+#pragma once
 #endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 // Application headers
-#include "filter_host.hpp"
-#include <log_source.hpp>
-
-// ASIO headers
-#include <asio.hpp>
+#include <filter/filter_host.hpp>
 
 // BOOST headers
-#include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
+#include <boost/asio.hpp>
 
 // STL headers
+#include <cstdint>
 #include <string>
+#include <ctime>
 
 
-class filter_rule;
-typedef boost::shared_ptr<filter_rule> filter_rule_ptr;
+namespace chat
+{
 
-class filter_rule :
-    private boost::noncopyable,
-    public log_source<filter_rule>
+class filter_rule
 {
 public:
-    static filter_rule_ptr create(
-        const std::string& name, const std::string& address,
-        const std::string& netmask, std::time_t block_duration,
-        std::size_t conn_per_minute, std::size_t max_connections);
+    filter_rule(std::string const& name,
+                boost::asio::ip::address const& address,
+                boost::asio::ip::address const& netmask,
+                std::chrono::seconds const& block_duration,
+                std::size_t connections_per_minute,
+                std::size_t max_connection_count);
 
-public:
-    filter_rule(
-        const std::string& name, const std::string& address,
-        const std::string& netmask, std::time_t block_duration,
-        std::size_t conn_per_minute, std::size_t max_connections);
+    filter_rule(filter_rule const&) = default;
+    filter_rule& operator=(filter_rule const&) = default;
 
-    const std::string& name() const;
-    std::time_t block_duration() const;
+    std::string const& get_name() const;
 
-    bool satisfies(filter_host_ptr host, std::size_t connections) const;
+    std::chrono::seconds const& get_block_duration() const;
 
-public:
-    const std::string& get_log_source_name() const;
+    bool satisfies(filter_host const& host, std::size_t connection_count) const;
 
 private:
-    bool is_address_matches(const asio::ip::address& address) const;
+    bool satisfies(boost::asio::ip::address const& address) const;
+    bool satisfies(boost::asio::ip::address_v4 const& address) const;
+    bool satisfies(boost::asio::ip::address_v6 const& address) const;
 
 private:
     std::string name_;
-    unsigned long address_;
-    unsigned long netmask_;
-    std::size_t conn_per_minute_;
-    std::size_t max_connections_;
-    std::time_t block_duration_;
+    boost::asio::ip::address address_;
+    boost::asio::ip::address netmask_;
+    std::chrono::seconds block_duration_;
+    std::size_t connections_per_minute_;
+    std::size_t max_connection_count_;
+
+private:
+    std::uint32_t address_v4_;
+    std::uint32_t netmask_v4_;
 };
 
-#endif  // _filter_rule_hpp
+}   // namespace chat
+
+#endif  // _chat_filter_rule_hpp

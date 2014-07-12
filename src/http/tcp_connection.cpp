@@ -19,69 +19,68 @@
 //---------------------------------------------------------------------------
 
 // Application headers
-#include "tcp_connection.hpp"
+#include <http/tcp_connection.hpp>
 
-// BOOST headers
-#include <boost/make_shared.hpp>
-#include <boost/ref.hpp>
+// STL headers
+#include <functional>
 
 
-namespace tcp
+namespace http
 {
 
-connection::pointer connection::create(asio::io_service& io_service)
+tcp_connection::pointer tcp_connection::create(boost::asio::io_service& io_service)
 {
-    return boost::make_shared<connection>(boost::ref(io_service));
+    return std::make_shared<tcp_connection>(std::ref(io_service));
 }
 
-asio::ip::tcp::socket& connection::socket()
+boost::asio::ip::tcp::socket& tcp_connection::get_socket()
 {
     return socket_;
 }
 
-asio::io_service& connection::get_io_service()
+boost::asio::io_service& tcp_connection::get_io_service()
 {
     return socket_.get_io_service();
 }
 
-bool connection::is_open() const
+bool tcp_connection::is_open() const
 {
     return socket_.is_open();
 }
 
-void connection::close()
+void tcp_connection::close()
 {
     if(socket_.is_open())
     {
-        asio::ip::tcp::socket::shutdown_type shutdown;
-        shutdown = asio::ip::tcp::socket::shutdown_both;
+        boost::asio::ip::tcp::socket::shutdown_type shutdown;
+        shutdown = boost::asio::ip::tcp::socket::shutdown_both;
 
-        asio::error_code ignored_ec;
+        boost::system::error_code ignored_ec;
         socket_.shutdown(shutdown, ignored_ec);
 
         socket_.close();
     }
 }
 
-const asio::ip::tcp::endpoint connection::get_remote_endpoint() const
+boost::asio::ip::tcp::endpoint tcp_connection::get_remote_endpoint() const
 {
-    asio::error_code ignored_error;
+    boost::system::error_code ignored_error;
     return socket_.remote_endpoint(ignored_error);
 }
 
-const asio::ip::address connection::get_remote_address() const
+boost::asio::ip::address tcp_connection::get_remote_address() const
 {
     return get_remote_endpoint().address();
 }
 
-unsigned short connection::get_remote_port() const
+std::uint16_t tcp_connection::get_remote_port() const
 {
     return get_remote_endpoint().port();
 }
 
-connection::connection(asio::io_service& io_service) :
+tcp_connection::tcp_connection(boost::asio::io_service& io_service) :
     socket_(io_service)
 {
 }
 
-}   // namespace tcp
+}   // namespace http

@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009 Ilya Golovenko
-//    This file is part of spdaemon.
+//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -17,31 +17,38 @@
 //    along with spdaemon. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
-#ifndef _config_loader_hpp
-#define _config_loader_hpp
+#ifndef _chat_config_loader_hpp
+#define _chat_config_loader_hpp
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
+#pragma once
 #endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 // Application headers
-#include "config_common.hpp"
-
-// BOOST headers
-#include <boost/noncopyable.hpp>
+#include <config/config_common.hpp>
 
 
-class config_loader :
-    private boost::noncopyable
+namespace chat
+{
+
+class config_loader
 {
 public:
-    static const config_data& get_config();
+    static config_data const& get_config();
 
 public:
+    config_loader() = default;
+    ~config_loader() = default;
+
+    config_loader(config_loader const&) = delete;
+    config_loader& operator=(config_loader const&) = delete;
+
     void load_configuration();
 
 private:
     static config_data config_;
 };
 
-#endif  // _config_loader_hpp
+}   // namespace chat
+
+#endif  // _chat_config_loader_hpp

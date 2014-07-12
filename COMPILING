@@ -1,0 +1,43 @@
+spdaemon - server for chat.php.spb.ru chat
+
+
+Compilation on Linux:
+
+ * Install GCC and C++ support for GCC.
+ * Download the latest version of BOOST distribution from http://boost.org and unpack it to some directory (e.g. /usr/src/boost_1_55_0).
+ * Set BOOST_ROOT environment variable to point to the root directory of the unpacked BOOST distribution (e.g. export BOOST_ROOT=/usr/src/boost_1_55_0).
+ * Go to spdaemon build directory: spdaemon/build/linux.
+ * Invoke build32.sh script to build project targeted for 32-bit operating environment.
+ * Invoke build64.sh script to build project targeted for 64-bit operating environment.
+
+Note: in order to build 64-bit version of spdaemon you will need to additionally install 64-bit version of GCC.
+
+If there were no errors during the build process, then you can find resulting spdaemon executable in spdaemon/bin directory.
+
+
+Compilation on FreeBSD:
+
+ * Install GCC and C++ support for GCC.
+ * Download the latest version of BOOST distribution from http://boost.org and unpack it to some directory (e.g. /usr/src/boost_1_55_0).
+ * Set BOOST_ROOT environment variable to point to the root directory of the unpacked BOOST distribution (e.g. export BOOST_ROOT=/usr/src/boost_1_55_0).
+ * Go to spdaemon build directory: spdaemon/build/freebsd.
+ * Invoke build32.sh script to build project targeted for 32-bit operating environment.
+ * Invoke build64.sh script to build project targeted for 64-bit operating environment.
+
+Note: in order to build 64-bit version of spdaemon you will need to additionally install 64-bit version of GCC.
+
+If there were no errors during the build process, then you can find resulting spdaemon executable in spdaemon/bin directory.
+
+
+Compilation on Windows:
+
+ * Make sure you have recent version of Microsoft Visual Studio installed (MSVS 2013 or later will suite).
+ * Download the latest version of BOOST distribution from http://boost.org and unpack it to some directory (e.g. c:\boost_1_55_0).
+ * Set BOOST_ROOT environment variable to point to the root directory of the unpacked BOOST distribution.
+ * Go to spdaemon build directory: spdaemon/build/windows.
+ * Invoke build32.bat script to build project targeted for 32-bit operating environment.
+ * Invoke build64.bat script to build project targeted for 64-bit operating environment.
+
+Note: in order to build 64-bit version of spdaemon make sure that your setup of Microsoft Visual Studio contains compiler and tools for 64-bit environment.
+
+If there were no errors during the build process, then you can find resulting spdaemon executable in spdaemon/bin directory.

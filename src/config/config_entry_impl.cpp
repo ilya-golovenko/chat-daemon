@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009 Ilya Golovenko
-//    This file is part of spdaemon.
+//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -19,24 +19,27 @@
 //---------------------------------------------------------------------------
 
 // Application headers
-#include "config_entry_impl.hpp"
-#include "config_entry_set.hpp"
+#include <config/config_entry_impl.hpp>
+#include <config/config_entry_set.hpp>
 
-// BOOST headers
-#include <boost/tuple/tuple.hpp>
+// STL headers
+#include <tuple>
 
 
-void config_entry_impl::add_entry(const config_entry& entry)
+namespace chat
 {
-    entries_.insert(std::make_pair(entry.get_name(), entry));
+
+void config_entry_impl::add_entry(config_entry const& entry)
+{
+    entries_.emplace(entry.get_name(), entry);
 }
 
-const std::string& config_entry_impl::get_name() const
+std::string const& config_entry_impl::get_name() const
 {
     return name_;
 }
 
-const std::string& config_entry_impl::get_value() const
+std::string const& config_entry_impl::get_value() const
 {
     throw_if_empty();
     return value_;
@@ -47,7 +50,7 @@ bool config_entry_impl::has_value() const
     return has_value_;
 }
 
-const config_entry config_entry_impl::get_entry(const std::string& path) const
+config_entry config_entry_impl::get_entry(std::string const& path) const
 {
     if(path.empty())
         throw config_error("config entry path cannot be empty");
@@ -56,14 +59,14 @@ const config_entry config_entry_impl::get_entry(const std::string& path) const
 
     if(pos == std::string::npos)
     {
-        entry_map_type::const_iterator it = entries_.find(path);
+        entry_map::const_iterator it = entries_.find(path);
 
         if(it != entries_.end())
             return it->second;
     }
     else
     {
-        entry_map_type::const_iterator it = entries_.find(path.substr(0, pos));
+        entry_map::const_iterator it = entries_.find(path.substr(0, pos));
 
         if(it != entries_.end())
             return it->second.get_entry(path.substr(pos + 1));
@@ -72,7 +75,7 @@ const config_entry config_entry_impl::get_entry(const std::string& path) const
     return config_entry();
 }
 
-const config_entry_set config_entry_impl::get_entries(const std::string& path) const
+config_entry_set config_entry_impl::get_entries(std::string const& path) const
 {
     if(path.empty())
         throw config_error("config entry path cannot be empty");
@@ -81,10 +84,10 @@ const config_entry_set config_entry_impl::get_entries(const std::string& path) c
 
     if(pos == std::string::npos)
     {
-        entry_map_type::const_iterator it;
-        entry_map_type::const_iterator end;
+        entry_map::const_iterator it;
+        entry_map::const_iterator end;
 
-        boost::tie(it, end) = entries_.equal_range(path);
+        std::tie(it, end) = entries_.equal_range(path);
 
         if(it != entries_.end())
         {
@@ -98,7 +101,7 @@ const config_entry_set config_entry_impl::get_entries(const std::string& path) c
     }
     else
     {
-        entry_map_type::const_iterator it = entries_.find(path.substr(0, pos));
+        entry_map::const_iterator it = entries_.find(path.substr(0, pos));
 
         if(it != entries_.end())
             return it->second.get_entries(path.substr(pos + 1));
@@ -112,13 +115,13 @@ config_entry_impl::config_entry_impl() :
 {
 }
 
-config_entry_impl::config_entry_impl(const std::string& name) :
+config_entry_impl::config_entry_impl(std::string const& name) :
     name_(name),
     has_value_(false)
 {
 }
 
-config_entry_impl::config_entry_impl(const std::string& name, const std::string& value) :
+config_entry_impl::config_entry_impl(std::string const& name, std::string const& value) :
     name_(name),
     value_(value),
     has_value_(true)
@@ -130,3 +133,5 @@ void config_entry_impl::throw_if_empty() const
     if(!has_value_)
         throw config_error("config entry has no value: " + name_);
 }
+
+}   // namespace chat

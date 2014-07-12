@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009 Ilya Golovenko
-//    This file is part of spdaemon.
+//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -19,48 +19,60 @@
 //---------------------------------------------------------------------------
 
 // Application headers
-#include "filter_rule.hpp"
-#include <log_common.hpp>
+#include <filter/filter_rule.hpp>
 
-// BOOST headers
-#include <boost/make_shared.hpp>
+// MISSIO headers
+#include <missio/logging/common.hpp>
 
 
-filter_rule_ptr filter_rule::create(
-    const std::string& name, const std::string& address,
-    const std::string& netmask, std::time_t block_duration,
-    std::size_t conn_per_minute, std::size_t max_connections)
+namespace chat
 {
-    return boost::make_shared<filter_rule>(name, address,
-        netmask, block_duration, conn_per_minute, max_connections);
+
+filter_rule::filter_rule(std::string const& name,
+                         boost::asio::ip::address const& address,
+                         boost::asio::ip::address const& netmask,
+                         std::chrono::seconds const& block_duration,
+                         std::size_t connections_per_minute,
+                         std::size_t max_connection_count) :
+    name_(name),
+    address_(address),
+    netmask_(netmask_),
+    block_duration_(block_duration),
+    connections_per_minute_(connections_per_minute),
+    max_connection_count_(max_connection_count)
+{
+    address_v4_ = address.to_v4().to_ulong();
+    netmask_v4_ = netmask.to_v4().to_ulong();
 }
 
-const std::string& filter_rule::name() const
+std::string const& filter_rule::get_name() const
 {
     return name_;
 }
 
-std::time_t filter_rule::block_duration() const
+std::chrono::seconds const& filter_rule::get_block_duration() const
 {
     return block_duration_;
 }
 
-bool filter_rule::satisfies(filter_host_ptr host, std::size_t connections) const
+bool filter_rule::satisfies(filter_host const& host, std::size_t connection_count) const
 {
-    const asio::ip::address& address = host->address();
+    LOG_COMP_TRACE_FUNCTION(filter_rule);
 
-    if(address.is_v4() && is_address_matches(address))
+    boost::asio::ip::address const& address = host.get_address();
+
+    if(satisfies(address))
     {
-        if(connections >= max_connections_)
+        if(connection_count >= max_connection_count_)
         {
-            LOGWRN("too many simultaneous connections from address: %1%") << address;
+            LOG_COMP_WARNING(filter_rule, "too many simultaneous connections from host: ", address);
             return true;
         }
 
-        if(host->connection_count() >= conn_per_minute_ &&
-            host->conn_per_minute() >= conn_per_minute_ * 1000)
+        if(host.get_connection_count() >= connections_per_minute_ &&
+           host.get_connections_per_minute() >= connections_per_minute_)
         {
-            LOGWRN("too many connections per minute from address: %1%") << address;
+            LOG_COMP_WARNING(filter_rule, "too many connections per minute from host: ", address);
             return true;
         }
     }
@@ -68,25 +80,25 @@ bool filter_rule::satisfies(filter_host_ptr host, std::size_t connections) const
     return false;
 }
 
-filter_rule::filter_rule(
-    const std::string& name, const std::string& address,
-    const std::string& netmask, std::time_t block_duration,
-    std::size_t conn_per_minute, std::size_t max_connections) :
-    name_(name),
-    conn_per_minute_(conn_per_minute),
-    max_connections_(max_connections),
-    block_duration_(block_duration)
+bool filter_rule::satisfies(boost::asio::ip::address const& address) const
 {
-    address_ = asio::ip::address_v4::from_string(address).to_ulong();
-    netmask_ = asio::ip::address_v4::from_string(netmask).to_ulong();
+    if(address.is_v4())
+        return satisfies(address.to_v4());
+
+    if(address.is_v6())
+        return satisfies(address.to_v6());
+
+    return false;
 }
 
-const std::string& filter_rule::get_log_source_name() const
+bool filter_rule::satisfies(boost::asio::ip::address_v4 const& address) const
 {
-    return name_;
+    return (address.to_ulong() & netmask_v4_) == (address_v4_ & netmask_v4_);
 }
 
-bool filter_rule::is_address_matches(const asio::ip::address& address) const
+bool filter_rule::satisfies(boost::asio::ip::address_v6 const& address) const
 {
-    return (0 == ((address.to_v4().to_ulong() ^ address_) & netmask_));
+    return false;
 }
+
+}   // namespace chat

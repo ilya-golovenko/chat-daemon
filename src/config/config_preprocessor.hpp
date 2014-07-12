@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009 Ilya Golovenko
-//    This file is part of spdaemon.
+//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -17,30 +17,32 @@
 //    along with spdaemon. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
-#ifndef _config_preprocessor_hpp
-#define _config_preprocessor_hpp
+#ifndef _chat_config_preprocessor_hpp
+#define _chat_config_preprocessor_hpp
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
+#pragma once
 #endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 // Application headers
-#include "config_entry.hpp"
-
-// BOOST headers
-#include <boost/noncopyable.hpp>
+#include <config/config_entry.hpp>
 
 // STL headers
 #include <string>
 
 
-class config_preprocessor :
-    private boost::noncopyable
+namespace chat
+{
+
+class config_preprocessor
 {
 public:
     config_preprocessor();
 
-    const std::string process(const std::string& data);
+    config_preprocessor(config_preprocessor const&) = delete;
+    config_preprocessor& operator=(config_preprocessor const&) = delete;
+
+    std::string process(std::string const& data);
 
 private:
     void reset();
@@ -67,4 +69,6 @@ private:
     std::string data_;
 };
 
-#endif  // _config_preprocessor_hpp
+}   // namespace chat
+
+#endif  // _chat_config_preprocessor_hpp

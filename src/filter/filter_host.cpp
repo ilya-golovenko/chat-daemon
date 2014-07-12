@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009 Ilya Golovenko
-//    This file is part of spdaemon.
+//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -19,76 +19,73 @@
 //---------------------------------------------------------------------------
 
 // Application headers
-#include "filter_host.hpp"
-#include <utilities.hpp>
+#include <filter/filter_host.hpp>
 
-// BOOST headers
-#include <boost/make_shared.hpp>
+// MISSIO headers
+#include <missio/logging/common.hpp>
 
 
-filter_host_ptr filter_host::create(const asio::ip::address& address)
+namespace chat
 {
-    return boost::make_shared<filter_host>(address);
-}
 
-const asio::ip::address& filter_host::address() const
+filter_host::filter_host(boost::asio::ip::address const& address) :
+    first_conn_time_(clock::now()),
+    connections_per_minute_(0),
+    connection_count_(1u),
+    address_(address)
 {
-    return address_;
-}
-
-boost::uint64_t filter_host::last_conn_time() const
-{
-    return last_conn_time_;
 }
 
 void filter_host::add_connection()
 {
-    last_conn_time_ = util::get_milli_time();
-
-    if(0ULL == first_conn_time_)
-        first_conn_time_= last_conn_time_;
+    LOG_COMP_TRACE_FUNCTION(filter_host);
 
     ++connection_count_;
 
+    last_conn_time_ = clock::now();
+
     if(last_conn_time_ > first_conn_time_)
     {
-        boost::int64_t interval = last_conn_time_ - first_conn_time_;
-        std::size_t value = 6000000ULL * connection_count_ / interval;
-        conn_per_minute_ = (100 * value + 900 * conn_per_minute_) / 1000;
+        std::chrono::duration<double, std::chrono::minutes::period> interval(last_conn_time_ - first_conn_time_);
+        connections_per_minute_ = 0.1 * connection_count_ / interval.count() + 0.9 * connections_per_minute_;
     }
 }
 
-void filter_host::block(std::time_t duration)
+void filter_host::block(std::chrono::seconds const& duration)
 {
-    block_end_time_ = std::time(0) + duration;
+    LOG_COMP_TRACE_FUNCTION(filter_host);
+
+    block_end_time_ = clock::now() + duration;
 }
 
-std::size_t filter_host::conn_per_minute() const
+boost::asio::ip::address const& filter_host::get_address() const
 {
-    return conn_per_minute_;
+    return address_;
 }
 
-std::size_t filter_host::connection_count() const
+std::chrono::seconds filter_host::get_block_duration() const
+{
+    return std::chrono::duration_cast<std::chrono::seconds>(clock::now() - block_end_time_);
+}
+
+std::size_t filter_host::get_connections_per_minute() const
+{
+    return static_cast<std::size_t>(connections_per_minute_);
+}
+
+std::size_t filter_host::get_connection_count() const
 {
     return connection_count_;
 }
 
+bool filter_host::is_tracking_expired() const
+{
+    return clock::now() > last_conn_time_ + std::chrono::hours(6);
+}
+
 bool filter_host::is_block_expired() const
 {
-    return (get_block_duration() <= 0);
+    return clock::now() >= block_end_time_;
 }
 
-std::time_t filter_host::get_block_duration() const
-{
-    return (block_end_time_ - std::time(0));
-}
-
-filter_host::filter_host(const asio::ip::address& address) :
-    address_(address),
-    block_end_time_(0),
-    first_conn_time_(0ULL),
-    last_conn_time_(0ULL),
-    connection_count_(0),
-    conn_per_minute_(0)
-{
-}
+}   // namespace chat

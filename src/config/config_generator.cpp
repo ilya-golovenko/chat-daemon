@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009 Ilya Golovenko
-//    This file is part of spdaemon.
+//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -19,10 +19,9 @@
 //---------------------------------------------------------------------------
 
 // Application headers
-#include "config_generator.hpp"
-#include <file_utils.hpp>
-#include <string_utils.hpp>
-#include <common.hpp>
+#include <config/config_generator.hpp>
+#include <misc/file_utils.hpp>
+#include <app/constants.hpp>
 
 // BOOST headers
 #include <boost/xpressive/xpressive.hpp>
@@ -32,21 +31,25 @@
 #include <stdexcept>
 
 
-config_generator::config_generator() : nesting_depth_(0)
+namespace chat
+{
+
+config_generator::config_generator() :
+    nesting_depth_(0)
 {
 }
 
-void config_generator::generate_config(const std::string& filename)
+void config_generator::generate_config(std::string const& filename)
 {
     nesting_depth_ = 0;
+
     config_.str(strings::empty);
 
     config_data_ = util::file::read_text(filename);
 
     start_new_block("chat");
 
-    add_simple_entry("listen", find_string(
-        "wwwhost") + ":" + find_number("wwwport"));
+    add_simple_entry("listen", find_string("wwwhost") + ":" + find_number("wwwport"));
 
     start_new_block("paths");
 
@@ -60,27 +63,27 @@ void config_generator::generate_config(const std::string& filename)
     add_quoted_entry("server", find_string("serverpath"));
 
     end_current_block();    // paths
+
     start_new_block("intervals");
 
-    std::string ping_string = find_number("idle1");
+    std::string const ping_string = find_number("idle1");
 
-    std::size_t ping_value = util::to_type<std::size_t>(ping_string);
-    add_simple_entry("ping", util::to_string(ping_value / 1000));
+    add_simple_entry("ping", std::to_string(std::stoul(ping_string) / 1000));
 
     add_simple_entry("cron", find_number("cron_php_run"));
     add_simple_entry("status", find_number("cron_live"));
     add_simple_entry("statistics", "300");  // no original value
 
     end_current_block();    // intervals
+
     start_new_block("timeouts");
 
     add_simple_entry("leave", find_number("idle7"));
     add_simple_entry("connect", find_number("time_http"));
     add_simple_entry("shutdown", find_number("time_shutdown"));
 
-    end_current_block();
+    end_current_block();    // timeouts
 
-    add_simple_entry("antivirus_hack", "false");
     add_simple_entry("message_history", find_number("history"));
 
     const std::string hostname = find_string("wwwhost");
@@ -94,12 +97,14 @@ void config_generator::generate_config(const std::string& filename)
     add_simple_entry("max_size", find_number("max_chat_size"));
 
     end_current_block();    // data
+
     start_new_block("admin");
 
     add_simple_entry("view_ip", find_number("admcmd_ip"));
     add_simple_entry("ignore", find_number("admcmd_ignore"));
 
     end_current_block();    // admin
+
     start_new_block("session");
 
     add_quoted_entry("name", "PHPSESSID");
@@ -107,6 +112,7 @@ void config_generator::generate_config(const std::string& filename)
     add_simple_entry("length", "32");
 
     end_current_block();    // session
+
     start_new_block("messages");
 
     add_quoted_entry("join_room", "<font color=red><b><center>You have come into the room {@room}</center></b></font><br>");
@@ -123,6 +129,7 @@ void config_generator::generate_config(const std::string& filename)
         "by chat server.<br>Please, do not open two or more chat windows simultaneously!</h3>");
 
     end_current_block();    // messages
+
     start_new_block("scripts");
 
     add_quoted_entry("reload_irc_frame", "<script>var irc_frame_url='http://'+top.http_host+'/'+"
@@ -144,7 +151,8 @@ void config_generator::generate_config(const std::string& filename)
     add_quoted_entry("filename", "spdaemon.log");
     add_simple_entry("severity", "notice, warning, error");
 
-    end_current_block();
+    end_current_block();    // handler
+
     start_new_block("handler");
 
     add_simple_entry("backup_log", "true");
@@ -152,7 +160,8 @@ void config_generator::generate_config(const std::string& filename)
     add_quoted_entry("filename", "error.log");
     add_simple_entry("severity", "error");
 
-    end_current_block();
+    end_current_block();    // handler
+
     start_new_block("handler");
 
     add_simple_entry("backup_log", "true");
@@ -160,7 +169,8 @@ void config_generator::generate_config(const std::string& filename)
     add_quoted_entry("filename", "warning.log");
     add_simple_entry("severity", "error, warning");
 
-    end_current_block();
+    end_current_block();    // handler
+
     start_new_block("handler");
 
     add_simple_entry("backup_log", "false");
@@ -185,7 +195,8 @@ void config_generator::generate_config(const std::string& filename)
     add_simple_entry("conn_per_minute", "50");
     add_simple_entry("max_connections", "20");
 
-    end_current_block();
+    end_current_block();    // rule
+
     start_new_block("rule");
 
     add_quoted_entry("name", "intranet");
@@ -195,7 +206,8 @@ void config_generator::generate_config(const std::string& filename)
     add_simple_entry("conn_per_minute", "50");
     add_simple_entry("max_connections", "20");
 
-    end_current_block();
+    end_current_block();    // rule
+
     start_new_block("rule");
 
     add_quoted_entry("name", "intranet");
@@ -205,7 +217,8 @@ void config_generator::generate_config(const std::string& filename)
     add_simple_entry("conn_per_minute", "50");
     add_simple_entry("max_connections", "20");
 
-    end_current_block();
+    end_current_block();    // rule
+
     start_new_block("rule");
 
     add_quoted_entry("name", "default");
@@ -227,19 +240,19 @@ void config_generator::generate_config(const std::string& filename)
     end_current_block();    // frontend
 }
 
-void config_generator::save_config_file(const std::string& filename)
+void config_generator::save_config_file(std::string const& filename)
 {
     util::file::write_text(filename, config_.str());
 }
 
-void config_generator::add_simple_entry(const std::string& name, const std::string& value)
+void config_generator::add_simple_entry(std::string const& name, std::string const& value)
 {
     indent_output();
 
     config_ << name << "\t\t" << value << ";\n";
 }
 
-void config_generator::add_quoted_entry(const std::string& name, const std::string& value)
+void config_generator::add_quoted_entry(std::string const& name, std::string const& value)
 {
     indent_output();
 
@@ -249,7 +262,7 @@ void config_generator::add_quoted_entry(const std::string& name, const std::stri
     config_ << name << "\t\t\"" << escaped_value << "\";\n";
 }
 
-void config_generator::start_new_block(const std::string& name)
+void config_generator::start_new_block(std::string const& name)
 {
     config_ << '\n';
 
@@ -272,21 +285,20 @@ void config_generator::end_current_block()
 
 void config_generator::indent_output()
 {
-    std::size_t count = nesting_depth_;
-    while(count--) config_ << '\t';
+    config_ << std::string(nesting_depth_, '\t');
 }
 
-const std::string config_generator::find_string(const std::string& name) const
+std::string config_generator::find_string(std::string const& name) const
 {
     return find_value(name, "^\\s*set\\s+" + name + "\\s+\"([^\"]*)\"");
 }
 
-const std::string config_generator::find_number(const std::string& name) const
+std::string config_generator::find_number(std::string const& name) const
 {
     return find_value(name, "^\\s*set\\s+" + name + "\\s+(\\d+)");
 }
 
-const std::string config_generator::find_value(const std::string& name, const std::string& pattern) const
+std::string config_generator::find_value(std::string const& name, std::string const& pattern) const
 {
     boost::xpressive::smatch what;
     boost::xpressive::sregex_compiler compiler;
@@ -296,5 +308,7 @@ const std::string config_generator::find_value(const std::string& name, const st
     if(!boost::xpressive::regex_search(config_data_, what, regex))
         throw std::runtime_error("cannot find required config value: " + name);
 
-    return boost::trim_copy(what.str(1));
+    return boost::algorithm::trim_copy(what.str(1));
 }
+
+}   // namespace chat

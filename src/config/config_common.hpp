@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009 Ilya Golovenko
-//    This file is part of spdaemon.
+//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -17,17 +17,20 @@
 //    along with spdaemon. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
-#ifndef _config_common_hpp
-#define _config_common_hpp
+#ifndef _chat_config_common_hpp
+#define _chat_config_common_hpp
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
-# pragma once
+#pragma once
 #endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 // STL headers
 #include <vector>
 #include <string>
 
+
+namespace chat
+{
 
 struct config_data
 {
@@ -52,7 +55,6 @@ struct config_data
         long leave_timeout;
         long connect_timeout;
 
-        bool antivirus_hack;
         std::size_t message_history;
 
         std::string http_server_endpoint;
@@ -141,6 +143,6 @@ struct config_data
     } frontend;
 };
 
-extern const config_data& config;
+}   // namespace chat
 
-#endif  // _config_common_hpp
+#endif  // _chat_config_common_hpp

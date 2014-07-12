@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009 Ilya Golovenko
-//    This file is part of spdaemon.
+//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -19,21 +19,20 @@
 //---------------------------------------------------------------------------
 
 // Application headers
-#include "config_entry_set.hpp"
+#include <config/config_entry_set.hpp>
 
 
-config_entry_set::config_entry_set()
+namespace chat
 {
-}
 
-void config_entry_set::insert(const config_entry& entry)
+void config_entry_set::insert(config_entry const& entry)
 {
     entries_.push_back(entry);
 }
 
-void config_entry_set::erase(iterator where)
+void config_entry_set::erase(const_iterator pos)
 {
-    entries_.erase(where);
+    entries_.erase(pos);
 }
 
 void config_entry_set::clear()
@@ -50,3 +49,20 @@ bool config_entry_set::empty() const
 {
     return entries_.empty();
 }
+
+config_entry_set::const_iterator config_entry_set::begin() const
+{
+    return entries_.begin();
+}
+
+config_entry_set::const_iterator config_entry_set::end() const
+{
+    return entries_.end();
+}
+
+config_entry const& config_entry_set::operator[](std::size_t index) const
+{
+    return entries_[index];
+}
+
+}   // namespace chat
