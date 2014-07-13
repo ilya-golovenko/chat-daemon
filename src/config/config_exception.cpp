@@ -43,7 +43,7 @@ config_error::~config_error() throw()
 {
 }
 
-const char* config_error::what() const throw()
+char const* config_error::what() const throw()
 {
     return message_.c_str();
 }

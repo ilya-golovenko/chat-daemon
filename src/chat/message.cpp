@@ -35,8 +35,8 @@ namespace regexes
 
 using namespace boost::xpressive;
 
-const sregex user   = as_xpr("<\x07") >> -*~as_xpr('\x07') >> "\x07>";
-const sregex admin  = as_xpr("<\x07") | as_xpr("\x07>");
+sregex const user   = as_xpr("<\x07") >> -*~as_xpr('\x07') >> "\x07>";
+sregex const admin  = as_xpr("<\x07") | as_xpr("\x07>");
 
 }   // namespace regexes
 

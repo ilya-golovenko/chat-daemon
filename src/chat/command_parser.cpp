@@ -33,6 +33,7 @@
 
 // BOOST headers
 #include <boost/algorithm/string.hpp>
+#include <boost/range/size.hpp>
 
 
 namespace chat
@@ -42,25 +43,25 @@ namespace command
 
 typedef int type;
 
-const type clear_history    = 0;
-const type topic_cron       = 1;
-const type topic            = 2;
-const type op               = 3;
-const type deop             = 4;
-const type unignore         = 5;
-const type shutdown         = 6;
-const type restart          = 7;
-const type lrestart         = 8;
-const type loadskin         = 9;
-const type botreg           = 10;
-const type join             = 11;
+type const clear_history    = 0;
+type const topic_cron       = 1;
+type const topic            = 2;
+type const op               = 3;
+type const deop             = 4;
+type const unignore         = 5;
+type const shutdown         = 6;
+type const restart          = 7;
+type const lrestart         = 8;
+type const loadskin         = 9;
+type const botreg           = 10;
+type const join             = 11;
 
 }   // namespace command
 
 namespace command_codes
 {
 
-const std::string strings[] =
+static char const* strings[] =
 {
     "clear_history",
     "topic_cron",
@@ -76,11 +77,9 @@ const std::string strings[] =
     "join"
 };
 
-enum { string_count = sizeof(strings) / sizeof(*strings) };
-
 command::type to_type(std::string const& string)
 {
-    for(std::size_t i = 0; i < string_count; ++i)
+    for(std::size_t i = 0; i < boost::size(strings); ++i)
     {
         if(string == strings[i])
             return static_cast<command::type>(i);

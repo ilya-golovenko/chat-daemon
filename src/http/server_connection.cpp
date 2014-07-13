@@ -320,8 +320,9 @@ void server_connection::handle_read(boost::system::error_code const& error, std:
     if(!error || error == boost::asio::error::eof)
     {
         boost::tribool result = true;
-        const char* begin = buffer_.data();
-        const char* end = begin + bytes_transferred;
+
+        char const* begin = buffer_.data();
+        char const* end = begin + bytes_transferred;
 
         if(!reading_body_)
         {
@@ -370,7 +371,7 @@ void server_connection::handle_read(boost::system::error_code const& error, std:
 
                         if(size > 0)
                         {
-                            const char* end = begin + size;
+                            char const* end = begin + size;
                             request_.append_body(begin, end);
                         }
 

@@ -42,21 +42,21 @@ class response;
 namespace strings
 {
 
-const std::string empty;
+std::string const empty;
 
-const std::string slash                 = "/";
-const std::string space                 = " ";
-const std::string separator             = ": ";
-const std::string crlf                  = "\r\n"; 
+std::string const slash                 = "/";
+std::string const space                 = " ";
+std::string const separator             = ": ";
+std::string const crlf                  = "\r\n"; 
 
 }   // namespace strings
 
 namespace request_methods
 {
 
-const std::string get                   = "GET";
-const std::string post                  = "POST";
-const std::string head                  = "HEAD";
+std::string const get                   = "GET";
+std::string const post                  = "POST";
+std::string const head                  = "HEAD";
 
 }   // namespace request_methods
 
@@ -64,71 +64,71 @@ namespace header_names
 {
 
 // request-only headers
-const std::string host                  = "Host";
-const std::string range                 = "Range";
-const std::string accept                = "Accept";
-const std::string referer               = "Referer";
-const std::string user_agent            = "User-Agent";
-const std::string set_cookie            = "Set-Cookie";
-const std::string proxy_authorization   = "Proxy-Authorization";
+std::string const host                  = "Host";
+std::string const range                 = "Range";
+std::string const accept                = "Accept";
+std::string const referer               = "Referer";
+std::string const user_agent            = "User-Agent";
+std::string const set_cookie            = "Set-Cookie";
+std::string const proxy_authorization   = "Proxy-Authorization";
 
 // response-only headers
-const std::string server                = "Server";
-const std::string cookie                = "Cookie";
-const std::string location              = "Location";
-const std::string content_range         = "Content-Range";
-const std::string proxy_authenticate    = "Proxy-Authenticate";
+std::string const server                = "Server";
+std::string const cookie                = "Cookie";
+std::string const location              = "Location";
+std::string const content_range         = "Content-Range";
+std::string const proxy_authenticate    = "Proxy-Authenticate";
 
 // general headers
-const std::string date                  = "Date";
-const std::string pragma                = "Pragma";
-const std::string connection            = "Connection";
-const std::string content_type          = "Content-Type";
-const std::string cache_control         = "Cache-Control";
-const std::string content_length        = "Content-Length";
-const std::string proxy_connection      = "Proxy-Connection";
-const std::string transfer_encoding     = "Transfer-Encoding";
+std::string const date                  = "Date";
+std::string const pragma                = "Pragma";
+std::string const connection            = "Connection";
+std::string const content_type          = "Content-Type";
+std::string const cache_control         = "Cache-Control";
+std::string const content_length        = "Content-Length";
+std::string const proxy_connection      = "Proxy-Connection";
+std::string const transfer_encoding     = "Transfer-Encoding";
 
 }   // namespace header_names
 
 namespace cache_tokens
 {
 
-const std::string no_cache              = "no-cache";
-const std::string no_store              = "no-store";
+std::string const no_cache              = "no-cache";
+std::string const no_store              = "no-store";
 
 }   // namespace cache_tokens
 
 namespace accept_tokens
 {
 
-const std::string any                   = "*/*";
+std::string const any                   = "*/*";
 
 }   // namespace accept_tokens
 
 namespace connection_tokens
 {
 
-const std::string close                 = "close";
-const std::string keep_alive            = "keep-alive";
+std::string const close                 = "close";
+std::string const keep_alive            = "keep-alive";
 
 }   // namespace connection_tokens
 
 namespace encoding_tokens
 {
 
-const std::string chunked               = "chunked";
-const std::string indentity             = "indentity";
-const std::string compress              = "compress";
-const std::string deflate               = "deflate";
-const std::string gzip                  = "gzip";
+std::string const chunked               = "chunked";
+std::string const identity              = "identity";
+std::string const compress              = "compress";
+std::string const deflate               = "deflate";
+std::string const gzip                  = "gzip";
 
-}   // namespace transfer_tokens
+}   // namespace encoding_tokens
 
-const std::size_t max_redirect_count    = 5;
+std::size_t const max_redirect_count    = 5;
 
-const std::uint16_t protocol_port       = 80;
-const std::string protocol_name         = "http";
+std::uint16_t const protocol_port       = 80;
+std::string const protocol_name         = "http";
 
 typedef std::function<void (boost::system::error_code const&)> stop_handler;
 typedef std::function<void (boost::system::error_code const&)> timer_handler;

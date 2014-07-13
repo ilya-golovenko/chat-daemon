@@ -32,11 +32,11 @@ namespace mime_types
 
 struct entry
 {
-    const std::string extension;
+    std::string const extension;
     std::string const& mime_type;
 };
 
-const entry table[] =
+entry const table[] =
 {
     { ".html", text_html },
     { ".htm", text_html },
@@ -58,11 +58,11 @@ const entry table[] =
     { ".exe", application_octet_stream }
 };
 
-std::string const& from_extension(std::string const& extension)
+std::string const& from_extension(std::string const& str)
 {
     for(entry const& entry : table)
     {
-        if(boost::iequals(extension, entry.extension))
+        if(boost::algorithm::iequals(str, entry.extension))
             return entry.mime_type;
     }
 

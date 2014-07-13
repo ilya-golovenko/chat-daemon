@@ -33,9 +33,9 @@ namespace chat
 namespace field
 {
 
-const char simple_field     = 0;
-const char admin_field      = 1;
-const char quoted_field     = 2;
+char const simple_field = 0;
+char const admin_field  = 1;
+char const quoted_field = 2;
 
 static const char field_map[count] =
 {
@@ -70,12 +70,12 @@ bool is_quoted(type field_type)
 
 }   // namespace field
 
-session_ptr session::create(const session_id& id, std::string const& info)
+session_ptr session::create(session_id const& id, std::string const& info)
 {
     return std::make_shared<session>(id, info);
 }
 
-const session_id& session::get_id() const
+session_id const& session::get_id() const
 {
     return id_;
 }
@@ -142,7 +142,7 @@ std::string const& session::to_string() const
     return session_;
 }
 
-session::session(const session_id& id, std::string const& info) :
+session::session(session_id const& id, std::string const& info) :
     id_(id),
     changed_(true)
 {

@@ -45,7 +45,7 @@ public:
     response();
 
     explicit response(status const& status);
-    response(const version& version, status const& status);
+    response(version const& version, status const& status);
 
     virtual ~response();
 

@@ -42,45 +42,45 @@ typedef int message_type;
 namespace message_types
 {
 
-const message_type common           = 0;    // Common message
-const message_type personal         = 1;    // Private message
-const message_type server           = 2;    // Message from server
-const message_type admin            = 3;    // Message for admins
-const message_type command          = 4;    // Command message
-const message_type uignore_add      = 5;    // Personal ignore added
-const message_type uignore_remove   = 6;    // Personal ignore removed
-const message_type tignore_add      = 7;    // Total ignore added
-const message_type tignore_remove   = 8;    // Total ignore removed
-const message_type join             = 9;    // New user joins
-const message_type leave            = 10;   // User leaves
-const message_type away             = 11;   // Away message
-const message_type status           = 12;   // Status changed
-const message_type update           = 13;   // User config updated
+message_type const common           = 0;    // Common message
+message_type const personal         = 1;    // Private message
+message_type const server           = 2;    // Message from server
+message_type const admin            = 3;    // Message for admins
+message_type const command          = 4;    // Command message
+message_type const uignore_add      = 5;    // Personal ignore added
+message_type const uignore_remove   = 6;    // Personal ignore removed
+message_type const tignore_add      = 7;    // Total ignore added
+message_type const tignore_remove   = 8;    // Total ignore removed
+message_type const join             = 9;    // New user joins
+message_type const leave            = 10;   // User leaves
+message_type const away             = 11;   // Away message
+message_type const status           = 12;   // Status changed
+message_type const update           = 13;   // User config updated
 
 }   // namespace message_types
 
 namespace message_codes
 {
 
-const char common   = '*';
-const char personal = '%';
-const char server   = 's';
-const char admin    = 'a';
-const char command  = '#';
+char const common   = '*';
+char const personal = '%';
+char const server   = 's';
+char const admin    = 'a';
+char const command  = '#';
 
-const char uignore  = 'i';
-const char tignore  = 't';
+char const uignore  = 'i';
+char const tignore  = 't';
 
-const char add      = '+';
-const char remove   = '-';
+char const add      = '+';
+char const remove   = '-';
 
-const char extended = '/';
+char const extended = '/';
 
-const char join     = 'J';
-const char leave    = 'P';
-const char away     = 'A';
-const char status   = 'S';
-const char update   = 'U';
+char const join     = 'J';
+char const leave    = 'P';
+char const away     = 'A';
+char const status   = 'S';
+char const update   = 'U';
 
 message_type to_type(std::string const& string)
 {
@@ -163,13 +163,13 @@ namespace tags
 
 using namespace boost::xpressive;
 
-const mark_tag session_id(1);
-const mark_tag ignored_id(2);
-const mark_tag access(3);
-const mark_tag text(4);
-const mark_tag type(5);
-const mark_tag time(6);
-const mark_tag nobuf(7);
+mark_tag const session_id(1);
+mark_tag const ignored_id(2);
+mark_tag const access(3);
+mark_tag const text(4);
+mark_tag const type(5);
+mark_tag const time(6);
+mark_tag const nobuf(7);
 
 }   // namespace tags
 
@@ -178,18 +178,18 @@ namespace regexes
 
 using namespace boost::xpressive;
 
-const sregex common     = bos >> +~_s >> _s >> (tags::session_id= +~_s) >> _s >> (tags::text= +_) >> eos;
-const sregex personal   = bos >> +~_s >> _s >> (tags::session_id= +~_s) >> _s >> (tags::nobuf= +_d) >> _s >> (tags::text= +_) >> eos;
-const sregex server     = bos >> +~_s >> _s >> (tags::text= +_) >> eos;
-const sregex admin      = bos >> +~_s >> _s >> (tags::access= +_d)  >> (tags::text= +_) >> eos;
-const sregex command    = bos >> +~_s >> _s >> (tags::text= +_) >> eos;
-const sregex uignore    = bos >> +~_s >> _s >> (tags::session_id= +~_s) >> _s >> (tags::ignored_id= +_) >> eos;
-const sregex tignore    = bos >> +~_s >> _s >> (tags::ignored_id= +_) >> eos;
-const sregex join       = bos >> +~_s >> _s >> (tags::session_id= +~_s) >> _s >> (tags::time= +_d) >> _s >> (tags::text= *_) >> eos;
-const sregex leave      = bos >> +~_s >> _s >> (tags::session_id= +~_s) >> _s >> (tags::time= +_d) >> _s >> (tags::text= *_) >> eos;
-const sregex away       = bos >> +~_s >> _s >> (tags::session_id= +~_s) >> _s >> (tags::text= *_) >> eos;
-const sregex status     = bos >> +~_s >> _s >> (tags::session_id= +~_s) >> _s >> (tags::text= +_) >> eos;
-const sregex update     = bos >> +~_s >> _s >> (tags::session_id= +~_s) >> _s >> (tags::type= +_d) >> _s >> +_d >> _s >> (tags::text= +_) >> eos;
+sregex const common     = bos >> +~_s >> _s >> (tags::session_id= +~_s) >> _s >> (tags::text= +_) >> eos;
+sregex const personal   = bos >> +~_s >> _s >> (tags::session_id= +~_s) >> _s >> (tags::nobuf= +_d) >> _s >> (tags::text= +_) >> eos;
+sregex const server     = bos >> +~_s >> _s >> (tags::text= +_) >> eos;
+sregex const admin      = bos >> +~_s >> _s >> (tags::access= +_d)  >> (tags::text= +_) >> eos;
+sregex const command    = bos >> +~_s >> _s >> (tags::text= +_) >> eos;
+sregex const uignore    = bos >> +~_s >> _s >> (tags::session_id= +~_s) >> _s >> (tags::ignored_id= +_) >> eos;
+sregex const tignore    = bos >> +~_s >> _s >> (tags::ignored_id= +_) >> eos;
+sregex const join       = bos >> +~_s >> _s >> (tags::session_id= +~_s) >> _s >> (tags::time= +_d) >> _s >> (tags::text= *_) >> eos;
+sregex const leave      = bos >> +~_s >> _s >> (tags::session_id= +~_s) >> _s >> (tags::time= +_d) >> _s >> (tags::text= *_) >> eos;
+sregex const away       = bos >> +~_s >> _s >> (tags::session_id= +~_s) >> _s >> (tags::text= *_) >> eos;
+sregex const status     = bos >> +~_s >> _s >> (tags::session_id= +~_s) >> _s >> (tags::text= +_) >> eos;
+sregex const update     = bos >> +~_s >> _s >> (tags::session_id= +~_s) >> _s >> (tags::type= +_d) >> _s >> +_d >> _s >> (tags::text= +_) >> eos;
 
 sregex const& from_type(message_type message_type)
 {

@@ -33,23 +33,23 @@ namespace http
 namespace mime_types
 {
 
-const std::string text_html                     = "text/html";
-const std::string text_plain                    = "text/plain";
-const std::string text_xml                      = "text/xml";
-const std::string text_css                      = "text/css";
+std::string const text_html                     = "text/html";
+std::string const text_plain                    = "text/plain";
+std::string const text_xml                      = "text/xml";
+std::string const text_css                      = "text/css";
 
-const std::string image_jpeg                    = "image/jpeg";
-const std::string image_gif                     = "image/gif";
-const std::string image_tiff                    = "image/tiff";
-const std::string image_png                     = "image/png";
+std::string const image_jpeg                    = "image/jpeg";
+std::string const image_gif                     = "image/gif";
+std::string const image_tiff                    = "image/tiff";
+std::string const image_png                     = "image/png";
 
-const std::string application_rtf               = "application/rtf";
-const std::string application_pdf               = "application/pdf";
-const std::string application_javascript        = "application/javascript";
-const std::string application_octet_stream      = "application/octet-stream";
-const std::string application_form_urlencoded   = "application/x-www-form-urlencoded";
+std::string const application_rtf               = "application/rtf";
+std::string const application_pdf               = "application/pdf";
+std::string const application_javascript        = "application/javascript";
+std::string const application_octet_stream      = "application/octet-stream";
+std::string const application_form_urlencoded   = "application/x-www-form-urlencoded";
 
-std::string const& from_extension(std::string const& extension);
+std::string const& from_extension(std::string const& str);
 
 }   // namespace mime_types
 }   // namespace http

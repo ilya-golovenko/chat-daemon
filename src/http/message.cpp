@@ -26,7 +26,7 @@
 namespace http
 {
 
-message::message(const version& version) :
+message::message(version const& version) :
     version_(version)
 {
 }

@@ -43,35 +43,35 @@ namespace field
 
 typedef std::size_t type;
 
-const type nickname     = 0;
-const type access       = 1;
-const type address      = 2;
-const type hostname     = 3;
-const type sex          = 4;
-const type auth         = 5;
-const type skin         = 6;
-const type browser      = 7;
-const type status       = 8;
-const type usernum      = 9;
-const type away         = 10;
-const type say          = 11;
-const type nick_css     = 12;
-const type nick_html    = 13;
-const type time         = 14;
-const type ignores      = 15;
-const type room         = 16;
+type const nickname     = 0;
+type const access       = 1;
+type const address      = 2;
+type const hostname     = 3;
+type const sex          = 4;
+type const auth         = 5;
+type const skin         = 6;
+type const browser      = 7;
+type const status       = 8;
+type const usernum      = 9;
+type const away         = 10;
+type const say          = 11;
+type const nick_css     = 12;
+type const nick_html    = 13;
+type const time         = 14;
+type const ignores      = 15;
+type const room         = 16;
 
-const type count        = 17;
+type const count        = 17;
 
 }   // namespace field
 
 class session
 {
 public:
-    static session_ptr create(const session_id& id, std::string const& info);
+    static session_ptr create(session_id const& id, std::string const& info);
 
 public:
-    session(const session_id& id, std::string const& info);
+    session(session_id const& id, std::string const& info);
 
     session(session const&) = delete;
     session& operator=(session const&) = delete;
@@ -106,14 +106,14 @@ private:
     mutable std::string session_;
 };
 
-inline bool operator==(const session& lhs, const session& rhs)
+inline bool operator==(session const& lhs, session const& rhs)
 {
     return lhs.get_id() == rhs.get_id() &&
            lhs.get_access() == rhs.get_access() &&
            lhs.get_nickname() == rhs.get_nickname();
 }
 
-inline bool operator!=(const session& lhs, const session& rhs)
+inline bool operator!=(session const& lhs, session const& rhs)
 {
     return !operator==(lhs, rhs);
 }

@@ -32,7 +32,7 @@ request::request() :
 {
 }
 
-request::request(const version& version) :
+request::request(version const& version) :
     message(version),
     method_(request_methods::get),
     url_(strings::slash)

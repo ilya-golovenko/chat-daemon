@@ -44,22 +44,22 @@
 namespace chat
 {
 
-const std::string default_skin = "def";
-const std::string default_room = "main";
+std::string const default_skin = "def";
+std::string const default_room = "main";
 
-const std::string room_name_placeholder   = "{@room}";
-const std::string domain_name_placeholder = "{@domain}";
+std::string const room_name_placeholder   = "{@room}";
+std::string const domain_name_placeholder = "{@domain}";
 
 namespace update
 {
 
 typedef int type;
 
-const type connection   = 1;
-const type status       = 2;
-const type away         = 4;
-const type access       = 8;
-const type auth         = 16;
+type const connection   = 1;
+type const status       = 2;
+type const away         = 4;
+type const access       = 8;
+type const auth         = 16;
 
 }   // namespace update
 
@@ -68,9 +68,9 @@ namespace status
 
 typedef int type;
 
-const type joining  = 0;
-const type joined   = 1;
-const type lost     = 2;
+type const joining  = 0;
+type const joined   = 1;
+type const lost     = 2;
 
 }   // namespace status
 
@@ -79,49 +79,49 @@ namespace sex
 
 typedef int type;
 
-const type user     = 0;
-const type male     = 1;
-const type female   = 2;
+type const user     = 0;
+type const male     = 1;
+type const female   = 2;
 
 }   // namespace sex
 
 namespace formatters
 {
 
-const missio::format::string user_join("<script>_j({0},\"{1}\",{2})</script>");
-const missio::format::string user_leave("<script>_p({0},\"{1}\",\"{2}\",{3},\"{4}\")</script>");
-const missio::format::string user_update("<script>_u({0},[[\"{1}\",{2},{3}]])</script>");
+missio::format::string const user_join("<script>_j({0},\"{1}\",{2})</script>");
+missio::format::string const user_leave("<script>_p({0},\"{1}\",\"{2}\",{3},\"{4}\")</script>");
+missio::format::string const user_update("<script>_u({0},[[\"{1}\",{2},{3}]])</script>");
 
 }   // namespace formatters
 
 namespace scripts
 {
 
-const std::string userlist_begin    = "<script>top.userlist_init([";
-const std::string userlist_end      = "])</script>";
+std::string const userlist_begin    = "<script>top.userlist_init([";
+std::string const userlist_end      = "])</script>";
 
-const http::buffer start_events("<script>top.startevent=1</script>");
-const http::buffer ping_update("<script>s()</script>");
+http::buffer const start_events("<script>top.startevent=1</script>");
+http::buffer const ping_update("<script>s()</script>");
 
 }   // namespace scripts
 
 namespace files
 {
 
-const std::string pid           = "dimachat.pid";
+std::string const pid           = "dimachat.pid";
 
-const std::string chat          = "chat.txt";
-const std::string rooms         = "rooms.txt";
-const std::string crond         = "crond.php";
-const std::string topic         = "topic.html";
-const std::string z_channel     = "z-channel.html";
+std::string const chat          = "chat.txt";
+std::string const rooms         = "rooms.txt";
+std::string const crond         = "crond.php";
+std::string const topic         = "topic.html";
+std::string const z_channel     = "z-channel.html";
 
-const std::string join_user     = "msg_join_user.txt";
-const std::string join_male     = "msg_join_male.txt";
-const std::string join_female   = "msg_join_female.txt";
-const std::string leave_user    = "msg_part_user.txt";
-const std::string leave_male    = "msg_part_male.txt";
-const std::string leave_female  = "msg_part_female.txt";
+std::string const join_user     = "msg_join_user.txt";
+std::string const join_male     = "msg_join_male.txt";
+std::string const join_female   = "msg_join_female.txt";
+std::string const leave_user    = "msg_part_user.txt";
+std::string const leave_male    = "msg_part_male.txt";
+std::string const leave_female  = "msg_part_female.txt";
 
 }   // namespace files
 

@@ -86,8 +86,8 @@ void config_generator::generate_config(std::string const& filename)
 
     add_simple_entry("message_history", find_number("history"));
 
-    const std::string hostname = find_string("wwwhost");
-    const std::string port = find_number("http_port");
+    std::string const hostname = find_string("wwwhost");
+    std::string const port = find_number("http_port");
 
     add_simple_entry("http_server", hostname + ":" + port);
 

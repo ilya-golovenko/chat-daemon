@@ -47,7 +47,7 @@ std::string char_to_oem(std::string const& text)
     return std::string(buffer.begin(), buffer.end());
 }
 
-std::string error_to_string(const char* function, DWORD error_code)
+std::string error_to_string(char const* function, DWORD error_code)
 { 
     std::string str;
 
