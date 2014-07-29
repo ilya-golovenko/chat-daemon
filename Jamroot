@@ -92,7 +92,7 @@ exe spdaemon
         <target-os>windows:<library>dbghelp
     ;
 
-install install-chat-daemon
+install install-spdaemon
     :
         ## sources ##
         spdaemon
