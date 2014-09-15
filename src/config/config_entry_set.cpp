@@ -30,7 +30,7 @@ void config_entry_set::insert(config_entry const& entry)
     entries_.push_back(entry);
 }
 
-void config_entry_set::erase(const_iterator pos)
+void config_entry_set::erase(iterator pos)
 {
     entries_.erase(pos);
 }

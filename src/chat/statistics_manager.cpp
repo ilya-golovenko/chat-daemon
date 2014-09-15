@@ -74,8 +74,8 @@ void statistics_manager::configure(server_config const& config)
 
     LOG_COMP_NOTICE(statistics_manager, "configuring");
 
-    simple_statistics_.assign(std::size_t(0u));
-    detail_statistics_.assign(simple_statistics_);
+    simple_statistics_.fill(std::size_t(0u));
+    detail_statistics_.fill(simple_statistics_);
 
     update_run_status();
     update_all_statistics();
@@ -331,9 +331,9 @@ std::string statistics_manager::get_operating_system_info()
 {
     std::ostringstream buffer;
 
-    std::size_t const seconds_per_minute = 60u;
-    std::size_t const seconds_per_hour = 3600u;
-    std::size_t const seconds_per_day = 86400u;
+    std::time_t const seconds_per_minute = 60;
+    std::time_t const seconds_per_hour = 3600;
+    std::time_t const seconds_per_day = 86400;
 
     std::time_t const uptime = operating_system_info::get_uptime();
 

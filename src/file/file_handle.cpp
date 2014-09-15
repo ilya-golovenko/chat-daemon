@@ -24,6 +24,9 @@
 #include <app/constants.hpp>
 #include <app/platform.hpp>
 
+// STL headers
+#include <stdexcept>
+
 #if defined(CHAT_PLATFORM_WINDOWS)
 // Windows headers
 #include <fcntl.h>

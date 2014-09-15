@@ -39,13 +39,23 @@ class config_entry_set
 {
 public:
     typedef std::vector<config_entry> entry_vector;
+    typedef entry_vector::reference reference;
+    typedef entry_vector::const_reference const_reference;
+    typedef entry_vector::iterator iterator;
     typedef entry_vector::const_iterator const_iterator;
 
 public:
     config_entry_set() = default;
+    ~config_entry_set() = default;
+
+    config_entry_set(config_entry_set const&) = default;
+    config_entry_set& operator=(config_entry_set const&) = default;
+
+    config_entry_set(config_entry_set&&) = default;
+    config_entry_set& operator=(config_entry_set&&) = default;
 
     void insert(config_entry const& entry);
-    void erase(const_iterator pos);
+    void erase(iterator pos);
     void clear();
 
     std::size_t size() const;

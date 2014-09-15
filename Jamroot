@@ -40,7 +40,6 @@ project /chat/daemon
         <target-os>windows:<define>NOMINMAX
         <target-os>windows:<define>WIN32_LEAN_AND_MEAN
         <target-os>windows:<define>_WIN32_WINNT=0x0601
-        <toolset>msvc:<runtime-link>static
         <toolset>msvc:<define>_SCL_SECURE_NO_WARNINGS
         <toolset>msvc:<define>_SCL_SECURE_NO_DEPRECATE
         <toolset>msvc:<define>_CRT_SECURE_NO_WARNINGS
@@ -51,7 +50,6 @@ project /chat/daemon
         <toolset>msvc:<cxxflags>/wd4512
         <toolset>msvc:<exception-handling>on
         <toolset>msvc:<asynch-exceptions>on
-        <toolset>gcc:<runtime-link>shared
         <toolset>gcc:<cxxflags>-std=gnu++1y
         <toolset>gcc:<cxxflags>-Wno-long-long
         <toolset>gcc:<cxxflags>-Wno-attributes
@@ -62,7 +60,11 @@ project /chat/daemon
         <toolset>gcc,<target-os>linux:<cxxflags>-rdynamic
         <toolset>gcc,<target-os>linux:<cxxflags>-export-dynamic
     :
-        default-build release debug
+        default-build
+        release debug
+        <threading>multi
+        <runtime-link>static
+        <link>static
     :
         source-location $(SRC)
     :
@@ -73,6 +75,7 @@ project /chat/daemon
 lib psapi ;
 lib user32 ;
 lib ws2_32 ;
+lib mswsock ;
 lib shlwapi ;
 lib dbghelp ;
 
@@ -80,6 +83,8 @@ exe spdaemon
     :
         ## sources ##
         [ glob-tree *.cpp *.c : .svn ]
+        /missio/format//missio_format
+        /missio/unicode//missio_unicode
         /missio/logging//missio_logging
         /boost/system//boost_system
         /boost/thread//boost_thread
@@ -91,6 +96,7 @@ exe spdaemon
         <target-os>windows:<library>psapi
         <target-os>windows:<library>user32
         <target-os>windows:<library>ws2_32
+        <target-os>windows:<library>mswsock
         <target-os>windows:<library>shlwapi
         <target-os>windows:<library>dbghelp
     ;
