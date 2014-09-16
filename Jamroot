@@ -2,8 +2,6 @@
 import modules ;
 
 path-constant TOP : . ;
-path-constant SRC : src ;
-path-constant OBJ : obj ;
 path-constant BIN : bin ;
 path-constant DEPENDS : depends ;
 
@@ -66,9 +64,9 @@ project /chat/daemon
         <runtime-link>static
         <link>static
     :
-        source-location $(SRC)
+        source-location src
     :
-        build-dir $(OBJ)
+        build-dir obj
     ;
 
 # Windows libraries
@@ -107,7 +105,7 @@ install install-spdaemon
         spdaemon
     :
         ## build requirements ##
-        <variant>release:<location>$(LIB)/release
-        <variant>profile:<location>$(LIB)/profile
-        <variant>debug:<location>$(LIB)/debug
+        <variant>release:<location>$(BIN)/release
+        <variant>profile:<location>$(BIN)/profile
+        <variant>debug:<location>$(BIN)/debug
     ;
