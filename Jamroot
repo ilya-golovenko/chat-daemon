@@ -3,9 +3,9 @@ import modules ;
 
 path-constant TOP : . ;
 path-constant BIN : bin ;
-path-constant DEPENDS : depends ;
+path-constant DEPS : deps ;
 
-path-constant MISSIO_ROOT : $(DEPENDS)/missio ;
+path-constant MISSIO_ROOT : $(DEPS)/missio ;
 
 BOOST_ROOT = [ modules.peek : BOOST_ROOT ] ;
 
