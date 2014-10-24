@@ -2,6 +2,8 @@
 import modules ;
 
 path-constant TOP : . ;
+path-constant SRC : src ;
+path-constant OBJ : obj ;
 path-constant BIN : bin ;
 path-constant DEPS : deps ;
 
@@ -64,9 +66,9 @@ project /chat/daemon
         <runtime-link>static
         <link>static
     :
-        source-location src
+        source-location $(SRC)
     :
-        build-dir obj
+        build-dir $(OBJ)
     ;
 
 # Windows libraries
