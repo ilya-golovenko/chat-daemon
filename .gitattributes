@@ -1,0 +1,16 @@
+# Force line ending normalization
+* text=auto
+
+*.cpp text
+*.hpp text
+*.inl text
+
+*.conf text
+
+Jamroot text
+Jamfile.v2 text
+
+*.sh text eol=lf
+*.bat text eol=crlf
+
+*.docx binary
