@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
@@ -315,7 +315,7 @@ void application::delete_pid_file()
     boost::filesystem::remove(pid_filename_);
 }
 
-void application::handle_signal(boost::system::error_code const& error, int signal)
+void application::handle_signal(asio::error_code const& error, int signal)
 {
     if(!error)
     {

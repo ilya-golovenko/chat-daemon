@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
@@ -231,7 +231,7 @@ std::string statistics_manager::get_simple_statistics() const
     buffer << connection_count << std::endl;
     buffer << ignore_count << std::endl;
     buffer << get_operating_system_info() << std::endl;
-    buffer << boost::asio::ip::host_name() << std::endl;
+    buffer << asio::ip::host_name() << std::endl;
     buffer << operating_system_info::get_name() << std::endl;
     buffer << build_version_text() << std::endl;
     buffer << strings::not_applicable << std::endl;
@@ -305,7 +305,7 @@ std::size_t statistics_manager::get_error_connections(std::size_t point) const
     return connections_count;
 }
 
-void statistics_manager::handle_status_timer(boost::system::error_code const& error)
+void statistics_manager::handle_status_timer(asio::error_code const& error)
 {
     LOG_COMP_TRACE_FUNCTION(statistics_manager);
 
@@ -316,7 +316,7 @@ void statistics_manager::handle_status_timer(boost::system::error_code const& er
     }
 }
 
-void statistics_manager::handle_statistics_timer(boost::system::error_code const& error)
+void statistics_manager::handle_statistics_timer(asio::error_code const& error)
 {
     LOG_COMP_TRACE_FUNCTION(statistics_manager);
 

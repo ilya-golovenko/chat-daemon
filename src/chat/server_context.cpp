@@ -28,7 +28,7 @@
 namespace chat
 {
 
-server_context::server_context(boost::asio::io_service& io_service) :
+server_context::server_context(asio::io_service& io_service) :
     io_service_(io_service),
     skin_manager_(*this),
     user_manager_(*this),
@@ -111,7 +111,7 @@ void server_context::stop()
     LOG_COMP_NOTICE(server_context, "stopped");
 }
 
-boost::asio::io_service& server_context::get_io_service()
+asio::io_service& server_context::get_io_service()
 {
     return io_service_;
 }

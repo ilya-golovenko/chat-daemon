@@ -9,6 +9,9 @@ path-constant DEPS : deps ;
 
 path-constant MISSIO_ROOT : $(DEPS)/missio ;
 
+path-constant ASIO_ROOT : $(DEPS)/asio/asio ;
+path-constant ASIO_INCLUDE : $(ASIO_ROOT)/include ;
+
 BOOST_ROOT = [ modules.peek : BOOST_ROOT ] ;
 
 if ! $(BOOST_ROOT)
@@ -26,10 +29,13 @@ use-project /missio : $(MISSIO_ROOT) ;
 project /chat/daemon
     :
         requirements
-        <warnings>all
+        <warnings>on
+        <warnings-as-errors>on
         <include>$(SRC)
+        <include>$(ASIO_INCLUDE)
         <include>$(MISSIO_ROOT)
         <include>$(BOOST_ROOT)
+        <define>ASIO_STANDALONE
         <define>BOOST_ALL_NO_LIB
         <define>BOOST_SYSTEM_NO_DEPRECATED
         <define>BOOST_FILESYSTEM_VERSION=3
@@ -45,18 +51,18 @@ project /chat/daemon
         <toolset>msvc:<define>_CRT_SECURE_NO_WARNINGS
         <toolset>msvc:<define>_CRT_SECURE_NO_DEPRECATE
         <toolset>msvc:<define>_CRT_NONSTDC_NO_DEPRECATE
-        <toolset>msvc:<warnings>on
         <toolset>msvc:<cxxflags>/wd4100
         <toolset>msvc:<cxxflags>/wd4512
         <toolset>msvc:<exception-handling>on
         <toolset>msvc:<asynch-exceptions>on
         <toolset>gcc:<cxxflags>-std=gnu++1y
-        <toolset>gcc:<cxxflags>-Wno-long-long
-        <toolset>gcc:<cxxflags>-Wno-attributes
-        <toolset>gcc:<cxxflags>-Wno-strict-aliasing
-        <toolset>gcc:<cxxflags>-Wno-unused-parameter
+        <toolset>gcc:<cxxflags>-Wempty-body
+        <toolset>gcc:<cxxflags>-Wsign-compare
+        <toolset>gcc:<cxxflags>-Wtype-limits
         <toolset>gcc:<cxxflags>-Wno-unused-variable
+        <toolset>gcc:<cxxflags>-Wno-unused-parameter
         <toolset>gcc:<cxxflags>-Wno-unused-local-typedefs
+        <toolset>gcc:<cxxflags>-fdiagnostics-show-option
         <toolset>gcc,<target-os>linux:<cxxflags>-rdynamic
         <toolset>gcc,<target-os>linux:<cxxflags>-export-dynamic
     :

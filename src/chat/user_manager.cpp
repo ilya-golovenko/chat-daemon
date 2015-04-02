@@ -262,7 +262,7 @@ std::size_t user_manager::get_connection_count() const
     return connection_count;
 }
 
-std::size_t user_manager::get_connection_count(boost::asio::ip::address const& address) const
+std::size_t user_manager::get_connection_count(asio::ip::address const& address) const
 {
     std::size_t connection_count = 0;
 

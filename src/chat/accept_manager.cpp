@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
@@ -90,24 +90,24 @@ void accept_manager::resolve_endpoint(std::string const& hostname, std::uint16_t
 {
     LOG_COMP_TRACE_FUNCTION(accept_manager);
 
-    boost::system::error_code error;
-    boost::asio::ip::address address;
+    asio::error_code error;
+    asio::ip::address address;
 
-    address = boost::asio::ip::address::from_string(hostname, error);
+    address = asio::ip::address::from_string(hostname, error);
 
     if(!error)
     {
-        add_endpoint(boost::asio::ip::tcp::endpoint(address, port));
+        add_endpoint(asio::ip::tcp::endpoint(address, port));
     }
     else
     {
         LOG_COMP_NOTICE(accept_manager, "resolving host name: ", hostname);
 
-        boost::asio::ip::tcp::resolver resolver(context_.get_io_service());
-        boost::asio::ip::tcp::resolver::query query(hostname, std::to_string(port));
+        asio::ip::tcp::resolver resolver(context_.get_io_service());
+        asio::ip::tcp::resolver::query query(hostname, std::to_string(port));
 
-        boost::asio::ip::tcp::resolver::iterator it;
-        boost::asio::ip::tcp::resolver::iterator end;
+        asio::ip::tcp::resolver::iterator it;
+        asio::ip::tcp::resolver::iterator end;
 
         it = resolver.resolve(query, error);
 
@@ -123,7 +123,7 @@ void accept_manager::resolve_endpoint(std::string const& hostname, std::uint16_t
     }
 }
 
-void accept_manager::add_endpoint(boost::asio::ip::tcp::endpoint const& endpoint)
+void accept_manager::add_endpoint(asio::ip::tcp::endpoint const& endpoint)
 {
     LOG_COMP_TRACE_FUNCTION(accept_manager);
 
@@ -137,7 +137,7 @@ void accept_manager::add_endpoint(boost::asio::ip::tcp::endpoint const& endpoint
     }
 }
 
-void accept_manager::create_acceptor(boost::asio::ip::tcp::endpoint const& endpoint)
+void accept_manager::create_acceptor(asio::ip::tcp::endpoint const& endpoint)
 {
     LOG_COMP_TRACE_FUNCTION(accept_manager);
 
@@ -148,7 +148,7 @@ void accept_manager::create_acceptor(boost::asio::ip::tcp::endpoint const& endpo
     accept_connection(acceptors_.back());
 }
 
-void accept_manager::accept_connection(boost::asio::ip::tcp::acceptor& acceptor)
+void accept_manager::accept_connection(asio::ip::tcp::acceptor& acceptor)
 {
     LOG_COMP_TRACE_FUNCTION(accept_manager);
 
@@ -164,7 +164,7 @@ void accept_manager::pass_connection_to_connection_manager(http::server_connecti
     context_.get_connection_manager().process_connection(connection);
 }
 
-void accept_manager::handle_accept(boost::asio::ip::tcp::acceptor& acceptor, http::tcp_connection::pointer connection, boost::system::error_code const& error)
+void accept_manager::handle_accept(asio::ip::tcp::acceptor& acceptor, http::tcp_connection::pointer connection, asio::error_code const& error)
 {
     LOG_COMP_TRACE_FUNCTION(accept_manager);
 

@@ -38,8 +38,8 @@
 #include <chat/data_file_reader.hpp>
 #include <chat/server_config.hpp>
 
-// BOOST headers
-#include <boost/asio.hpp>
+// ASIO headers
+#include <asio.hpp>
 
 // STL headers
 #include <random>
@@ -51,7 +51,7 @@ namespace chat
 class server_context
 {
 public:
-    explicit server_context(boost::asio::io_service& io_service);
+    explicit server_context(asio::io_service& io_service);
 
     server_context(server_context const&) = delete;
     server_context& operator=(server_context const&) = delete;
@@ -61,7 +61,7 @@ public:
     void start();
     void stop();
 
-    boost::asio::io_service& get_io_service();
+    asio::io_service& get_io_service();
 
     template <typename Handler>
     void dispatch(Handler const& handler);
@@ -82,7 +82,7 @@ public:
     data_file_reader& get_data_file_reader();
 
 private:
-    boost::asio::io_service& io_service_;
+    asio::io_service& io_service_;
 
     std::random_device random_device_;
     std::minstd_rand random_engine_;

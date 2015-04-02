@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
@@ -24,9 +24,9 @@
 #pragma once
 #endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-// BOOST headers
-#include <boost/asio/steady_timer.hpp>
-#include <boost/asio.hpp>
+// ASIO headers
+#include <asio/steady_timer.hpp>
+#include <asio.hpp>
 
 // STL headers
 #include <cstddef>
@@ -100,8 +100,8 @@ private:
     std::string get_simple_statistics() const;
     std::string get_detail_statistics() const;
 
-    void handle_status_timer(boost::system::error_code const& error);
-    void handle_statistics_timer(boost::system::error_code const& error);
+    void handle_status_timer(asio::error_code const& error);
+    void handle_statistics_timer(asio::error_code const& error);
 
     static std::string get_operating_system_info();
 
@@ -120,8 +120,8 @@ private:
     simple_statistics_array simple_statistics_;
     detail_statistics_array detail_statistics_;
 
-    boost::asio::steady_timer status_timer_;
-    boost::asio::steady_timer statistics_timer_;
+    asio::steady_timer status_timer_;
+    asio::steady_timer statistics_timer_;
 };
 
 }   // namespace chat

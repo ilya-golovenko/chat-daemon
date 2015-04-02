@@ -32,7 +32,9 @@
 // BOOST headers
 #include <boost/lexical_cast.hpp>
 #include <boost/optional.hpp>
-#include <boost/asio.hpp>
+
+// ASIO headers
+#include <asio.hpp>
 
 // STL headers
 #include <string>
@@ -45,7 +47,7 @@ namespace http
 class message
 {
 public:
-    typedef std::vector<boost::asio::const_buffer> buffers;
+    typedef std::vector<asio::const_buffer> buffers;
 
 public:
     message() = default;

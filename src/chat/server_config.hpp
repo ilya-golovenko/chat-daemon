@@ -26,7 +26,9 @@
 
 // BOOST headers
 #include <boost/filesystem/path.hpp>
-#include <boost/asio.hpp>
+
+// ASIO headers
+#include <asio.hpp>
 
 // STL headers
 #include <cstdint>
@@ -126,8 +128,8 @@ struct server_config
         {
             std::string name;
 
-            boost::asio::ip::address address;
-            boost::asio::ip::address netmask;
+            asio::ip::address address;
+            asio::ip::address netmask;
 
             std::chrono::seconds block_duration;
 
@@ -144,7 +146,7 @@ struct server_config
 
         std::string http_header;
 
-        std::vector<boost::asio::ip::address> addresses;
+        std::vector<asio::ip::address> addresses;
     } frontend;
 };
 

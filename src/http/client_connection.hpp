@@ -33,9 +33,9 @@
 #include <http/buffer.hpp>
 #include <http/common.hpp>
 
-// BOOST headers
-#include <boost/asio/steady_timer.hpp>
-#include <boost/asio.hpp>
+// ASIO headers
+#include <asio/steady_timer.hpp>
+#include <asio.hpp>
 
 // STL headers
 #include <cstdint>
@@ -53,10 +53,10 @@ public:
     typedef std::shared_ptr<client_connection> pointer;
 
 public:
-    static pointer create(boost::asio::io_service& io_service, std::string const& hostname, std::uint16_t port);
+    static pointer create(asio::io_service& io_service, std::string const& hostname, std::uint16_t port);
 
 public:
-    client_connection(boost::asio::io_service& io_service, std::string const& hostname, std::uint16_t port);
+    client_connection(asio::io_service& io_service, std::string const& hostname, std::uint16_t port);
     ~client_connection();
 
     client_connection(client_connection const&) = delete;
@@ -80,10 +80,10 @@ private:
 
     bool redirect_to_response_location();
 
-    bool is_reading_completed(boost::system::error_code const& error) const;
-    bool is_keep_alive_connection_aborted(boost::system::error_code const& error) const;
+    bool is_reading_completed(asio::error_code const& error) const;
+    bool is_keep_alive_connection_aborted(asio::error_code const& error) const;
 
-    void setup_connection(boost::system::error_code const& error);
+    void setup_connection(asio::error_code const& error);
 
     void stop_worker_timer();
     void start_keep_alive_timer();
@@ -94,14 +94,14 @@ private:
     timer_handler bind_to_keep_alive_timer_handler();
     timer_handler bind_to_read_timeout_timer_handler();
 
-    void call_completion_handler(boost::system::error_code const& error);
+    void call_completion_handler(asio::error_code const& error);
 
-    void handle_resolve(boost::system::error_code const& error, boost::asio::ip::tcp::resolver::iterator endpoint_iterator);
-    void handle_connect(boost::system::error_code const& error, boost::asio::ip::tcp::resolver::iterator endpoint_iterator);
-    void handle_read(boost::system::error_code const& error, std::size_t bytes_transferred);
-    void handle_write(boost::system::error_code const& error, std::size_t bytes_transferred);
-    void handle_keep_alive_timer(boost::system::error_code const& error);
-    void handle_read_timeout_timer(boost::system::error_code const& error);
+    void handle_resolve(asio::error_code const& error, asio::ip::tcp::resolver::iterator endpoint_iterator);
+    void handle_connect(asio::error_code const& error, asio::ip::tcp::resolver::iterator endpoint_iterator);
+    void handle_read(asio::error_code const& error, std::size_t bytes_transferred);
+    void handle_write(asio::error_code const& error, std::size_t bytes_transferred);
+    void handle_keep_alive_timer(asio::error_code const& error);
+    void handle_read_timeout_timer(asio::error_code const& error);
 
 private:
     std::string hostname_;
@@ -124,8 +124,8 @@ private:
     request request_;
     response response_;
 
-    boost::asio::ip::tcp::resolver resolver_;
-    boost::asio::steady_timer worker_timer_;
+    asio::ip::tcp::resolver resolver_;
+    asio::steady_timer worker_timer_;
 
     tcp_connection::pointer connection_;
 

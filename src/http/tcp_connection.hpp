@@ -24,8 +24,8 @@
 #pragma once
 #endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-// BOOST headers
-#include <boost/asio.hpp>
+// ASIO headers
+#include <asio.hpp>
 
 // STL headers
 #include <memory>
@@ -40,19 +40,19 @@ public:
     typedef std::shared_ptr<tcp_connection> pointer;
 
 public:
-    static pointer create(boost::asio::io_service& io_service);
+    static pointer create(asio::io_service& io_service);
 
 public:
-    explicit tcp_connection(boost::asio::io_service& io_service);
+    explicit tcp_connection(asio::io_service& io_service);
 
     tcp_connection(tcp_connection const&) = delete;
     tcp_connection& operator=(tcp_connection const&) = delete;
 
-    boost::asio::ip::tcp::socket& get_socket();
-    boost::asio::io_service& get_io_service();
+    asio::ip::tcp::socket& get_socket();
+    asio::io_service& get_io_service();
 
-    boost::asio::ip::tcp::endpoint get_remote_endpoint() const;
-    boost::asio::ip::address get_remote_address() const;
+    asio::ip::tcp::endpoint get_remote_endpoint() const;
+    asio::ip::address get_remote_address() const;
     std::uint16_t get_remote_port() const;
 
     template <typename SettableSocketOption>
@@ -62,7 +62,7 @@ public:
     void get_option(GettableSocketOption& option) const;
 
     template <typename ConnectHandler>
-    void connect(boost::asio::ip::tcp::endpoint const& endpoint, ConnectHandler const& handler);
+    void connect(asio::ip::tcp::endpoint const& endpoint, ConnectHandler const& handler);
 
     template <typename MutableBufferSequence, typename ReadHandler>
     void read(MutableBufferSequence const& buffers, ReadHandler const& handler);
@@ -74,7 +74,7 @@ public:
     void close();
 
 private:
-    boost::asio::ip::tcp::socket socket_;
+    asio::ip::tcp::socket socket_;
 };
 
 template <typename SettableSocketOption>
@@ -90,7 +90,7 @@ void tcp_connection::get_option(GettableSocketOption& option) const
 }
 
 template <typename ConnectHandler>
-void tcp_connection::connect(boost::asio::ip::tcp::endpoint const& endpoint, ConnectHandler const& handler)
+void tcp_connection::connect(asio::ip::tcp::endpoint const& endpoint, ConnectHandler const& handler)
 {
     socket_.async_connect(endpoint, handler);
 }

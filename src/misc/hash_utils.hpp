@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
@@ -24,8 +24,8 @@
 #pragma once
 #endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-// BOOST headers
-#include <boost/asio.hpp>
+// ASIO headers
+#include <asio.hpp>
 
 // STL headers
 #include <functional>
@@ -36,9 +36,9 @@ namespace std
 {
 
 template <>
-struct hash<boost::asio::ip::address> : std::unary_function<boost::asio::ip::address, std::size_t>
+struct hash<asio::ip::address> : std::unary_function<asio::ip::address, std::size_t>
 {
-    std::size_t operator()(boost::asio::ip::address const& address) const
+    std::size_t operator()(asio::ip::address const& address) const
     {
         return std::hash<std::string>()(address.to_string());
     }

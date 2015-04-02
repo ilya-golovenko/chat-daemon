@@ -30,8 +30,8 @@
 #include <chat/cron_connection.hpp>
 #include <chat/common.hpp>
 
-// BOOST headers
-#include <boost/asio.hpp>
+// ASIO headers
+#include <asio.hpp>
 
 // STL headers
 #include <thread>
@@ -53,7 +53,7 @@ public:
     void start();
     void stop();
 
-    boost::asio::io_service& get_io_service();
+    asio::io_service& get_io_service();
 
 private:
     void run();
@@ -64,7 +64,7 @@ private:
 private:
     std::thread worker_thread_;
 
-    boost::asio::io_service io_service_;
+    asio::io_service io_service_;
 
     server_context context_;
 

@@ -67,7 +67,7 @@ session_id const& connection::get_session_id() const
     return session_id_;
 }
 
-boost::asio::ip::address connection::get_remote_address() const
+asio::ip::address connection::get_remote_address() const
 {
     return connection_->get_remote_address();
 }

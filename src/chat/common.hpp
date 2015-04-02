@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
@@ -32,8 +32,8 @@
 // MISSIO headers
 #include <missio/format/string.hpp>
 
-// BOOST headers
-#include <boost/system/error_code.hpp>
+// ASIO headers
+#include <asio.hpp>
 
 // STL headers
 #include <unordered_map>
@@ -125,7 +125,7 @@ std::string const leave_female  = "msg_part_female.txt";
 
 }   // namespace files
 
-typedef std::function<void (boost::system::error_code const&)> completion_handler;
+typedef std::function<void (asio::error_code const&)> completion_handler;
 
 typedef std::unordered_map<session_id, user_ptr> user_map;
 typedef std::unordered_map<std::string, room_ptr> room_map;

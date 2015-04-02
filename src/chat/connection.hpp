@@ -32,8 +32,8 @@
 #include <http/server_connection.hpp>
 #include <http/buffer.hpp>
 
-// BOOST headers
-#include <boost/asio.hpp>
+// ASIO headers
+#include <asio.hpp>
 
 // STL headers
 #include <memory>
@@ -58,7 +58,7 @@ public:
 
     session_id const& get_session_id() const;
 
-    boost::asio::ip::address get_remote_address() const;
+    asio::ip::address get_remote_address() const;
 
     void start();
     void stop();

@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
@@ -105,7 +105,7 @@ void filter_manager::stop()
     LOG_COMP_NOTICE(filter_manager, "stopped");
 }
 
-bool filter_manager::check_blocked(boost::asio::ip::address const& address)
+bool filter_manager::check_blocked(asio::ip::address const& address)
 {
     LOG_COMP_TRACE_FUNCTION(filter_manager);
 
@@ -140,7 +140,7 @@ bool filter_manager::check_blocked(boost::asio::ip::address const& address)
     return false;
 }
 
-void filter_manager::remove_block(boost::asio::ip::address const& address)
+void filter_manager::remove_block(asio::ip::address const& address)
 {
     LOG_COMP_TRACE_FUNCTION(filter_manager);
 
@@ -166,7 +166,7 @@ void filter_manager::start_update_timer()
     timer_.async_wait(/*TODO: bind_to_timer_handler()*/ std::bind(&filter_manager::handle_timer, this, std::placeholders::_1));
 }
 
-void filter_manager::handle_timer(boost::system::error_code const& error)
+void filter_manager::handle_timer(asio::error_code const& error)
 {
     if(!error)
     {
@@ -184,7 +184,7 @@ void filter_manager::update_tracked_hosts(bool full)
     {
         if(hosts_.front().is_tracking_expired())
         {
-            boost::asio::ip::address const& address = hosts_.front().get_address();
+            asio::ip::address const& address = hosts_.front().get_address();
 
             LOG_COMP_DEBUG(filter_manager, "removing tracked host: ", address);
 
@@ -249,7 +249,7 @@ void filter_manager::add_host_connection(host_map::iterator host)
     host->second->add_connection();
 }
 
-void filter_manager::add_tracked_host(boost::asio::ip::address const& address)
+void filter_manager::add_tracked_host(asio::ip::address const& address)
 {
     LOG_COMP_TRACE_FUNCTION(filter_manager);
 
@@ -283,7 +283,7 @@ filter_manager::rule_vector::iterator filter_manager::find_rule(host_map::iterat
     return std::find_if(rules_.begin(), rules_.end(), [=](filter_rule const& rule){ return rule.satisfies(*host->second, connection_count); });
 }
 
-filter_manager::host_map::iterator filter_manager::find_blocked_host(boost::asio::ip::address const& address)
+filter_manager::host_map::iterator filter_manager::find_blocked_host(asio::ip::address const& address)
 {
     LOG_COMP_TRACE_FUNCTION(filter_manager);
 
@@ -303,7 +303,7 @@ filter_manager::host_map::iterator filter_manager::find_blocked_host(boost::asio
     return host;
 }
 
-void filter_manager::deliver_address_blocked_message(boost::asio::ip::address const& address)
+void filter_manager::deliver_address_blocked_message(asio::ip::address const& address)
 {
     LOG_COMP_TRACE_FUNCTION(filter_manager);
 

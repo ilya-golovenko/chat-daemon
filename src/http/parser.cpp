@@ -49,9 +49,9 @@ bool parser_base::is_digit(unsigned char c)
 
 bool parser_base::is_xdigit(unsigned char c)
 {
-    return c >= '0' && c <= '9' ||
-           c >= 'a' && c <= 'f' ||
-           c >= 'A' && c <= 'F';
+    return (c >= '0' && c <= '9') ||
+           (c >= 'a' && c <= 'f') ||
+           (c >= 'A' && c <= 'F');
 }
 
 bool parser_base::is_control(unsigned char c)

@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2009 Ilya Golovenko
+//    Copyright (C) 2009 - 2015 Ilya Golovenko
 //    This file is part of libsphttp.
 //
 //    libsphttp is free software: you can redistribute it and/or modify
@@ -25,8 +25,8 @@
 namespace http
 {
 
-std::atomic<std::uint64_t> statistics::bytes_read_(0);
-std::atomic<std::uint64_t> statistics::bytes_written_(0);
+std::atomic<std::uint64_t> statistics::bytes_read_(0ULL);
+std::atomic<std::uint64_t> statistics::bytes_written_(0ULL);
 
 std::uint64_t statistics::get_bytes_read()
 {

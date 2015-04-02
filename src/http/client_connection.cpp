@@ -41,12 +41,12 @@
 namespace http
 {
 
-client_connection::pointer client_connection::create(boost::asio::io_service& io_service, std::string const& hostname, std::uint16_t port)
+client_connection::pointer client_connection::create(asio::io_service& io_service, std::string const& hostname, std::uint16_t port)
 {
     return std::make_shared<client_connection>(std::ref(io_service), hostname, port);
 }
 
-client_connection::client_connection(boost::asio::io_service& io_service, std::string const& hostname, std::uint16_t port) :
+client_connection::client_connection(asio::io_service& io_service, std::string const& hostname, std::uint16_t port) :
     hostname_(hostname),
     port_(port),
     proxy_port_(0u),
@@ -173,23 +173,23 @@ void client_connection::start_connection(bool redirected)
 
         request_.set_host(hostname_, port_);
 
-        boost::system::error_code error;
-        boost::asio::ip::address address;
+        asio::error_code error;
+        asio::ip::address address;
 
-        address = boost::asio::ip::address::from_string(hostname_, error);
+        address = asio::ip::address::from_string(hostname_, error);
 
         if(!error)
         {
-            boost::asio::ip::tcp::endpoint endpoint = boost::asio::ip::tcp::endpoint(address, port_);
+            asio::ip::tcp::endpoint endpoint = asio::ip::tcp::endpoint(address, port_);
             LOG_COMP_DEBUG(client_connection, "connecting to http server: ", endpoint);
 
-            boost::asio::ip::tcp::resolver::iterator iterator;
+            asio::ip::tcp::resolver::iterator iterator;
 
             connection_->connect(endpoint, /*bind_to_connect_handler()*/ std::bind(&client_connection::handle_connect, shared_from_this(), std::placeholders::_1, iterator));
         }
         else
         {
-            boost::asio::ip::tcp::resolver::query query(hostname_, std::to_string(port_));
+            asio::ip::tcp::resolver::query query(hostname_, std::to_string(port_));
             LOG_COMP_DEBUG(client_connection, "resolving http server host name: ", hostname_);
 
             resolver_.async_resolve(query, /*bind_to_resolve_handler()*/ std::bind(&client_connection::handle_resolve, shared_from_this(), std::placeholders::_1, std::placeholders::_2));
@@ -261,35 +261,35 @@ bool client_connection::redirect_to_response_location()
     return false;
 }
 
-bool client_connection::is_reading_completed(boost::system::error_code const& error) const
+bool client_connection::is_reading_completed(asio::error_code const& error) const
 {
     LOG_COMP_TRACE_FUNCTION(client_connection);
 
     if(request_.get_method() != request_methods::head)
     {
         boost::optional<std::size_t> length = response_.get_content_length();
-        return length ? *length == bytes_read_ : error == boost::asio::error::eof;
+        return length ? *length == bytes_read_ : error == asio::error::eof;
     }
 
     return true;
 }
 
-bool client_connection::is_keep_alive_connection_aborted(boost::system::error_code const& error) const
+bool client_connection::is_keep_alive_connection_aborted(asio::error_code const& error) const
 {
     LOG_COMP_TRACE_FUNCTION(client_connection);
 
     if(keep_alive_)
     {
-        return error == boost::asio::error::eof || 
-               error == boost::asio::error::bad_descriptor ||
-               error == boost::asio::error::connection_reset ||
-               error == boost::asio::error::connection_aborted;
+        return error == asio::error::eof || 
+               error == asio::error::bad_descriptor ||
+               error == asio::error::connection_reset ||
+               error == asio::error::connection_aborted;
     }
 
     return false;
 }
 
-void client_connection::setup_connection(boost::system::error_code const& error)
+void client_connection::setup_connection(asio::error_code const& error)
 {
     LOG_COMP_TRACE_FUNCTION(client_connection);
 
@@ -350,7 +350,7 @@ timer_handler client_connection::bind_to_read_timeout_timer_handler()
     return std::bind(&client_connection::handle_read_timeout_timer, shared_from_this(), std::placeholders::_1);
 }
 
-void client_connection::call_completion_handler(boost::system::error_code const& error)
+void client_connection::call_completion_handler(asio::error_code const& error)
 {
     LOG_COMP_TRACE_FUNCTION(client_connection);
 
@@ -373,7 +373,7 @@ void client_connection::call_completion_handler(boost::system::error_code const&
     }
 }
 
-void client_connection::handle_resolve(boost::system::error_code const& error, boost::asio::ip::tcp::resolver::iterator endpoint_iterator)
+void client_connection::handle_resolve(asio::error_code const& error, asio::ip::tcp::resolver::iterator endpoint_iterator)
 {
     LOG_COMP_TRACE_FUNCTION(client_connection);
 
@@ -381,7 +381,7 @@ void client_connection::handle_resolve(boost::system::error_code const& error, b
     {
         LOG_COMP_DEBUG(client_connection, "successfully resolved http server host name");
 
-        boost::asio::ip::tcp::endpoint endpoint = *endpoint_iterator;
+        asio::ip::tcp::endpoint endpoint = *endpoint_iterator;
         LOG_COMP_DEBUG(client_connection, "connecting to http server: ", endpoint);
 
         connection_->connect(endpoint, /*bind_to_connect_handler()*/ std::bind(&client_connection::handle_connect, shared_from_this(), std::placeholders::_1, ++endpoint_iterator));
@@ -393,7 +393,7 @@ void client_connection::handle_resolve(boost::system::error_code const& error, b
     }
 }
 
-void client_connection::handle_connect(boost::system::error_code const& error, boost::asio::ip::tcp::resolver::iterator endpoint_iterator)
+void client_connection::handle_connect(asio::error_code const& error, asio::ip::tcp::resolver::iterator endpoint_iterator)
 {
     LOG_COMP_TRACE_FUNCTION(client_connection);
 
@@ -411,12 +411,12 @@ void client_connection::handle_connect(boost::system::error_code const& error, b
     {
         LOG_COMP_DEBUG(client_connection, "cannot connect to http server: ", error);
 
-        if(endpoint_iterator != boost::asio::ip::tcp::resolver::iterator())
+        if(endpoint_iterator != asio::ip::tcp::resolver::iterator())
         {
             if(connection_->is_open())
                 connection_->close();
 
-            boost::asio::ip::tcp::endpoint endpoint = *endpoint_iterator;
+            asio::ip::tcp::endpoint endpoint = *endpoint_iterator;
             LOG_COMP_DEBUG(client_connection, "connecting to http server: ", endpoint);
 
             connection_->connect(endpoint, /*bind_to_connect_handler()*/ std::bind(&client_connection::handle_connect, shared_from_this(), std::placeholders::_1, ++endpoint_iterator));
@@ -428,7 +428,7 @@ void client_connection::handle_connect(boost::system::error_code const& error, b
     }
 }
 
-void client_connection::handle_write(boost::system::error_code const& error, std::size_t bytes_transferred)
+void client_connection::handle_write(asio::error_code const& error, std::size_t bytes_transferred)
 {
     LOG_COMP_TRACE_FUNCTION(client_connection);
 
@@ -462,7 +462,7 @@ void client_connection::handle_write(boost::system::error_code const& error, std
     }
 }
 
-void client_connection::handle_read(boost::system::error_code const& error, std::size_t bytes_transferred)
+void client_connection::handle_read(asio::error_code const& error, std::size_t bytes_transferred)
 {
     LOG_COMP_TRACE_FUNCTION(client_connection);
 
@@ -480,7 +480,7 @@ void client_connection::handle_read(boost::system::error_code const& error, std:
         // try to restart keep-alive connection
         start_connection(false);
     }
-    else if(!error || error == boost::asio::error::eof)
+    else if(!error || error == asio::error::eof)
     {
         boost::tribool result = true;
         char const* begin = buffer_.data();
@@ -492,7 +492,7 @@ void client_connection::handle_read(boost::system::error_code const& error, std:
 
             if(boost::indeterminate(result))
             {
-                if(error == boost::asio::error::eof)
+                if(error == asio::error::eof)
                 {
                     LOG_COMP_DEBUG(client_connection, "server unexpectedly closed connection: ", error);
                     call_completion_handler(error);
@@ -506,7 +506,7 @@ void client_connection::handle_read(boost::system::error_code const& error, std:
             else if(!result)
             {
                 LOG_COMP_DEBUG(client_connection, "cannot parse response from http server");
-                call_completion_handler(boost::asio::error::invalid_argument);
+                call_completion_handler(asio::error::invalid_argument);
             }
             else
             {
@@ -517,7 +517,7 @@ void client_connection::handle_read(boost::system::error_code const& error, std:
                 setup_connection(error);
 
                 LOG_COMP_DEBUG(client_connection, "http server response status: ", response_.get_status());
-                call_completion_handler(boost::system::error_code());
+                call_completion_handler(asio::error_code());
             }
         }
 
@@ -551,7 +551,7 @@ void client_connection::handle_read(boost::system::error_code const& error, std:
                         if(!result)
                         {
                             LOG_COMP_DEBUG(client_connection, "cannot parse response from http server");
-                            call_completion_handler(boost::asio::error::invalid_argument);
+                            call_completion_handler(asio::error::invalid_argument);
                         }
                         else if(result)
                         {
@@ -562,7 +562,7 @@ void client_connection::handle_read(boost::system::error_code const& error, std:
                                 if(!redirect_to_response_location())
                                 {
                                     LOG_COMP_DEBUG(client_connection, "response from http server has been read successfully");
-                                    call_completion_handler(boost::system::error_code());
+                                    call_completion_handler(asio::error_code());
                                 }
                             }
                         }
@@ -571,7 +571,7 @@ void client_connection::handle_read(boost::system::error_code const& error, std:
 
                 if(boost::indeterminate(result))
                 {
-                    if(error == boost::asio::error::eof)
+                    if(error == asio::error::eof)
                     {
                         LOG_COMP_DEBUG(client_connection, "server unexpectedly closed connection: ", error);
                         call_completion_handler(error);
@@ -596,10 +596,10 @@ void client_connection::handle_read(boost::system::error_code const& error, std:
                     if(!redirect_to_response_location())
                     {
                         LOG_COMP_DEBUG(client_connection, "response from http server has been read successfully");
-                        call_completion_handler(boost::system::error_code());
+                        call_completion_handler(asio::error_code());
                     }
                 }
-                else if(error == boost::asio::error::eof)
+                else if(error == asio::error::eof)
                 {
                     LOG_COMP_DEBUG(client_connection, "server unexpectedly closed connection: ", error);
                     call_completion_handler(error);
@@ -619,7 +619,7 @@ void client_connection::handle_read(boost::system::error_code const& error, std:
     }
 }
 
-void client_connection::handle_keep_alive_timer(boost::system::error_code const& error)
+void client_connection::handle_keep_alive_timer(asio::error_code const& error)
 {
     LOG_COMP_TRACE_FUNCTION(client_connection);
 
@@ -630,7 +630,7 @@ void client_connection::handle_keep_alive_timer(boost::system::error_code const&
     }
 }
 
-void client_connection::handle_read_timeout_timer(boost::system::error_code const& error)
+void client_connection::handle_read_timeout_timer(asio::error_code const& error)
 {
     LOG_COMP_TRACE_FUNCTION(client_connection);
 

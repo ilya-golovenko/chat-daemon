@@ -28,8 +28,8 @@
 #include <chat/session_id.hpp>
 #include <chat/common.hpp>
 
-// BOOST headers
-#include <boost/asio.hpp>
+// ASIO headers
+#include <asio.hpp>
 
 // STL headers
 #include <unordered_map>
@@ -86,7 +86,7 @@ public:
     std::string const& resolve(session_id const& id) const;
 
     std::size_t get_connection_count() const;
-    std::size_t get_connection_count(boost::asio::ip::address const& address) const;
+    std::size_t get_connection_count(asio::ip::address const& address) const;
 
 private:
     typedef std::unordered_map<std::string, connection_ptr> connection_map;

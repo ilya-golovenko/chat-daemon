@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
@@ -29,9 +29,9 @@
 #include <filter/filter_rule.hpp>
 #include <misc/hash_utils.hpp>
 
-// BOOST headers
-#include <boost/asio/steady_timer.hpp>
-#include <boost/asio.hpp>
+// ASIO headers
+#include <asio/steady_timer.hpp>
+#include <asio.hpp>
 
 // STL headers
 #include <unordered_map>
@@ -59,31 +59,31 @@ public:
     void start();
     void stop();
 
-    bool check_blocked(boost::asio::ip::address const& address);
-    void remove_block(boost::asio::ip::address const& address);
+    bool check_blocked(asio::ip::address const& address);
+    void remove_block(asio::ip::address const& address);
 
 private:
     typedef std::list<filter_host> host_list;
     typedef std::vector<filter_rule> rule_vector;
 
-    typedef std::unordered_map<boost::asio::ip::address, host_list::iterator> host_map;
+    typedef std::unordered_map<asio::ip::address, host_list::iterator> host_map;
 
 private:
     void start_update_timer();
-    void handle_timer(boost::system::error_code const& error);
+    void handle_timer(asio::error_code const& error);
 
     void update_tracked_hosts(bool full);
     void update_ignorelist_file(bool force);
 
     void add_host_connection(host_map::iterator host);
-    void add_tracked_host(boost::asio::ip::address const& address);
+    void add_tracked_host(asio::ip::address const& address);
     void block_host(host_map::iterator host, filter_rule const& rule);
 
     rule_vector::iterator find_rule(host_map::iterator host);
 
-    host_map::iterator find_blocked_host(boost::asio::ip::address const& address);
+    host_map::iterator find_blocked_host(asio::ip::address const& address);
 
-    void deliver_address_blocked_message(boost::asio::ip::address const& address);
+    void deliver_address_blocked_message(asio::ip::address const& address);
 
 private:
     static char const time_placeholder[];
@@ -100,7 +100,7 @@ private:
     host_map tracked_hosts_;
     host_map blocked_hosts_;
 
-    boost::asio::steady_timer timer_;
+    asio::steady_timer timer_;
 
     std::string address_blocked_message_;
 };

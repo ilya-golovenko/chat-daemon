@@ -87,12 +87,12 @@ buffer::const_iterator buffer::end() const
     return std::next(begin());
 }
 
-buffer::operator boost::asio::const_buffer() const
+buffer::operator asio::const_buffer() const
 {
     return buffer_;
 }
 
-buffer::operator boost::asio::mutable_buffer() const
+buffer::operator asio::mutable_buffer() const
 {
     return buffer_;
 }

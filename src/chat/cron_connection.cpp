@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
@@ -101,7 +101,7 @@ http::completion_handler cron_connection::bind_to_completion_hander()
     return std::bind(&cron_connection::handle_complete, this, std::placeholders::_1);
 }
 
-void cron_connection::handle_timer(boost::system::error_code const& error)
+void cron_connection::handle_timer(asio::error_code const& error)
 {
     LOG_COMP_TRACE_FUNCTION(cron_connection);
 
@@ -109,7 +109,7 @@ void cron_connection::handle_timer(boost::system::error_code const& error)
         connection_->send_request(cron_script_request_, bind_to_completion_hander());
 }
 
-void cron_connection::handle_complete(boost::system::error_code const& error)
+void cron_connection::handle_complete(asio::error_code const& error)
 {
     LOG_COMP_TRACE_FUNCTION(cron_connection);
 
@@ -120,12 +120,12 @@ void cron_connection::handle_complete(boost::system::error_code const& error)
         if(response.get_status() != http::status::ok)
             LOG_COMP_WARNING(cron_connection, "cannot access cron script: ", response.get_status());
     }
-    else if(error != boost::asio::error::operation_aborted)
+    else if(error != asio::error::operation_aborted)
     {
         LOG_COMP_WARNING(cron_connection, "cannot access cron script: ", error);
     }
 
-    if(error != boost::asio::error::operation_aborted)
+    if(error != asio::error::operation_aborted)
     {
         timer_.expires_from_now(interval_);
         timer_.async_wait(bind_to_timer_hander());

@@ -130,7 +130,7 @@ void command_parser::parse_command(std::string const& command) const
                 break;
 
             case command::unignore:
-                deliver_unignore_command(boost::asio::ip::address::from_string(fields[1]));
+                deliver_unignore_command(asio::ip::address::from_string(fields[1]));
                 break;
 
             case command::shutdown:
@@ -189,7 +189,7 @@ void command_parser::deliver_op_command(session_id const& id, std::size_t access
     //context_.get_user_manager().update(id, update::access, access);
 }
 
-void command_parser::deliver_unignore_command(boost::asio::ip::address const& address) const
+void command_parser::deliver_unignore_command(asio::ip::address const& address) const
 {
     LOG_COMP_TRACE_FUNCTION(command_parser);
 

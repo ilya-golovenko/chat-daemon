@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
@@ -27,8 +27,8 @@
 // Application headers
 #include <filter/filter_host.hpp>
 
-// BOOST headers
-#include <boost/asio.hpp>
+// ASIO headers
+#include <asio.hpp>
 
 // STL headers
 #include <cstdint>
@@ -43,8 +43,8 @@ class filter_rule
 {
 public:
     filter_rule(std::string const& name,
-                boost::asio::ip::address const& address,
-                boost::asio::ip::address const& netmask,
+                asio::ip::address const& address,
+                asio::ip::address const& netmask,
                 std::chrono::seconds const& block_duration,
                 std::size_t connections_per_minute,
                 std::size_t max_connection_count);
@@ -59,14 +59,14 @@ public:
     bool satisfies(filter_host const& host, std::size_t connection_count) const;
 
 private:
-    bool satisfies(boost::asio::ip::address const& address) const;
-    bool satisfies(boost::asio::ip::address_v4 const& address) const;
-    bool satisfies(boost::asio::ip::address_v6 const& address) const;
+    bool satisfies(asio::ip::address const& address) const;
+    bool satisfies(asio::ip::address_v4 const& address) const;
+    bool satisfies(asio::ip::address_v6 const& address) const;
 
 private:
     std::string name_;
-    boost::asio::ip::address address_;
-    boost::asio::ip::address netmask_;
+    asio::ip::address address_;
+    asio::ip::address netmask_;
     std::chrono::seconds block_duration_;
     std::size_t connections_per_minute_;
     std::size_t max_connection_count_;

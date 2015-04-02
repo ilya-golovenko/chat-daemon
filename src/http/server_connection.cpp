@@ -80,12 +80,12 @@ bool server_connection::has_custom_remote_endpoint() const
     return tcp_connection_->is_open() && remote_endpoint_ != tcp_connection_->get_remote_endpoint();
 }
 
-boost::asio::ip::tcp::endpoint const& server_connection::get_remote_endpoint() const
+asio::ip::tcp::endpoint const& server_connection::get_remote_endpoint() const
 {
     return remote_endpoint_;
 }
 
-void server_connection::set_remote_endpoint(boost::asio::ip::tcp::endpoint const& endpoint)
+void server_connection::set_remote_endpoint(asio::ip::tcp::endpoint const& endpoint)
 {
     remote_endpoint_ = endpoint;
 }
@@ -95,7 +95,7 @@ std::uint16_t server_connection::get_remote_port() const
     return get_remote_endpoint().port();
 }
 
-boost::asio::ip::address server_connection::get_remote_address() const
+asio::ip::address server_connection::get_remote_address() const
 {
     return get_remote_endpoint().address();
 }
@@ -248,17 +248,17 @@ void server_connection::write_front_connection_buffer()
 {
     LOG_COMP_TRACE_FUNCTION(server_connection);
 
-    std::array<boost::asio::const_buffer, 2> buffers =
+    std::array<asio::const_buffer, 2> buffers =
     {{
         write_buffers_.front(),
-        boost::asio::buffer(strings::crlf)
+        asio::buffer(strings::crlf)
     }};
 
     LOG_COMP_TRACE(server_connection, "writing data buffer to http client");
     tcp_connection_->write(buffers, bind_to_write_handler());
 }
 
-void server_connection::setup_connection(boost::system::error_code const& error)
+void server_connection::setup_connection(asio::error_code const& error)
 {
     LOG_COMP_TRACE_FUNCTION(server_connection);
 
@@ -266,20 +266,20 @@ void server_connection::setup_connection(boost::system::error_code const& error)
     chunked_encoding_ = encoding && boost::algorithm::iequals(*encoding, encoding_tokens::chunked);
 }
 
-bool server_connection::is_reading_completed(boost::system::error_code const& error) const
+bool server_connection::is_reading_completed(asio::error_code const& error) const
 {
     LOG_COMP_TRACE_FUNCTION(server_connection);
 
     if(request_.get_method() == request_methods::post)
     {
         boost::optional<std::size_t> const length = request_.get_content_length();
-        return length ? *length == request_.get_body_size() : error == boost::asio::error::eof;
+        return length ? *length == request_.get_body_size() : error == asio::error::eof;
     }
 
     return true;
 }
 
-void server_connection::call_completion_handler(boost::system::error_code const& error)
+void server_connection::call_completion_handler(asio::error_code const& error)
 {
     LOG_COMP_TRACE_FUNCTION(server_connection);
 
@@ -298,7 +298,7 @@ void server_connection::call_completion_handler(boost::system::error_code const&
     handlers_.pop();
 }
 
-void server_connection::handle_stop(boost::system::error_code const& error)
+void server_connection::handle_stop(asio::error_code const& error)
 {
     LOG_COMP_TRACE_FUNCTION(server_connection);
 
@@ -309,7 +309,7 @@ void server_connection::handle_stop(boost::system::error_code const& error)
     }
 }
 
-void server_connection::handle_read(boost::system::error_code const& error, std::size_t bytes_transferred)
+void server_connection::handle_read(asio::error_code const& error, std::size_t bytes_transferred)
 {
     LOG_COMP_TRACE_FUNCTION(server_connection);
 
@@ -317,7 +317,7 @@ void server_connection::handle_read(boost::system::error_code const& error, std:
 
     statistics::add_bytes_read(bytes_transferred);
 
-    if(!error || error == boost::asio::error::eof)
+    if(!error || error == asio::error::eof)
     {
         boost::tribool result = true;
 
@@ -330,7 +330,7 @@ void server_connection::handle_read(boost::system::error_code const& error, std:
 
             if(boost::indeterminate(result))
             {
-                if(error == boost::asio::error::eof)
+                if(error == asio::error::eof)
                 {
                     LOG_COMP_DEBUG(server_connection, "client unexpectedly closed connection: ", error);
                     call_completion_handler(error);
@@ -344,7 +344,7 @@ void server_connection::handle_read(boost::system::error_code const& error, std:
             else if(!result)
             {
                 LOG_COMP_DEBUG(server_connection, "cannot parse request from http client");
-                call_completion_handler(boost::asio::error::invalid_argument);
+                call_completion_handler(asio::error::invalid_argument);
             }
             else
             {
@@ -389,7 +389,7 @@ void server_connection::handle_read(boost::system::error_code const& error, std:
                         if(!result)
                         {
                             LOG_COMP_DEBUG(server_connection, "cannot parse request from http client");
-                            call_completion_handler(boost::asio::error::invalid_argument);
+                            call_completion_handler(asio::error::invalid_argument);
                         }
                         else if(result)
                         {
@@ -398,7 +398,7 @@ void server_connection::handle_read(boost::system::error_code const& error, std:
                             if(0 == chunk_size_)
                             {
                                 LOG_COMP_DEBUG(server_connection, "request from http client has been read successfully");
-                                call_completion_handler(boost::system::error_code());
+                                call_completion_handler(asio::error_code());
                             }
                         }
                     }
@@ -406,7 +406,7 @@ void server_connection::handle_read(boost::system::error_code const& error, std:
 
                 if(boost::indeterminate(result))
                 {
-                    if(error == boost::asio::error::eof)
+                    if(error == asio::error::eof)
                     {
                         LOG_COMP_DEBUG(server_connection, "client unexpectedly closed connection: ", error);
                         call_completion_handler(error);
@@ -426,9 +426,9 @@ void server_connection::handle_read(boost::system::error_code const& error, std:
                 if(is_reading_completed(error))
                 {
                     LOG_COMP_DEBUG(server_connection, "request from http client has been read successfully");
-                    call_completion_handler(boost::system::error_code());
+                    call_completion_handler(asio::error_code());
                 }
-                else if(error == boost::asio::error::eof)
+                else if(error == asio::error::eof)
                 {
                     LOG_COMP_DEBUG(server_connection, "client unexpectedly closed connection: ", error);
                     call_completion_handler(error);
@@ -448,7 +448,7 @@ void server_connection::handle_read(boost::system::error_code const& error, std:
     }
 }
 
-void server_connection::handle_write(boost::system::error_code const& error, std::size_t bytes_transferred)
+void server_connection::handle_write(asio::error_code const& error, std::size_t bytes_transferred)
 {
     LOG_COMP_TRACE_FUNCTION(server_connection);
 
@@ -473,7 +473,7 @@ void server_connection::handle_write(boost::system::error_code const& error, std
             write_front_connection_buffer();
         }
 
-        call_completion_handler(boost::system::error_code());
+        call_completion_handler(asio::error_code());
     }
     else
     {

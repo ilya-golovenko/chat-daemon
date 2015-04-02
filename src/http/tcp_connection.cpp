@@ -28,17 +28,17 @@
 namespace http
 {
 
-tcp_connection::pointer tcp_connection::create(boost::asio::io_service& io_service)
+tcp_connection::pointer tcp_connection::create(asio::io_service& io_service)
 {
     return std::make_shared<tcp_connection>(std::ref(io_service));
 }
 
-boost::asio::ip::tcp::socket& tcp_connection::get_socket()
+asio::ip::tcp::socket& tcp_connection::get_socket()
 {
     return socket_;
 }
 
-boost::asio::io_service& tcp_connection::get_io_service()
+asio::io_service& tcp_connection::get_io_service()
 {
     return socket_.get_io_service();
 }
@@ -52,23 +52,23 @@ void tcp_connection::close()
 {
     if(socket_.is_open())
     {
-        boost::asio::ip::tcp::socket::shutdown_type shutdown;
-        shutdown = boost::asio::ip::tcp::socket::shutdown_both;
+        asio::ip::tcp::socket::shutdown_type shutdown;
+        shutdown = asio::ip::tcp::socket::shutdown_both;
 
-        boost::system::error_code ignored_ec;
+        asio::error_code ignored_ec;
         socket_.shutdown(shutdown, ignored_ec);
 
         socket_.close();
     }
 }
 
-boost::asio::ip::tcp::endpoint tcp_connection::get_remote_endpoint() const
+asio::ip::tcp::endpoint tcp_connection::get_remote_endpoint() const
 {
-    boost::system::error_code ignored_error;
+    asio::error_code ignored_error;
     return socket_.remote_endpoint(ignored_error);
 }
 
-boost::asio::ip::address tcp_connection::get_remote_address() const
+asio::ip::address tcp_connection::get_remote_address() const
 {
     return get_remote_endpoint().address();
 }
@@ -78,7 +78,7 @@ std::uint16_t tcp_connection::get_remote_port() const
     return get_remote_endpoint().port();
 }
 
-tcp_connection::tcp_connection(boost::asio::io_service& io_service) :
+tcp_connection::tcp_connection(asio::io_service& io_service) :
     socket_(io_service)
 {
 }

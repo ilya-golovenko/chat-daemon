@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
@@ -122,7 +122,7 @@ void connection_manager::process_connection(http::server_connection::pointer con
 
         if(!blocked)
         {
-            connection->get_tcp_connection()->set_option(boost::asio::ip::tcp::no_delay(true));
+            connection->get_tcp_connection()->set_option(asio::ip::tcp::no_delay(true));
             connection->read_request(bind_to_read_handler(connection), connect_timeout_);
         }
         else
@@ -185,7 +185,7 @@ http::completion_handler connection_manager::bind_to_read_handler(http::server_c
     return std::bind(&connection_manager::handle_read, this, connection, std::placeholders::_1);
 }
 
-void connection_manager::handle_write(boost::system::error_code const& error)
+void connection_manager::handle_write(asio::error_code const& error)
 {
     LOG_COMP_TRACE_FUNCTION(connection_manager);
 
@@ -193,7 +193,7 @@ void connection_manager::handle_write(boost::system::error_code const& error)
     //TODO:    context_.get_statistics_manager().add_output_message(bytes_transferred);
 }
 
-void connection_manager::handle_read(http::server_connection::pointer connection, boost::system::error_code const& error)
+void connection_manager::handle_read(http::server_connection::pointer connection, asio::error_code const& error)
 {
     LOG_COMP_TRACE_FUNCTION(connection_manager);
 

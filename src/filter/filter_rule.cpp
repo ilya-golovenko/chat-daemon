@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
@@ -29,14 +29,14 @@ namespace chat
 {
 
 filter_rule::filter_rule(std::string const& name,
-                         boost::asio::ip::address const& address,
-                         boost::asio::ip::address const& netmask,
+                         asio::ip::address const& address,
+                         asio::ip::address const& netmask,
                          std::chrono::seconds const& block_duration,
                          std::size_t connections_per_minute,
                          std::size_t max_connection_count) :
     name_(name),
     address_(address),
-    netmask_(netmask_),
+    netmask_(netmask),
     block_duration_(block_duration),
     connections_per_minute_(connections_per_minute),
     max_connection_count_(max_connection_count)
@@ -59,7 +59,7 @@ bool filter_rule::satisfies(filter_host const& host, std::size_t connection_coun
 {
     LOG_COMP_TRACE_FUNCTION(filter_rule);
 
-    boost::asio::ip::address const& address = host.get_address();
+    asio::ip::address const& address = host.get_address();
 
     if(satisfies(address))
     {
@@ -80,7 +80,7 @@ bool filter_rule::satisfies(filter_host const& host, std::size_t connection_coun
     return false;
 }
 
-bool filter_rule::satisfies(boost::asio::ip::address const& address) const
+bool filter_rule::satisfies(asio::ip::address const& address) const
 {
     if(address.is_v4())
         return satisfies(address.to_v4());
@@ -91,12 +91,12 @@ bool filter_rule::satisfies(boost::asio::ip::address const& address) const
     return false;
 }
 
-bool filter_rule::satisfies(boost::asio::ip::address_v4 const& address) const
+bool filter_rule::satisfies(asio::ip::address_v4 const& address) const
 {
     return (address.to_ulong() & netmask_v4_) == (address_v4_ & netmask_v4_);
 }
 
-bool filter_rule::satisfies(boost::asio::ip::address_v6 const& address) const
+bool filter_rule::satisfies(asio::ip::address_v6 const& address) const
 {
     return false;
 }

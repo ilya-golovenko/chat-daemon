@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
@@ -30,9 +30,9 @@
 #include <chat/common.hpp>
 #include <http/common.hpp>
 
-// BOOST headers
-#include <boost/asio/steady_timer.hpp>
-#include <boost/asio.hpp>
+// ASIO headers
+#include <asio/steady_timer.hpp>
+#include <asio.hpp>
 
 // STL headers
 #include <memory>
@@ -71,7 +71,7 @@ public:
     void deliver(std::string const& text);
 
     bool is_connected() const;
-    bool is_connected_from(boost::asio::ip::address const& address) const;
+    bool is_connected_from(asio::ip::address const& address) const;
 
     void start(connection_ptr connection);
     void start();
@@ -97,14 +97,14 @@ private:
 
     chat::completion_handler bind_to_write_handler();
 
-    void handle_write(boost::system::error_code const& error);
-    void handle_leave(boost::system::error_code const& error);
-    void handle_ping(boost::system::error_code const& error);
+    void handle_write(asio::error_code const& error);
+    void handle_leave(asio::error_code const& error);
+    void handle_ping(asio::error_code const& error);
 
 private:
     server_context& context_;
 
-    boost::asio::steady_timer timer_;
+    asio::steady_timer timer_;
 
     bool bot_;
     bool active_;

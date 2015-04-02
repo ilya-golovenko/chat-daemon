@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
@@ -30,8 +30,8 @@
 #include <http/response.hpp>
 #include <http/request.hpp>
 
-// BOOST headers
-#include <boost/asio.hpp>
+// ASIO headers
+#include <asio.hpp>
 
 // STL headers
 #include <cstddef>
@@ -66,8 +66,8 @@ private:
     http::completion_handler bind_to_write_handler();
     http::completion_handler bind_to_read_handler(http::server_connection::pointer connection);
 
-    void handle_write(boost::system::error_code const& error);
-    void handle_read(http::server_connection::pointer, boost::system::error_code const& error);
+    void handle_write(asio::error_code const& error);
+    void handle_read(http::server_connection::pointer, asio::error_code const& error);
 
 private:
     server_context& context_;

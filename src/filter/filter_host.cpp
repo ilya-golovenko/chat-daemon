@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
@@ -28,7 +28,7 @@
 namespace chat
 {
 
-filter_host::filter_host(boost::asio::ip::address const& address) :
+filter_host::filter_host(asio::ip::address const& address) :
     first_conn_time_(clock::now()),
     connections_per_minute_(0),
     connection_count_(1u),
@@ -58,7 +58,7 @@ void filter_host::block(std::chrono::seconds const& duration)
     block_end_time_ = clock::now() + duration;
 }
 
-boost::asio::ip::address const& filter_host::get_address() const
+asio::ip::address const& filter_host::get_address() const
 {
     return address_;
 }

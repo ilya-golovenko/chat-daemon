@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
@@ -30,7 +30,9 @@
 
 // BOOST headers
 #include <boost/filesystem/path.hpp>
-#include <boost/asio.hpp>
+
+// ASIO headers
+#include <asio.hpp>
 
 // STL headers
 #include <string>
@@ -66,7 +68,7 @@ private:
     void delete_pid_file();
 
 private:
-    void handle_signal(boost::system::error_code const& error, int signal);
+    void handle_signal(asio::error_code const& error, int signal);
 
 private:
     /// Run as UNIX daemon
@@ -82,10 +84,10 @@ private:
     config_manager config_manager_;
 
     /// I/O service
-    boost::asio::io_service io_service_;
+    asio::io_service io_service_;
 
     /// Processes signals from operating system
-    boost::asio::signal_set signals_;
+    asio::signal_set signals_;
 
     /// Application file name
     boost::filesystem::path app_filename_;

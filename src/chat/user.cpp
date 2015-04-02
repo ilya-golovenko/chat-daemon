@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
@@ -216,7 +216,7 @@ bool user::is_connected() const
     return connection_ && connection_->is_open();
 }
 
-bool user::is_connected_from(boost::asio::ip::address const& address) const
+bool user::is_connected_from(asio::ip::address const& address) const
 {
     return is_connected() && address == connection_->get_remote_address();
 }
@@ -303,7 +303,7 @@ chat::completion_handler user::bind_to_write_handler()
     return std::bind(&user::handle_write, shared_from_this(), std::placeholders::_1);
 }
 
-void user::handle_write(boost::system::error_code const& error)
+void user::handle_write(asio::error_code const& error)
 {
     LOG_COMP_TRACE_FUNCTION(user);
 
@@ -312,7 +312,7 @@ void user::handle_write(boost::system::error_code const& error)
         if(active_)
             start_ping_timer();
     }
-    else if(error != boost::asio::error::operation_aborted)
+    else if(error != asio::error::operation_aborted)
     {
         if(active_ && !is_connected())
         {
@@ -328,7 +328,7 @@ void user::handle_write(boost::system::error_code const& error)
     }
 }
 
-void user::handle_leave(boost::system::error_code const& error)
+void user::handle_leave(asio::error_code const& error)
 {
     LOG_COMP_TRACE_FUNCTION(user);
 
@@ -339,7 +339,7 @@ void user::handle_leave(boost::system::error_code const& error)
     }
 }
 
-void user::handle_ping(boost::system::error_code const& error)
+void user::handle_ping(asio::error_code const& error)
 {
     LOG_COMP_TRACE_FUNCTION(user);
 

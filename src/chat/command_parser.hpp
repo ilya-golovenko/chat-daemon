@@ -27,8 +27,8 @@
 // Application headers
 #include <chat/session_id.hpp>
 
-// BOOST headers
-#include <boost/asio.hpp>
+// ASIO headers
+#include <asio.hpp>
 
 // STL headers
 #include <string>
@@ -54,7 +54,7 @@ private:
     void deliver_clear_history_command() const;
     void deliver_topic_command(bool force) const;
     void deliver_op_command(session_id const& id, std::size_t access) const;
-    void deliver_unignore_command(boost::asio::ip::address const& address) const;
+    void deliver_unignore_command(asio::ip::address const& address) const;
     void deliver_shutdown_command(std::string const& admin_name) const;
     void deliver_restart_command(std::string const& admin_name) const;
     void deliver_reconfigure_command() const;

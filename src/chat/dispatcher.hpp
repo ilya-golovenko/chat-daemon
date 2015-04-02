@@ -24,8 +24,8 @@
 #pragma once
 #endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-// BOOST headers
-#include <boost/asio.hpp>
+// ASIO headers
+#include <asio.hpp>
 
 // STL headers
 #include <string>
@@ -37,7 +37,7 @@ namespace chat
 class dispatcher
 {
 public:
-    explicit dispatcher(boost::asio::io_service& io_service);
+    explicit dispatcher(asio::io_service& io_service);
     ~dispatcher();
 
     dispatcher(dispatcher const&) = delete;
@@ -52,7 +52,7 @@ public:
     void process_chat_command(std::string const& command);
 
 private:
-    boost::asio::io_service& io_service_;
+    asio::io_service& io_service_;
 };
 
 class basic_processor

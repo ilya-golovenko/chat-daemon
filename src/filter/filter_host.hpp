@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
@@ -24,8 +24,8 @@
 #pragma once
 #endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-// BOOST headers
-#include <boost/asio.hpp>
+// ASIO headers
+#include <asio.hpp>
 
 // STL headers
 #include <cstddef>
@@ -38,7 +38,7 @@ namespace chat
 class filter_host
 {
 public:
-    explicit filter_host(boost::asio::ip::address const& address);
+    explicit filter_host(asio::ip::address const& address);
 
     filter_host(filter_host const&) = delete;
     filter_host& operator=(filter_host const&) = delete;
@@ -47,7 +47,7 @@ public:
 
     void block(std::chrono::seconds const& duration);
 
-    boost::asio::ip::address const& get_address() const;
+    asio::ip::address const& get_address() const;
 
     std::chrono::seconds get_block_duration() const;
 
@@ -65,9 +65,9 @@ private:
     clock_time_point first_conn_time_;
     clock_time_point last_conn_time_;
     clock_time_point block_end_time_;
-    boost::asio::ip::address address_;
     double connections_per_minute_;
     std::size_t connection_count_;
+    asio::ip::address address_;
 };
 
 }   // namespace chat

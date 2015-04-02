@@ -105,10 +105,10 @@ void frontend_manager::process_connection(http::server_connection::pointer conne
         {
             LOG_COMP_TRACE(frontend_manager, "connected via frontend: ", connection->get_remote_endpoint());
 
-            boost::asio::ip::address address = boost::asio::ip::address::from_string(*value);
+            asio::ip::address address = asio::ip::address::from_string(*value);
             std::uint16_t port = connection->get_remote_port();
 
-            boost::asio::ip::tcp::endpoint endpoint(address, port);
+            asio::ip::tcp::endpoint endpoint(address, port);
             connection->set_remote_endpoint(endpoint); //TODO: this functionality should not be in server_connection
 
             LOG_COMP_TRACE(frontend_manager, "connection endpoint: ", endpoint);

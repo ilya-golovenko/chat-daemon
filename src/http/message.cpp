@@ -194,14 +194,14 @@ void message::to_buffers(buffers& buffers) const
 {
     for(header_map::value_type const& header : headers_)
     {
-        buffers.push_back(boost::asio::buffer(header.first));
-        buffers.push_back(boost::asio::buffer(strings::separator));
-        buffers.push_back(boost::asio::buffer(header.second));
-        buffers.push_back(boost::asio::buffer(strings::crlf));
+        buffers.push_back(asio::buffer(header.first));
+        buffers.push_back(asio::buffer(strings::separator));
+        buffers.push_back(asio::buffer(header.second));
+        buffers.push_back(asio::buffer(strings::crlf));
     }
 
-    buffers.push_back(boost::asio::buffer(strings::crlf));
-    buffers.push_back(boost::asio::buffer(body_data_));
+    buffers.push_back(asio::buffer(strings::crlf));
+    buffers.push_back(asio::buffer(body_data_));
 }
 
 void message::dump(std::ostream& os) const

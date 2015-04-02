@@ -24,8 +24,8 @@
 #pragma once
 #endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-// BOOST headers
-#include <boost/asio.hpp>
+// ASIO headers
+#include <asio.hpp>
 
 // STL headers
 #include <functional>
@@ -130,11 +130,11 @@ std::size_t const max_redirect_count    = 5;
 std::uint16_t const protocol_port       = 80;
 std::string const protocol_name         = "http";
 
-typedef std::function<void (boost::system::error_code const&)> stop_handler;
-typedef std::function<void (boost::system::error_code const&)> timer_handler;
-typedef std::function<void (boost::system::error_code const&)> completion_handler;
-typedef std::function<void (boost::system::error_code const&, std::size_t)> read_handler;
-typedef std::function<void (boost::system::error_code const&, std::size_t)> write_handler;
+typedef std::function<void (asio::error_code const&)> stop_handler;
+typedef std::function<void (asio::error_code const&)> timer_handler;
+typedef std::function<void (asio::error_code const&)> completion_handler;
+typedef std::function<void (asio::error_code const&, std::size_t)> read_handler;
+typedef std::function<void (asio::error_code const&, std::size_t)> write_handler;
 
 
 }   // namespace http

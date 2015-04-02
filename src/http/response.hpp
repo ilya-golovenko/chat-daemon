@@ -28,8 +28,8 @@
 #include <http/message.hpp>
 #include <http/status.hpp>
 
-// BOOST headers
-#include <boost/asio.hpp>
+// ASIO headers
+#include <asio.hpp>
 
 // STL headers
 #include <string>

@@ -87,7 +87,7 @@ void server::stop()
     LOG_COMP_NOTICE(server, "stopped");
 }
 
-boost::asio::io_service& server::get_io_service()
+asio::io_service& server::get_io_service()
 {
     return io_service_;
 }

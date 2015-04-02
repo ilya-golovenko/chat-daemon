@@ -192,10 +192,10 @@ boost::optional<std::string> response::get_cookie() const
 
 void response::to_buffers(buffers& buffers) const
 {
-    buffers.push_back(boost::asio::buffer(version_.to_string()));
-    buffers.push_back(boost::asio::buffer(strings::space));
-    buffers.push_back(boost::asio::buffer(status_.to_string()));
-    buffers.push_back(boost::asio::buffer(strings::crlf));
+    buffers.push_back(asio::buffer(version_.to_string()));
+    buffers.push_back(asio::buffer(strings::space));
+    buffers.push_back(asio::buffer(status_.to_string()));
+    buffers.push_back(asio::buffer(strings::crlf));
 
     message::to_buffers(buffers);
 }

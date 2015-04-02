@@ -24,8 +24,8 @@
 #pragma once
 #endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-// BOOST headers
-#include <boost/asio.hpp>
+// ASIO headers
+#include <asio.hpp>
 
 // STL headers
 #include <memory>
@@ -56,14 +56,14 @@ public:
 public:
     // implement MutableBufferSequence requirements
 
-    typedef boost::asio::mutable_buffer value_type;
+    typedef asio::mutable_buffer value_type;
     typedef value_type const* const_iterator;
 
     const_iterator begin() const;
     const_iterator end() const;
 
-    operator boost::asio::const_buffer() const;
-    operator boost::asio::mutable_buffer() const;
+    operator asio::const_buffer() const;
+    operator asio::mutable_buffer() const;
 
 private:
     typedef std::shared_ptr<char> data_type;

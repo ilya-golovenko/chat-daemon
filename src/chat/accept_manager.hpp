@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
@@ -28,8 +28,8 @@
 #include <http/server_connection.hpp>
 #include <http/tcp_connection.hpp>
 
-// BOOST headers
-#include <boost/asio.hpp>
+// ASIO headers
+#include <asio.hpp>
 
 // STL headers
 #include <string>
@@ -46,8 +46,8 @@ struct server_config;
 class accept_manager
 {
 public:
-    typedef std::vector<boost::asio::ip::tcp::acceptor> acceptor_vector;
-    typedef std::set<boost::asio::ip::tcp::endpoint> endpoint_vector;
+    typedef std::vector<asio::ip::tcp::acceptor> acceptor_vector;
+    typedef std::set<asio::ip::tcp::endpoint> endpoint_vector;
 
 public:
     explicit accept_manager(server_context& context);
@@ -59,13 +59,13 @@ public:
 
 private:
     void resolve_endpoint(std::string const& hostname, std::uint16_t port);
-    void add_endpoint(boost::asio::ip::tcp::endpoint const& endpoint);
+    void add_endpoint(asio::ip::tcp::endpoint const& endpoint);
 
-    void create_acceptor(boost::asio::ip::tcp::endpoint const& endpoint);
-    void accept_connection(boost::asio::ip::tcp::acceptor& acceptor);
+    void create_acceptor(asio::ip::tcp::endpoint const& endpoint);
+    void accept_connection(asio::ip::tcp::acceptor& acceptor);
 
     void pass_connection_to_connection_manager(http::server_connection::pointer connection);
-    void handle_accept(boost::asio::ip::tcp::acceptor& acceptor, http::tcp_connection::pointer connection, boost::system::error_code const& error);
+    void handle_accept(asio::ip::tcp::acceptor& acceptor, http::tcp_connection::pointer connection, asio::error_code const& error);
 
 private:
     server_context& context_;

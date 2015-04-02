@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
@@ -29,9 +29,9 @@
 #include <http/client_connection.hpp>
 #include <http/request.hpp>
 
-// BOOST headers
-#include <boost/asio/steady_timer.hpp>
-#include <boost/asio.hpp>
+// ASIO headers
+#include <asio/steady_timer.hpp>
+#include <asio.hpp>
 
 // STL headers
 #include <string>
@@ -58,14 +58,14 @@ private:
     http::completion_handler bind_to_timer_hander();
     http::completion_handler bind_to_completion_hander();
 
-    void handle_timer(boost::system::error_code const& error);
-    void handle_complete(boost::system::error_code const& error);
+    void handle_timer(asio::error_code const& error);
+    void handle_complete(asio::error_code const& error);
 
 private:
     server_context& context_;
 
     std::chrono::seconds interval_;
-    boost::asio::steady_timer timer_;
+    asio::steady_timer timer_;
 
     http::request cron_script_request_;
     http::client_connection::pointer connection_;

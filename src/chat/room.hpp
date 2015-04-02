@@ -29,8 +29,8 @@
 #include <chat/forwards.hpp>
 #include <chat/common.hpp>
 
-// BOOST headers
-#include <boost/asio.hpp>
+// ASIO headers
+#include <asio.hpp>
 
 // STL headers
 #include <memory>

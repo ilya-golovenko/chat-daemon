@@ -24,8 +24,8 @@
 #include <http/server_connection.hpp>
 #include <misc/hash_utils.hpp>
 
-// BOOST headers
-#include <boost/asio.hpp>
+// ASIO headers
+#include <asio.hpp>
 
 // STL headers
 #include <unordered_set>
@@ -55,7 +55,7 @@ public:
     bool is_connected_via_frontend(http::server_connection::pointer connection) const;
 
 private:
-    typedef std::unordered_set<boost::asio::ip::address> address_set;
+    typedef std::unordered_set<asio::ip::address> address_set;
 
 private:
     server_context& context_;
