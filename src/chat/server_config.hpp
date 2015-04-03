@@ -127,14 +127,12 @@ struct server_config
         struct rule
         {
             std::string name;
+            std::string address;
 
-            asio::ip::address address;
-            asio::ip::address netmask;
+            std::size_t max_connection_count;
+            std::size_t connections_per_minute;
 
             std::chrono::seconds block_duration;
-
-            std::size_t connections_per_minute;
-            std::size_t max_connection_count;
         };
 
         std::vector<rule> rules;

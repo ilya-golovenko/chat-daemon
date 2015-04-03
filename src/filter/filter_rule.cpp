@@ -29,20 +29,16 @@ namespace chat
 {
 
 filter_rule::filter_rule(std::string const& name,
-                         asio::ip::address const& address,
-                         asio::ip::address const& netmask,
-                         std::chrono::seconds const& block_duration,
+                         filter_address const& address,
+                         std::size_t max_connection_count,
                          std::size_t connections_per_minute,
-                         std::size_t max_connection_count) :
+                         std::chrono::seconds const& block_duration) :
     name_(name),
     address_(address),
-    netmask_(netmask),
-    block_duration_(block_duration),
+    max_connection_count_(max_connection_count),
     connections_per_minute_(connections_per_minute),
-    max_connection_count_(max_connection_count)
+    block_duration_(block_duration)
 {
-    address_v4_ = address.to_v4().to_ulong();
-    netmask_v4_ = netmask.to_v4().to_ulong();
 }
 
 std::string const& filter_rule::get_name() const
@@ -61,7 +57,7 @@ bool filter_rule::satisfies(filter_host const& host, std::size_t connection_coun
 
     asio::ip::address const& address = host.get_address();
 
-    if(satisfies(address))
+    if(address_.satisfies(address))
     {
         if(connection_count >= max_connection_count_)
         {
@@ -77,27 +73,6 @@ bool filter_rule::satisfies(filter_host const& host, std::size_t connection_coun
         }
     }
 
-    return false;
-}
-
-bool filter_rule::satisfies(asio::ip::address const& address) const
-{
-    if(address.is_v4())
-        return satisfies(address.to_v4());
-
-    if(address.is_v6())
-        return satisfies(address.to_v6());
-
-    return false;
-}
-
-bool filter_rule::satisfies(asio::ip::address_v4 const& address) const
-{
-    return (address.to_ulong() & netmask_v4_) == (address_v4_ & netmask_v4_);
-}
-
-bool filter_rule::satisfies(asio::ip::address_v6 const& address) const
-{
     return false;
 }
 

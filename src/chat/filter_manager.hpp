@@ -86,10 +86,6 @@ private:
     void deliver_address_blocked_message(asio::ip::address const& address);
 
 private:
-    static char const time_placeholder[];
-    static char const address_placeholder[];
-
-private:
     server_context& context_;
 
     std::size_t max_list_size_;

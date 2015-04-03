@@ -40,8 +40,8 @@
 namespace chat
 {
 
-char const filter_manager::time_placeholder[]    = "{@time}";
-char const filter_manager::address_placeholder[] = "{@address}";
+static char const time_placeholder[]    = "{@time}";
+static char const address_placeholder[] = "{@address}";
 
 filter_manager::filter_manager(server_context& context) :
     context_(context),
@@ -60,8 +60,9 @@ void filter_manager::configure(server_config const& config)
     {
         LOG_COMP_INFO(filter_manager, "creating filter rule: ", rule.name);
 
-        rules_.emplace_back(rule.name, rule.address, rule.netmask, rule.block_duration,
-                            rule.connections_per_minute, rule.max_connection_count);
+        filter_address const address = filter_address::from_string(rule.address);
+
+        rules_.emplace_back(rule.name, address, rule.max_connection_count, rule.connections_per_minute, rule.block_duration);
     }
 
     max_list_size_ = config.filter.max_list_size;
@@ -163,7 +164,7 @@ void filter_manager::remove_block(asio::ip::address const& address)
 void filter_manager::start_update_timer()
 {
     timer_.expires_from_now(std::chrono::seconds(60));
-    timer_.async_wait(/*TODO: bind_to_timer_handler()*/ std::bind(&filter_manager::handle_timer, this, std::placeholders::_1));
+    timer_.async_wait(std::bind(&filter_manager::handle_timer, this, std::placeholders::_1));
 }
 
 void filter_manager::handle_timer(asio::error_code const& error)

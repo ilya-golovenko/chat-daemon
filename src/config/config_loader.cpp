@@ -157,14 +157,14 @@ void config_loader::load_configuration()
     config_entry logging = manager.get_entry("logging");
     config_entry_set handlers = logging.get_entries("handler");
 
-    for(config_entry_set::const_iterator it = handlers.begin(); it != handlers.end(); ++it)
+    for(config_entry const& entry : handlers)
     {
         config_data::logging::handler handler;
 
-        handler.backup_log = it->get<bool>("backup_log");
-        handler.max_size = it->get<std::size_t>("max_size");
-        handler.filename = it->get<std::string>("filename");
-        handler.severity = it->get<std::string>("severity");
+        handler.backup_log = entry.get<bool>("backup_log");
+        handler.max_size = entry.get<std::size_t>("max_size");
+        handler.filename = entry.get<std::string>("filename");
+        handler.severity = entry.get<std::string>("severity");
 
         config_.logging.handlers.push_back(handler);
     }
@@ -178,16 +178,15 @@ void config_loader::load_configuration()
 
     config_entry_set rules = filter.get_entries("rule");
 
-    for(config_entry_set::const_iterator it = rules.begin(); it != rules.end(); ++it)
+    for(config_entry const& entry : rules)
     {
         config_data::filter::rule rule;
 
-        rule.name = it->get<std::string>("name");
-        rule.address = it->get<std::string>("address");
-        rule.netmask = it->get<std::string>("netmask");
-        rule.block_duration = it->get<long>("block_duration");
-        rule.conn_per_minute = it->get<std::size_t>("conn_per_minute");
-        rule.max_connections = it->get<std::size_t>("max_connections");
+        rule.name = entry.get<std::string>("name");
+        rule.address = entry.get<std::string>("address");
+        rule.block_duration = entry.get<long>("block_duration");
+        rule.conn_per_minute = entry.get<std::size_t>("conn_per_minute");
+        rule.max_connections = entry.get<std::size_t>("max_connections");
 
         config_.filter.rules.push_back(rule);
     }
