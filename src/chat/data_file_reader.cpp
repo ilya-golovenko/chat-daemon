@@ -1,20 +1,20 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008 - 2016 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
-//    spdaemon is free software: you can redistribute it and/or modify
+//    spchatd is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
 //    (at your option) any later version.
 //
-//    spdaemon is distributed in the hope that it will be useful,
+//    spchatd is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with spdaemon. If not, see <http://www.gnu.org/licenses/>.
+//    along with spchatd. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -37,7 +37,8 @@ namespace chat
 
 data_file_reader::data_file_reader(server_context& context) :
     context_(context),
-    max_file_size_(0u)
+    max_file_size_(0u),
+    clean_data_file_(true)
 {
 }
 
@@ -48,6 +49,8 @@ void data_file_reader::configure(server_config const& config)
     LOG_COMP_NOTICE(data_file_reader, "configuring");
 
     max_file_size_ = config.max_data_file_size;
+
+    clean_data_file_ = config.clean_data_file;
 
     filename_ = util::path::combine(config.chat_path, files::chat);
 }
@@ -132,7 +135,7 @@ void data_file_reader::check_data_file()
         LOG_COMP_INFO(data_file_reader, "creating new data file");
         util::file::create(filename_);
     }
-    else if(config.clean_data_file)
+    else if(clean_data_file_)
     {
         LOG_COMP_INFO(data_file_reader, "truncating data file");
         util::file::truncate(filename_);

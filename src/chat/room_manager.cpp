@@ -1,20 +1,20 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008 - 2016 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
-//    spdaemon is free software: you can redistribute it and/or modify
+//    spchatd is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
 //    (at your option) any later version.
 //
-//    spdaemon is distributed in the hope that it will be useful,
+//    spchatd is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with spdaemon. If not, see <http://www.gnu.org/licenses/>.
+//    along with spchatd. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -56,7 +56,9 @@ void room_manager::configure(server_config const& config)
 
     reload_chat_topic(true);
 
-    std::string filename = util::path::combine(config.php_path, files::rooms);
+    config_path_ = config.conf_path;
+
+    std::string filename = util::path::combine(config_path_, files::rooms);
 
     std::vector<std::string> rooms;
     read_rooms_file(filename, rooms);
@@ -147,7 +149,7 @@ void room_manager::reload_chat_topic(bool force)
 
         try
         {
-            std::string filename = util::path::combine(config.conf_path, files::topic);
+            std::string filename = util::path::combine(config_path_, files::topic);
 
             if(util::file::exists(filename))
                 chat_topic_ = util::file::read_text(filename);

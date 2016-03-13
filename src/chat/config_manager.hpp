@@ -17,67 +17,33 @@
 //    along with spchatd. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
-#ifndef _chat_data_file_reader_hpp
-#define _chat_data_file_reader_hpp
+#ifndef _chat_config_manager_hpp
+#define _chat_config_manager_hpp
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
 #pragma once
 #endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-// Application headers
-#include <chat/data_file.hpp>
-#include <chat/common.hpp>
-
 // STL headers
 #include <string>
-#include <thread>
 
 
 namespace chat
 {
 
-class server_context;
 struct server_config;
 
-class data_file_reader
+class config_manager
 {
 public:
-    explicit data_file_reader(server_context& context);
+    config_manager() = default;
 
-    data_file_reader(data_file_reader const&) = delete;
-    data_file_reader& operator=(data_file_reader const&) = delete;
+    config_manager(config_manager const&) = delete;
+    config_manager& operator=(config_manager const&) = delete;
 
-    void configure(server_config const& config);
-
-    void start();
-    void stop();
-
-private:
-    void run();
-
-    void open_data_file();
-    void close_data_file();
-
-    void check_data_file();
-    void truncate_data_file();
-
-    void start_worker_thread();
-    void stop_worker_thread();
-
-    void dispatch_line(std::string const& line);
-
-private:
-    server_context& context_;
-
-    data_file data_file_;
-
-    std::string filename_;
-    std::size_t max_file_size_;
-    bool clean_data_file_;
-
-    std::thread worker_thread_;
+    void load_configuration(std::string const& filename, server_config& config) const;
 };
 
 }   // namespace chat
 
-#endif  // _chat_data_file_reader_hpp
+#endif  // _chat_config_manager_hpp

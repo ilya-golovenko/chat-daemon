@@ -1,20 +1,20 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
+//    Copyright (C) 2008 - 2016 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
-//    spdaemon is free software: you can redistribute it and/or modify
+//    spchatd is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
 //    (at your option) any later version.
 //
-//    spdaemon is distributed in the hope that it will be useful,
+//    spchatd is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with spdaemon. If not, see <http://www.gnu.org/licenses/>.
+//    along with spchatd. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -76,13 +76,15 @@ void connection_manager::configure(server_config const& config)
         document_domain_fix_ = http::buffer(document_domain);
     }
 
-    reload_irc_frame_ = http::buffer(config.reload_irc_frame_script);
+    daemon_banner_ = http::buffer("<!--" + build_banner_text() + "-->");
 
-    daemon_banner_ = http::buffer(build_banner_text());
+    reload_irc_frame_ = http::buffer(config.reload_irc_frame_script);
 
     connect_timeout_ = config.connect_timeout;
 
     session_name_ = config.session_name;
+
+    session_path_ = config.sess_path;
 
     create_client_http_response();
 }
@@ -159,10 +161,10 @@ session_id connection_manager::extract_session_id(http::request const& request)
     http::url const url = http::url::from_string(request.get_url());
     http::url_query const url_query = url_query_parser.parse(url);
 
-    if(!url_query.has(config.session_name))
+    if(!url_query.has(session_name_))
         throw exception("request url does not contain session id: ", url);
 
-    std::string const& value = url_query.get(config.session_name);
+    std::string const& value = url_query.get(session_name_);
 
     if(value.empty())
         throw exception("request url contains empty session id: ", url);
@@ -189,8 +191,9 @@ void connection_manager::handle_write(asio::error_code const& error)
 {
     LOG_COMP_TRACE_FUNCTION(connection_manager);
 
+    //TODO:
     //if(!error)
-    //TODO:    context_.get_statistics_manager().add_output_message(bytes_transferred);
+    //    context_.get_statistics_manager().add_output_message(bytes_transferred);
 }
 
 void connection_manager::handle_read(http::server_connection::pointer connection, asio::error_code const& error)
@@ -229,7 +232,7 @@ void connection_manager::handle_read(http::server_connection::pointer connection
 
                 if(!context_.get_user_manager().contains(id))
                 {
-                    std::string const filename = util::path::combine(config.sess_path, id.str());
+                    std::string const filename = util::path::combine(session_path_, id.str());
 
                     if(util::file::exists(filename))
                         context_.get_user_manager().join(id, std::time(nullptr), util::file::read_text(filename));

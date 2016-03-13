@@ -1,20 +1,20 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008 - 2016 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
-//    spdaemon is free software: you can redistribute it and/or modify
+//    spchatd is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
 //    (at your option) any later version.
 //
-//    spdaemon is distributed in the hope that it will be useful,
+//    spchatd is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with spdaemon. If not, see <http://www.gnu.org/licenses/>.
+//    along with spchatd. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -86,7 +86,7 @@ void room::accept(user_ptr user, connection_ptr connection)
         // Start user session
         user->start(connection);
 
-        user->deliver(substitute_name(config.join_room_message));
+        //TODO: user->deliver(substitute_name(config.join_room_message));
 
         // Deliver chat user list
         user->deliver(get_user_list(user));
@@ -99,7 +99,7 @@ void room::accept(user_ptr user, connection_ptr connection)
         // Deliver recent messages
         message_dispatcher_.deliver_recent_messages(user);
 
-        user->deliver(config.end_of_buffer_message);
+        //TODO: user->deliver(config.end_of_buffer_message);
 
         // Deliver chat topic
         user->deliver(context_.get_room_manager().get_chat_topic());
@@ -144,10 +144,10 @@ void room::change_user_room(user_ptr user, room_ptr room)
         if(!persistent_ && users_.empty())
             context_.get_room_manager().remove(name_);
 
-        deliver_leave_message(user, std::time(nullptr), room->substitute_name(config.change_room_message));
+        //TODO: deliver_leave_message(user, std::time(nullptr), room->substitute_name(config.change_room_message));
 
         // Deliver script which will force the browser to refresh
-        user->deliver(config.reload_this_frame_script);
+        //TODO: user->deliver(config.reload_this_frame_script);
 
         room->join(user, std::time(nullptr));
         user->set_room(room);
@@ -207,7 +207,7 @@ std::string room::get_user_list(user_ptr user) const
 
     users << scripts::userlist_end;
 
-    if(user->get_access() >= config.admin_view_ip)
+    if(user->get_access() >= 100 /*TODO: config.admin_view_ip*/)
         return chat::message::get_admin_text(users.str());
 
     return chat::message::get_user_text(users.str());

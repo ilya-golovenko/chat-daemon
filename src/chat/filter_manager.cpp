@@ -1,20 +1,20 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
+//    Copyright (C) 2008 - 2016 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
-//    spdaemon is free software: you can redistribute it and/or modify
+//    spchatd is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
 //    (at your option) any later version.
 //
-//    spdaemon is distributed in the hope that it will be useful,
+//    spchatd is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with spdaemon. If not, see <http://www.gnu.org/licenses/>.
+//    along with spchatd. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -64,6 +64,10 @@ void filter_manager::configure(server_config const& config)
 
         rules_.emplace_back(rule.name, address, rule.max_connection_count, rule.connections_per_minute, rule.block_duration);
     }
+
+    server_path_ = config.server_path;
+
+    admin_view_ip_ = config.admin_view_ip;
 
     max_list_size_ = config.filter.max_list_size;
 
@@ -228,7 +232,7 @@ void filter_manager::update_ignorelist_file(bool force)
 
         try
         {
-            std::string filename = util::path::combine(config.server_path, ::files::ignorelist);
+            std::string filename = util::path::combine(server_path_, ::files::ignorelist);
 
             util::file::write_text(filename, buffer.str());
         }
@@ -314,7 +318,7 @@ void filter_manager::deliver_address_blocked_message(asio::ip::address const& ad
 
         missio::format::print(message, address_blocked_message_, address, std::time(nullptr));
 
-        context_.get_message_parser().deliver_admin_message(message, config.admin_view_ip);
+        context_.get_message_parser().deliver_admin_message(message, admin_view_ip_);
     }
 }
 

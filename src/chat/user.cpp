@@ -1,20 +1,20 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
+//    Copyright (C) 2008 - 2016 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
-//    spdaemon is free software: you can redistribute it and/or modify
+//    spchatd is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
 //    (at your option) any later version.
 //
-//    spdaemon is distributed in the hope that it will be useful,
+//    spchatd is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with spdaemon. If not, see <http://www.gnu.org/licenses/>.
+//    along with spchatd. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -25,8 +25,6 @@
 #include <chat/connection.hpp>
 #include <chat/exception.hpp>
 #include <chat/message.hpp>
-#include <misc/file_utils.hpp>
-#include <misc/path_utils.hpp>
 
 // MISSIO headers
 #include <missio/logging/common.hpp>
@@ -119,29 +117,12 @@ void user::update(update::type update_type, std::string const& value)
     std::size_t access = 0;
 
     if(update_type == update::access)
-        access = config.admin_view_ip;
+        access = 100; //TODO: config.admin_view_ip;
 
     std::string text = get_update_message(update_type, value);
     room_->deliver(chat::message::create(text, access), true);
 
     update_session_field(update_type, value);
-}
-
-void user::remove_session_file()
-{
-    LOG_COMP_TRACE_FUNCTION(user);
-
-    try
-    {
-        std::string filename = util::path::combine(config.sess_path, session_->get_id().str());
-
-        if(util::file::exists(filename))
-            util::file::remove(filename);
-    }
-    catch(std::exception const& e)
-    {
-        LOG_COMP_WARNING(user, e);
-    }
 }
 
 void user::update_session_field(update::type update_type, std::string const& value)
@@ -227,8 +208,9 @@ void user::start(connection_ptr connection)
 
     if(is_connected())
     {
-        std::string message = config.duplicate_windows_message;
-        connection_->stop(message, bind_to_write_handler());
+        //TODO: context_.get_user_manager().stop()
+        //std::string message = config.duplicate_windows_message;
+        //connection_->stop(message, bind_to_write_handler());
     }
 
     active_ = true;
@@ -261,7 +243,7 @@ void user::stop()
         connection_.reset();
     }
 
-    remove_session_file();
+    context_.get_user_manager().remove_session_file(get_session_id());
 
     LOG_COMP_DEBUG(user, "stopped session for user ", get_nickname());
 }
@@ -288,13 +270,13 @@ void user::register_bot()
 
 void user::start_ping_timer()
 {
-    timer_.expires_from_now(config.ping_interval);
+    timer_.expires_from_now(/*TODO: config.ping_interval*/ std::chrono::seconds(10));
     timer_.async_wait(/*TODO: bind_to_ping_handler()*/ std::bind(&user::handle_ping, shared_from_this(), std::placeholders::_1));
 }
 
 void user::start_leave_timer()
 {
-    timer_.expires_from_now(config.leave_timeout);
+    timer_.expires_from_now(/*TODO: config.leave_timeout*/ std::chrono::seconds(600));
     timer_.async_wait(/*TODO: bind_to_leave_handler()*/ std::bind(&user::handle_leave, shared_from_this(), std::placeholders::_1));
 }
 
@@ -319,9 +301,9 @@ void user::handle_write(asio::error_code const& error)
             active_ = false;
             start_leave_timer();
 
-            remove_session_file();
-
             update(update::connection, status::lost);
+
+            context_.get_user_manager().remove_session_file(get_session_id());
 
             LOG_COMP_NOTICE(user, "lost connection with user ", get_nickname());
         }
@@ -334,8 +316,8 @@ void user::handle_leave(asio::error_code const& error)
 
     if(!error)
     {
-        if(!is_connected()) //TODO: context_.get_user_manager().lost(shared_from_this());
-            context_.get_user_manager().leave(shared_from_this(), std::time(nullptr), config.lost_connection_message);
+        //if(!is_connected()) //TODO: context_.get_user_manager().lost(shared_from_this());
+        //    context_.get_user_manager().leave(shared_from_this(), std::time(nullptr), config.lost_connection_message);
     }
 }
 
