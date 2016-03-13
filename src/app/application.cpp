@@ -1,20 +1,20 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
+//    Copyright (C) 2008 - 2016 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
-//    spdaemon is free software: you can redistribute it and/or modify
+//    spchatd is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
 //    (at your option) any later version.
 //
-//    spdaemon is distributed in the hope that it will be useful,
+//    spchatd is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with spdaemon. If not, see <http://www.gnu.org/licenses/>.
+//    along with spchatd. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -22,7 +22,7 @@
 #include <app/application.hpp>
 #include <app/version.hpp>
 #include <chat/server.hpp>
-#include <chat/server_context.hpp>
+#include <chat/config_manager.hpp>
 #include <misc/file_utils.hpp>
 #include <misc/path_utils.hpp>
 
@@ -55,16 +55,13 @@ application::application() :
 
 int application::run(int argc, char* argv[])
 {
-    //TODO: temporary, for debugging purposes
-    std::cin.get();
-
     try
     {
         return run_application(argc, argv);
     }
     catch(std::exception const& e)
     {
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
     }
 
     return EXIT_FAILURE;
@@ -160,7 +157,7 @@ bool application::parse_command_line(int argc, char* argv[])
 
     if(options.count("help"))
     {
-        std::cout << "usage: spdaemon [options]" << std::endl;
+        std::cout << "usage: spchatd [options]" << std::endl;
         std::cout << description << std::endl;
         return false;
     }
@@ -183,15 +180,15 @@ bool application::parse_command_line(int argc, char* argv[])
     }
     catch(po::required_option const& e)
     {
-        std::cout << "required option missing: " + e.get_option_name() << std::endl;
-        std::cout << "usage: spdaemon [options]" << std::endl;
+        std::cerr << "required option missing: " + e.get_option_name() << std::endl;
+        std::cout << "usage: spchatd [options]" << std::endl;
         std::cout << description << std::endl;
         return false;
     }
 
     if(!boost::filesystem::exists(config_filename_))
     {
-        std::cout << "configuration file does not exist: " << config_filename_ << std::endl;
+        std::cerr << "configuration file does not exist: " << config_filename_ << std::endl;
         return false;
     }
 
@@ -199,9 +196,9 @@ bool application::parse_command_line(int argc, char* argv[])
     {
         parse_config_file(config_filename_.string());
     }
-    catch(config_error const& e)
+    catch(std::exception const& e)
     {
-        std::cout << "cannot parse configuration file: " << e.what() << std::endl;
+        std::cerr << "cannot parse configuration file: " << e.what() << std::endl;
 
         return false;
     }
@@ -216,7 +213,7 @@ bool application::parse_command_line(int argc, char* argv[])
 
 void application::parse_config_file(std::string const& filename)
 {
-    config_manager_.load_configuration(filename);
+    config_manager().load_configuration(filename, config_);
 }
 
 void application::configure_logging_library()
@@ -237,14 +234,15 @@ void application::configure_logging_library()
         .max_file_index(5)
         .add_writer();
 
-#if defined(DEBUG) || defined(_DEBUG)
-    missio::logging::file_options(missio::logging::trace)
-        .filename("spdaemon_trace.log")
-        .format("%MessageID%\t%TimeStamp%\t%Severity%\t%ProcessID%\t%ThreadID%\t[%Component%]\t[%Function% @ %File%:%Line%] %Message%\n")
-        .max_file_size(1000000)
-        .max_file_index(5)
-        .add_writer();
-#endif  // defined(DEBUG) || defined(_DEBUG)
+    if(LOG_MAX_SEVERITY >= missio::logging::trace)
+    {
+        missio::logging::file_options(missio::logging::trace)
+            .filename("spdaemon_trace.log")
+            .format("%MessageID%\t%TimeStamp%\t%Severity%\t%ProcessID%\t%ThreadID%\t[%Component%]\t[%Function% @ %File%:%Line%] %Message%\n")
+            .max_file_size(1000000)
+            .max_file_index(5)
+            .add_writer();
+    }
 
 #if defined(CHAT_PLATFORM_POSIX)
     missio::logging::syslog_options(missio::logging::error)
@@ -310,7 +308,7 @@ void application::save_pid_file()
 
 void application::delete_pid_file()
 {
-    LOG_COMP_INFO("removing application pid file: ", pid_filename_);
+    LOG_COMP_INFO(application, "removing application pid file: ", pid_filename_);
 
     boost::filesystem::remove(pid_filename_);
 }
@@ -319,7 +317,7 @@ void application::handle_signal(asio::error_code const& error, int signal)
 {
     if(!error)
     {
-        LOG_COMP_INFO("received signal from operating system: ", signal);
+        LOG_COMP_INFO(application, "received signal from operating system: ", signal);
 
         stop();
     }
