@@ -1,8 +1,8 @@
 [submodule "deps/missio"]
 	path = deps/missio
-	url = https://github.com/ilya-golovenko/missio.git
+	url = https://github.com/missio-cpp/missio.git
 	branch = master
 [submodule "deps/asio"]
 	path = deps/asio
 	url = https://github.com/chriskohlhoff/asio.git
-	branch = asio-1-10-branch
+	branch = master
