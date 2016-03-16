@@ -51,7 +51,9 @@ boost::optional<std::string> message::get(std::string const& name) const
     header_map::const_iterator it = headers_.find(name);
 
     if(it != headers_.end())
+    {
         return boost::make_optional(it->second);
+    }
 
     return boost::optional<std::string>();
 }
@@ -96,7 +98,9 @@ boost::optional<std::size_t> message::get_content_length() const
     boost::optional<std::string> value = get(header_names::content_length);
 
     if(value)
+    {
         return boost::optional<std::size_t>(std::stoul(*value));
+    }
 
     return boost::optional<std::size_t>();
 }
@@ -132,7 +136,9 @@ bool message::is_keep_alive() const
         if(value)
         {
             if(!boost::algorithm::iequals(*value, encoding_tokens::chunked))
+            {
                 value = boost::optional<std::string>();
+            }
         }
     }
 
@@ -141,10 +147,14 @@ bool message::is_keep_alive() const
         value = get(header_names::proxy_connection);
 
         if(!value)
+        {
             value = get(header_names::connection);
+        }
 
         if(value)
+        {
             return boost::iequals(*value, connection_tokens::keep_alive);
+        }
 
         return version::http_1_1 == version_;
     }
@@ -154,10 +164,7 @@ bool message::is_keep_alive() const
 
 void message::set_keep_alive(bool keep_alive)
 {
-    if(keep_alive)
-        set(header_names::connection, connection_tokens::keep_alive);
-    else
-        set(header_names::connection, connection_tokens::close);
+    set(header_names::connection, keep_alive ? connection_tokens::keep_alive : connection_tokens::close);
 }
 
 bool message::is_body_empty() const

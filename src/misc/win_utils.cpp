@@ -42,7 +42,9 @@ std::string char_to_oem(std::string const& text)
     std::vector<char> buffer(text.size());
 
     if(!::CharToOemBuffA(text.c_str(), &buffer.front(), static_cast<DWORD>(buffer.size())))
+    {
         throw std::runtime_error(error_to_string("CharToOem", ::GetLastError()));
+    }
 
     return std::string(buffer.begin(), buffer.end());
 }

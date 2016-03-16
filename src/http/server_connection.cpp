@@ -28,9 +28,6 @@
 // MISSIO headers
 #include <missio/logging/common.hpp>
 
-// BOOST headers
-#include <boost/logic/tribool.hpp>
-
 // STL headers
 #include <functional>
 #include <chrono>
@@ -169,7 +166,9 @@ void server_connection::write_buffer(buffer const& buffer, completion_handler co
         handlers_.push(handler);
 
         if(idle && !writing_response_)
+        {
             write_front_connection_buffer();
+        }
     }
 }
 
@@ -284,7 +283,9 @@ void server_connection::call_completion_handler(asio::error_code const& error)
     LOG_COMP_TRACE_FUNCTION(server_connection);
 
     if(error)
+    {
         close_connection(true);
+    }
 
     try
     {
@@ -319,7 +320,7 @@ void server_connection::handle_read(asio::error_code const& error, std::size_t b
 
     if(!error || error == asio::error::eof)
     {
-        boost::tribool result = true;
+        parse_result result = parse_result::ok;
 
         char const* begin = buffer_.data();
         char const* end = begin + bytes_transferred;
@@ -328,7 +329,7 @@ void server_connection::handle_read(asio::error_code const& error, std::size_t b
         {
             std::tie(result, begin) = request_parser_.parse(request_, begin, end);
 
-            if(boost::indeterminate(result))
+            if(result == parse_result::more)
             {
                 if(error == asio::error::eof)
                 {
@@ -341,7 +342,7 @@ void server_connection::handle_read(asio::error_code const& error, std::size_t b
                     tcp_connection_->read(buffer_, bind_to_read_handler());
                 }
             }
-            else if(!result)
+            else if(result == parse_result::error)
             {
                 LOG_COMP_DEBUG(server_connection, "cannot parse request from http client");
                 call_completion_handler(asio::error::invalid_argument);
@@ -360,14 +361,16 @@ void server_connection::handle_read(asio::error_code const& error, std::size_t b
         {
             if(chunked_encoding_)
             {
-                while(result && begin != end)
+                while(result == parse_result::ok && begin != end)
                 {
                     if(chunk_size_ > 0)
                     {
                         std::size_t size = end - begin;
 
                         if(size > chunk_size_)
+                        {
                             size = chunk_size_;
+                        }
 
                         if(size > 0)
                         {
@@ -379,19 +382,21 @@ void server_connection::handle_read(asio::error_code const& error, std::size_t b
                         chunk_size_ -= size;
 
                         if(begin == end && chunk_size_ > 0)
-                            result = boost::indeterminate;
+                        {
+                            result = parse_result::more;
+                        }
                     }
 
                     if(0 == chunk_size_)
                     {
                         std::tie(result, begin) = chunked_parser_.parse(begin, end);
 
-                        if(!result)
+                        if(result == parse_result::error)
                         {
                             LOG_COMP_DEBUG(server_connection, "cannot parse request from http client");
                             call_completion_handler(asio::error::invalid_argument);
                         }
-                        else if(result)
+                        else if(result == parse_result::ok)
                         {
                             chunk_size_ = chunked_parser_.get_chunk_size();
 
@@ -404,7 +409,7 @@ void server_connection::handle_read(asio::error_code const& error, std::size_t b
                     }
                 }
 
-                if(boost::indeterminate(result))
+                if(result == parse_result::more)
                 {
                     if(error == asio::error::eof)
                     {
@@ -421,7 +426,9 @@ void server_connection::handle_read(asio::error_code const& error, std::size_t b
             else
             {
                 if(begin < end)
+                {
                     request_.append_body(begin, end);
+                }
 
                 if(is_reading_completed(error))
                 {
@@ -459,14 +466,18 @@ void server_connection::handle_write(asio::error_code const& error, std::size_t 
     if(!error)
     {
         if(!writing_response_)
+        {
             write_buffers_.pop();
+        }
 
         writing_response_ = false;
 
         if(write_buffers_.empty())
         {
             if(closing_connection_)
+            {
                 close_connection(true);
+            }
         }
         else
         {

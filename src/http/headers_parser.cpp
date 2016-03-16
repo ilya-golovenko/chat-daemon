@@ -37,7 +37,7 @@ void headers_parser::reset()
     value_.clear();
 }
 
-boost::tribool headers_parser::consume(message& message, char c)
+parse_result headers_parser::consume(message& message, char c)
 {
     switch(state_)
     {
@@ -45,21 +45,21 @@ boost::tribool headers_parser::consume(message& message, char c)
             if(c == '\r')
             {
                 state_ = state_expecting_newline_2;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             else if(c == ' ' || c == '\t')
             {
                 if(!name_.empty())
                 {
                     state_ = state_header_whitespace;
-                    return boost::indeterminate;
+                    return parse_result::more;
                 }
             }
             else if(is_char(c))
             {
                 name_.assign(1, c);
                 state_ = state_header_name;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             break;
 
@@ -67,11 +67,11 @@ boost::tribool headers_parser::consume(message& message, char c)
             if(c == '\r')
             {
                 state_ = state_expecting_newline_1;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             else if(c == ' ' || c == '\t')
             {
-                return boost::indeterminate;
+                return parse_result::more;
             }
             else if(!is_control(c))
             {
@@ -79,7 +79,7 @@ boost::tribool headers_parser::consume(message& message, char c)
                 {
                     value_.push_back(c);
                     state_ = state_header_value;
-                    return boost::indeterminate;
+                    return parse_result::more;
                 }
             }
             break;
@@ -88,14 +88,14 @@ boost::tribool headers_parser::consume(message& message, char c)
             if(c == ':')
             {
                 state_ = state_space_before_header_value;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             else if(is_char(c))
             {
                 if(name_.size() < max_header_name_length)
                 {
                     name_.push_back(c);
-                    return boost::indeterminate;
+                    return parse_result::more;
                 }
             }
             break;
@@ -104,7 +104,7 @@ boost::tribool headers_parser::consume(message& message, char c)
             if(c == ' ')
             {
                 state_ = state_header_value_start;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             break;
 
@@ -113,23 +113,23 @@ boost::tribool headers_parser::consume(message& message, char c)
             {
                 value_.assign(1, c);
                 state_ = state_header_value;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             break;
 
         case state_header_value:
             if(c == '\r')
             {
-                set_message_header(message);
+                message.add(name_, value_);
                 state_ = state_expecting_newline_1;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             else if(!is_control(c))
             {
                 if(value_.size() < max_header_value_length)
                 {
                     value_.push_back(c);
-                    return boost::indeterminate;
+                    return parse_result::more;
                 }
             }
             break;
@@ -138,24 +138,19 @@ boost::tribool headers_parser::consume(message& message, char c)
             if(c == '\n')
             {
                 state_ = state_header_line_start;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             break;
 
         case state_expecting_newline_2:
             if(c == '\n')
             {
-                return true;
+                return parse_result::ok;
             }
             break;
     }
 
-    return false;
-}
-
-void headers_parser::set_message_header(message& message)
-{
-    message.add(name_, value_);
+    return parse_result::error;
 }
 
 }    // namespace http

@@ -59,7 +59,7 @@ static char const* field_names[] =
     "line_in"
 };
 
-std::time_t const statistics_manager::start_time_ = std::time(nullptr);
+std::time_t const start_time = std::time(nullptr);
 
 statistics_manager::statistics_manager(server_context& context) :
     context_(context),
@@ -73,6 +73,11 @@ void statistics_manager::configure(server_config const& config)
     LOG_COMP_TRACE_FUNCTION(statistics_manager);
 
     LOG_COMP_NOTICE(statistics_manager, "configuring");
+
+    server_path_ = config.server_path;
+
+    status_interval_ = config.status_interval;
+    statistics_interval_ = config.statistics_interval;
 
     simple_statistics_.fill(std::size_t(0u));
     detail_statistics_.fill(simple_statistics_);
@@ -146,7 +151,7 @@ void statistics_manager::start_status_timer()
 {
     LOG_COMP_TRACE_FUNCTION(statistics_manager);
 
-    status_timer_.expires_from_now(config.status_interval);
+    status_timer_.expires_from_now(status_interval_);
     status_timer_.async_wait(/*TODO: bind_to_status_timer_handler()*/ std::bind(&statistics_manager::handle_status_timer, this, std::placeholders::_1));
 }
 
@@ -154,7 +159,7 @@ void statistics_manager::start_statistics_timer()
 {
     LOG_COMP_TRACE_FUNCTION(statistics_manager);
 
-    statistics_timer_.expires_from_now(config.statistics_interval);
+    statistics_timer_.expires_from_now(statistics_interval_);
     statistics_timer_.async_wait(/*TODO: bind_to_statistics_timer_handler()*/ std::bind(&statistics_manager::handle_statistics_timer, this, std::placeholders::_1));
 }
 
@@ -164,7 +169,7 @@ void statistics_manager::update_run_status()
 
     try
     {
-        std::string filename = util::path::combine(config.server_path, ::files::runstatus);
+        std::string filename = util::path::combine(server_path_, ::files::runstatus);
 
         util::file::write_text(filename, std::to_string(std::time(nullptr)));
     }
@@ -195,7 +200,7 @@ void statistics_manager::update_simple_statistics()
 
     LOG_COMP_DEBUG(statistics_manager, "updating simple statistics");
 
-    std::string filename = util::path::combine(config.server_path, ::files::statistics);
+    std::string filename = util::path::combine(server_path_, ::files::statistics);
 
     util::file::write_text(filename, get_simple_statistics());
 }
@@ -206,7 +211,7 @@ void statistics_manager::update_detail_statistics()
 
     LOG_COMP_DEBUG(statistics_manager, "updating detail statistics");
 
-    std::string filename = util::path::combine(config.server_path, ::files::traffic);
+    std::string filename = util::path::combine(server_path_, ::files::traffic);
 
     util::file::write_text(filename, get_detail_statistics());
 }
@@ -227,7 +232,7 @@ std::string statistics_manager::get_simple_statistics() const
     buffer << field_names[output_messages] << ' ' << simple_statistics_[output_messages] << ' ';
     buffer << field_names[input_messages] << ' ' << simple_statistics_[input_messages] << std::endl;
 
-    buffer << start_time_ << std::endl;
+    buffer << start_time << std::endl;
     buffer << connection_count << std::endl;
     buffer << ignore_count << std::endl;
     buffer << get_operating_system_info() << std::endl;

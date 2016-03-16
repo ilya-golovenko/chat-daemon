@@ -79,7 +79,9 @@ bool exists(std::string const& path)
     if(!::stat(path.c_str(), &path_stat))
     {
         if(path_stat.st_mode & S_IFDIR)
+        {
             return true;
+        }
     }
 
     return false;
@@ -104,10 +106,14 @@ std::string remove_filespec(std::string const& path)
 std::string combine(std::string const& path1, std::string const& path2)
 {
     if(path1.empty())
+    {
         return native(path2);
+    }
 
     if(path2.empty())
+    {
         return native(path1);
+    }
 
     std::string const native_path1 = native(path1);
     std::string const native_path2 = native(path2);
@@ -116,10 +122,14 @@ std::string combine(std::string const& path1, std::string const& path2)
     bool const has_start = boost::algorithm::starts_with(native_path2, native_separator);
 
     if(has_end && has_start)
+    {
         return native_path1 + native_path2.substr(1);
+    }
 
     if(has_end || has_start)
+    {
         return native_path1 + native_path2;
+    }
 
     return native_path1 + native_separator + native_path2;
 }

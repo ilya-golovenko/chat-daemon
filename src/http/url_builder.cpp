@@ -124,13 +124,17 @@ std::string url_builder::to_string(int components, bool escape) const
     if(components & url::protocol_component)
     {
         if(!protocol_.empty())
+        {
             buffer << protocol_ << "://";
+        }
     }
 
     if(components & url::user_info_component)
     {
         if(!user_info_.empty())
+        {
             buffer << user_info_ << "@";
+        }
     }
 
     if(components & url::hostname_component)
@@ -141,7 +145,9 @@ std::string url_builder::to_string(int components, bool escape) const
     if(components & url::port_component)
     {
         if(!port_.empty())
+        {
             buffer << ":" << port_;
+        }
     }
 
     if(components & url::path_component)
@@ -152,13 +158,17 @@ std::string url_builder::to_string(int components, bool escape) const
     if(components & url::query_component)
     {
         if(!query_.empty())
+        {
             buffer << "?" << (escape ? escape_string(query_) : query_);
+        }
     }
 
     if(components & url::fragment_component)
     {
         if(!fragment_.empty())
+        {
             buffer << "#" << fragment_;
+        }
     }
 
     return buffer.str();

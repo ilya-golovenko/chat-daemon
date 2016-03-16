@@ -30,9 +30,6 @@
 #include <http/version_parser.hpp>
 #include <http/headers_parser.hpp>
 
-// BOOST headers
-#include <boost/logic/tribool.hpp>
-
 // STL headers
 #include <string>
 
@@ -50,7 +47,7 @@ public:
 
     void reset();
 
-    boost::tribool consume(response& response, char c);
+    parse_result consume(response& response, char c);
 
 private:
     void set_response_status(response& response);

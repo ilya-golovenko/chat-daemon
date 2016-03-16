@@ -63,7 +63,9 @@ std::string const& from_extension(std::string const& str)
     for(entry const& entry : table)
     {
         if(boost::algorithm::iequals(str, entry.extension))
+        {
             return entry.mime_type;
+        }
     }
 
     return application_octet_stream;

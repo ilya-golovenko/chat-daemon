@@ -76,13 +76,15 @@ void connection_manager::configure(server_config const& config)
         document_domain_fix_ = http::buffer(document_domain);
     }
 
-    reload_irc_frame_ = http::buffer(config.reload_irc_frame_script);
+    daemon_banner_ = http::buffer("<!--" + build_banner_text() + "-->");
 
-    daemon_banner_ = http::buffer(build_banner_text());
+    reload_irc_frame_ = http::buffer(config.reload_irc_frame_script);
 
     connect_timeout_ = config.connect_timeout;
 
     session_name_ = config.session_name;
+
+    session_path_ = config.sess_path;
 
     create_client_http_response();
 }
@@ -118,7 +120,9 @@ void connection_manager::process_connection(http::server_connection::pointer con
         bool blocked = false;
 
         if(!context_.get_frontend_manager().is_connected_via_frontend(connection))
+        {
             blocked = context_.get_filter_manager().check_blocked(connection->get_remote_address());
+        }
 
         if(!blocked)
         {
@@ -159,18 +163,24 @@ session_id connection_manager::extract_session_id(http::request const& request)
     http::url const url = http::url::from_string(request.get_url());
     http::url_query const url_query = url_query_parser.parse(url);
 
-    if(!url_query.has(config.session_name))
+    if(!url_query.has(session_name_))
+    {
         throw exception("request url does not contain session id: ", url);
+    }
 
-    std::string const& value = url_query.get(config.session_name);
+    std::string const& value = url_query.get(session_name_);
 
     if(value.empty())
+    {
         throw exception("request url contains empty session id: ", url);
+    }
 
     std::regex const session_id_regex("^[a-zA-Z0-9,-]{21,40}$");
 
     if(!std::regex_match(value, session_id_regex))
+    {
         throw exception("request url contains bad session id: ", url);
+    }
 
     return session_id(value);
 }
@@ -189,8 +199,9 @@ void connection_manager::handle_write(asio::error_code const& error)
 {
     LOG_COMP_TRACE_FUNCTION(connection_manager);
 
+    //TODO:
     //if(!error)
-    //TODO:    context_.get_statistics_manager().add_output_message(bytes_transferred);
+    //    context_.get_statistics_manager().add_output_message(bytes_transferred);
 }
 
 void connection_manager::handle_read(http::server_connection::pointer connection, asio::error_code const& error)
@@ -206,14 +217,18 @@ void connection_manager::handle_read(http::server_connection::pointer connection
             context_.get_frontend_manager().process_connection(connection);
 
             if(connection->has_custom_remote_endpoint())
+            {
                 blocked = context_.get_filter_manager().check_blocked(connection->get_remote_address());
+            }
 
             if(!blocked)
             {
                 http::request const& request = connection->get_request();
 
                 if(request.get_method() != http::request_methods::get)
+                {
                     throw exception("bad request method: ", request.get_method());
+                }
 
                 session_id const id = extract_session_id(request);
 
@@ -224,15 +239,19 @@ void connection_manager::handle_read(http::server_connection::pointer connection
                 if(!document_domain_fix_.empty())
                 {
                     if(!connection->has_custom_remote_endpoint())
+                    {
                         connection->write_buffer(document_domain_fix_, bind_to_write_handler());
+                    }
                 }
 
                 if(!context_.get_user_manager().contains(id))
                 {
-                    std::string const filename = util::path::combine(config.sess_path, id.str());
+                    std::string const filename = util::path::combine(session_path_, id.str());
 
                     if(util::file::exists(filename))
+                    {
                         context_.get_user_manager().join(id, std::time(nullptr), util::file::read_text(filename));
+                    }
                 }
 
                 if(!context_.get_user_manager().contains(id))

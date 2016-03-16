@@ -85,6 +85,8 @@ public:
 
     std::string const& resolve(session_id const& id) const;
 
+    void remove_session_file(session_id const& id);
+
     std::size_t get_connection_count() const;
     std::size_t get_connection_count(asio::ip::address const& address) const;
 
@@ -93,6 +95,8 @@ private:
 
 private:
     server_context& context_;
+
+    std::string session_path_;
 
     user_map users_;
     connection_map connections_;

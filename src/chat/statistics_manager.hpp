@@ -115,7 +115,10 @@ private:
 private:
     server_context& context_;
 
-    static std::time_t const start_time_;
+    std::string server_path_;
+
+    std::chrono::seconds status_interval_;
+    std::chrono::seconds statistics_interval_;
 
     simple_statistics_array simple_statistics_;
     detail_statistics_array detail_statistics_;

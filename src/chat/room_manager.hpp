@@ -76,6 +76,8 @@ private:
 
     std::string chat_topic_;
 
+    std::string config_path_;
+
     room_map rooms_;
 };
 

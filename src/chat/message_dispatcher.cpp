@@ -36,7 +36,7 @@ namespace chat
 message_dispatcher::message_dispatcher(server_context& context, user_map& users) :
     context_(context),
     users_(users),
-    recent_messages_(config.message_history)
+    recent_messages_(50) //TODO: config.message_history
 {
 }
 
@@ -45,7 +45,9 @@ void message_dispatcher::deliver_message(message_ptr message, bool not_buffered)
     LOG_COMP_TRACE_FUNCTION(message_dispatcher);
 
     if(!not_buffered)
+    {
         buffer_message(message);
+    }
 
     if(message->has_recipient())
     {
@@ -54,7 +56,9 @@ void message_dispatcher::deliver_message(message_ptr message, bool not_buffered)
         user_map::const_iterator it = users_.find(id);
 
         if(it != users_.end())
+        {
             process_message(it->second, message);
+        }
     }
     else
     {
@@ -96,14 +100,18 @@ void message_dispatcher::process_message(user_ptr user, message_ptr message)
     if(is_message_intended_for_user(user, message))
     {
         if(!is_message_ignored_by_user(user, message))
+        {
             user->deliver(message->get_text(user->get_access()));
+        }
     }
 }
 
 bool message_dispatcher::is_message_intended_for_user(user_ptr user, message_ptr message) const
 {
     if(message->has_recipient())
+    {
         return *message->get_recipient() == *user->get_session();
+    }
 
     return user->get_access() >= message->get_access();
 }
@@ -112,8 +120,10 @@ bool message_dispatcher::is_message_ignored_by_user(user_ptr user, message_ptr m
 {
     if(message->has_sender())
     {
-        if(message->get_sender()->get_access() < config.admin_ignore)
+        if(message->get_sender()->get_access() < 300) //TODO: config.admin_ignore
+        {
             return is_user_ignored_by_user(user, message->get_sender()->get_id());
+        }
     }
 
     return false;

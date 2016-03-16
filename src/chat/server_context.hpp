@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
@@ -42,6 +42,7 @@
 #include <asio.hpp>
 
 // STL headers
+#include <utility>
 #include <random>
 
 
@@ -64,7 +65,7 @@ public:
     asio::io_service& get_io_service();
 
     template <typename Handler>
-    void dispatch(Handler const& handler);
+    void dispatch(Handler&& handler);
 
     std::uint32_t generate_random_number();
 
@@ -95,16 +96,16 @@ private:
     filter_manager filter_manager_;
     frontend_manager frontend_manager_;
     connection_manager connection_manager_;
-    statistics_manager statistics_manager_; 
+    statistics_manager statistics_manager_;
 
     message_parser message_parser_;
     data_file_reader data_file_reader_;
 };
 
 template <typename Handler>
-void server_context::dispatch(Handler const& handler)
+void server_context::dispatch(Handler&& handler)
 {
-    io_service_.dispatch(handler);
+    io_service_.dispatch(std::forward<Handler>(handler));
 }
 
 }   // namespace chat

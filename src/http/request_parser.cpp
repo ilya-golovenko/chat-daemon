@@ -41,12 +41,12 @@ void request_parser::reset()
     headers_parser_.reset();
 }
 
-boost::tribool request_parser::consume(request& request, char c)
+parse_result request_parser::consume(request& request, char c)
 {
     if(++size_ > max_message_size)
-        return false;
-
-    boost::tribool result;
+    {
+        return parse_result::error;
+    }
 
     switch(state_)
     {
@@ -55,7 +55,7 @@ boost::tribool request_parser::consume(request& request, char c)
             {
                 method_.push_back(c);
                 state_ = state_method;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             break;
 
@@ -64,12 +64,12 @@ boost::tribool request_parser::consume(request& request, char c)
             {
                 set_request_method(request);
                 state_ = state_url_start;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             else if(is_char(c))
             {
                 method_.push_back(c);
-                return boost::indeterminate;
+                return parse_result::more;
             }
             break;
 
@@ -78,7 +78,7 @@ boost::tribool request_parser::consume(request& request, char c)
             {
                 url_.push_back(c);
                 state_ = state_url;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             break;
 
@@ -87,29 +87,31 @@ boost::tribool request_parser::consume(request& request, char c)
             {
                 set_request_url(request);
                 state_ = state_http_version;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             else if(!is_control(c))
             {
                 url_.push_back(c);
-                return boost::indeterminate;
+                return parse_result::more;
             }
             break;
 
         case state_http_version:
-            result = version_parser_.consume(request, c);
+            switch(version_parser_.consume(request, c))
+            {
+                case parse_result::ok:
+                    if(c == '\r')
+                    {
+                        state_ = state_expecting_newline;
+                        return parse_result::more;
+                    }
+                    break;
 
-            if(result)
-            {
-                if(c == '\r')
-                {
-                    state_ = state_expecting_newline;
-                    return boost::indeterminate;
-                }
-            }
-            else
-            {
-                return result;
+                case parse_result::more:
+                    return parse_result::more;
+
+                default:
+                    ;
             }
             break;
 
@@ -117,7 +119,7 @@ boost::tribool request_parser::consume(request& request, char c)
             if(c == '\n')
             {
                 state_ = state_headers;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             break;
 
@@ -125,7 +127,7 @@ boost::tribool request_parser::consume(request& request, char c)
             return headers_parser_.consume(request, c);
     }
 
-    return false;
+    return parse_result::error;
 }
 
 void request_parser::set_request_method(request& request)

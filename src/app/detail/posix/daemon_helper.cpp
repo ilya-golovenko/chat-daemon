@@ -46,10 +46,14 @@ bool posix_daemon_helper::daemonize()
     pid_t const pid = ::fork();
 
     if(pid < 0) // fork failed
+    {
         throw std::runtime_error(util::errno_to_string("fork", errno));
+    }
 
     if(pid > 0) // parent process
+    {
         return true;
+    }
 
     // Change file mode mask
     ::umask(0);
@@ -59,7 +63,9 @@ bool posix_daemon_helper::daemonize()
 
     // Create new session
     if(::setsid() < 0)
-      throw std::runtime_error(util::errno_to_string("setsid", errno));
+    {
+        throw std::runtime_error(util::errno_to_string("setsid", errno));
+    }
 
     // Close standard descriptors
     ::close(STDIN_FILENO);

@@ -1,20 +1,20 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008 - 2016 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
-//    spdaemon is free software: you can redistribute it and/or modify
+//    spchatd is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
 //    (at your option) any later version.
 //
-//    spdaemon is distributed in the hope that it will be useful,
+//    spchatd is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with spdaemon. If not, see <http://www.gnu.org/licenses/>.
+//    along with spchatd. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -67,10 +67,14 @@ void ignore_manager::add_total_ignore(session_id const& ignored_id)
     LOG_COMP_TRACE_FUNCTION(ignore_manager);
 
     if(ignored_id.is_any())
+    {
         throw exception("cannot add total ignore for all users");
+    }
 
     if(total_ignores_.insert(ignored_id).second)
+    {
         LOG_COMP_NOTICE(ignore_manager, "added total ignore for user ", resolve_user_name(ignored_id));
+    }
 }
 
 void ignore_manager::remove_total_ignore(session_id const& ignored_id)
@@ -110,13 +114,19 @@ void ignore_manager::add_user_ignore(session_id const& id, session_id const& ign
     LOG_COMP_TRACE_FUNCTION(ignore_manager);
 
     if(id.is_any())
+    {
         throw exception("invalid user session id: ", id);
+    }
 
     if(ignored_id.is_any())
+    {
         throw exception("user ", resolve_user_name(id), " cannot add ignore for all users");
+    }
 
     if(user_ignores_.emplace(id, ignored_id).second)
+    {
         LOG_COMP_NOTICE(ignore_manager, "user ", resolve_user_name(id), " added ignore for user ", resolve_user_name(ignored_id));
+    }
 }
 
 void ignore_manager::remove_user_ignore(session_id const& id, session_id const& ignored_id)
@@ -124,7 +134,9 @@ void ignore_manager::remove_user_ignore(session_id const& id, session_id const& 
     LOG_COMP_TRACE_FUNCTION(ignore_manager);
 
     if(id.is_any())
+    {
         throw exception("invalid user session id: ", id);
+    }
 
     if(user_ignores_.erase(user_ignore_pair(id, ignored_id)) > 0)
     {

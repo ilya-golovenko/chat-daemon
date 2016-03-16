@@ -37,7 +37,7 @@ void version_parser::reset()
     state_= state_version_h;
 }
 
-boost::tribool version_parser::consume(message& message, char c)
+parse_result version_parser::consume(message& message, char c)
 {
     switch(state_)
     {
@@ -45,7 +45,7 @@ boost::tribool version_parser::consume(message& message, char c)
             if(c == 'H')
             {
                 state_ = state_version_t_1;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             break;
 
@@ -53,7 +53,7 @@ boost::tribool version_parser::consume(message& message, char c)
             if(c == 'T')
             {
                 state_ = state_version_t_2;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             break;
 
@@ -61,7 +61,7 @@ boost::tribool version_parser::consume(message& message, char c)
             if(c == 'T')
             {
                 state_ = state_version_p;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             break;
 
@@ -69,7 +69,7 @@ boost::tribool version_parser::consume(message& message, char c)
             if(c == 'P')
             {
                 state_ = state_version_slash;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             break;
 
@@ -77,7 +77,7 @@ boost::tribool version_parser::consume(message& message, char c)
             if(c == '/')
             {
                 state_ = state_version_major_start;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             break;
 
@@ -86,7 +86,7 @@ boost::tribool version_parser::consume(message& message, char c)
             {
                 major_ = c - '0';
                 state_ = state_version_major;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             break;
 
@@ -94,12 +94,12 @@ boost::tribool version_parser::consume(message& message, char c)
             if(c == '.')
             {
                 state_ = state_version_minor_start;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             else if(is_digit(c))
             {
                 major_ = major_ * 10 + c - '0';
-                return boost::indeterminate;
+                return parse_result::more;
             }
             break;
 
@@ -108,7 +108,7 @@ boost::tribool version_parser::consume(message& message, char c)
             {
                 minor_ = c - '0';
                 state_ = state_version_minor;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             break;
 
@@ -116,22 +116,17 @@ boost::tribool version_parser::consume(message& message, char c)
             if(is_digit(c))
             {
                 minor_ = minor_ * 10 + c - '0';
-                return boost::indeterminate;
+                return parse_result::more;
             }
             else
             {
-                set_message_version(message);
-                return true;
+                message.set_version(major_, minor_);
+                return parse_result::ok;
             }
             break;
     }
 
-    return false;
-}
-
-void version_parser::set_message_version(message& message)
-{
-    message.set_version(major_, minor_);
+    return parse_result::error;
 }
 
 }   // namespace http

@@ -80,12 +80,16 @@ bool polling_file_event::wait()
     while(!terminated_)
     {
         if(!file_.eof())
+        {
             return true;
+        }
 
         if(::nanosleep(&interval, 0) < 0)
         {
             if(EINTR != errno)
+            {
                 throw std::runtime_error(util::errno_to_string("nanosleep", errno));
+            }
         }
     }
 

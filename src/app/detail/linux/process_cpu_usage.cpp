@@ -50,7 +50,9 @@ linux_process_cpu_usage::linux_process_cpu_usage() :
     last_process_time_(get_process_time())
 {
     if(std::time(&last_update_time_) < 0)
+    {
         throw std::runtime_error(util::errno_to_string("time", errno));
+    }
 }
 
 unsigned int linux_process_cpu_usage::get_value()
@@ -58,7 +60,9 @@ unsigned int linux_process_cpu_usage::get_value()
     std::time_t this_update_time;
 
     if(std::time(&this_update_time) < 0)
+    {
         throw std::runtime_error(util::errno_to_string("time", errno));
+    }
 
     if(this_update_time - last_update_time_ >= 60)
     {
@@ -73,7 +77,9 @@ unsigned int linux_process_cpu_usage::get_value()
             long long percent = 100 * process_diff / system_diff;
 
             if(cpu_count_ > 1)
+            {
                 percent /= static_cast<long long>(cpu_count_);
+            }
 
             cpu_usage_ = static_cast<unsigned int>(percent);
         }
@@ -96,7 +102,9 @@ long long linux_process_cpu_usage::get_system_time()
     std::ifstream stat_file("/proc/stat");
 
     if(!stat_file.is_open())
+    {
         throw std::runtime_error("cannot open file: /proc/stat");
+    }
 
     // Skip "cpu"
 
@@ -119,7 +127,9 @@ long long linux_process_cpu_usage::get_process_time()
     struct rusage usage;
 
     if(::getrusage(RUSAGE_SELF, &usage) < 0)
+    {
         throw std::runtime_error(util::errno_to_string("rusage", errno));
+    }
 
     long long const user_time = time_to_ticks(usage.ru_utime);
     long long const sys_time = time_to_ticks(usage.ru_stime);

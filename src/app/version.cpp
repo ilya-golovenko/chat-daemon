@@ -28,11 +28,11 @@
 namespace chat
 {
 
-static char const short_name[] = "spdaemon";
-static char const long_name[]  = "spdaemon - server for chat.php.spb.ru chat";
-static char const copyright[]  = "Copyright (C) 2008, 2009, 2014 Ilya Golovenko";
+static char const short_name[] = "spchatd";
+static char const long_name[] = "spchatd - server for chat.php.spb.ru chat";
+static char const copyright[] = "Copyright (C) 2008 - 2016 Ilya Golovenko";
 
-static char const timestamp[]  = __TIMESTAMP__;
+static char const timestamp[] = __TIMESTAMP__;
 
 static char const version_format[] = "{0}/{1}.{2}.{3}";
 

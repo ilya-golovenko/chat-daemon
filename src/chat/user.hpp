@@ -92,7 +92,6 @@ private:
     void start_ping_timer();
     void start_leave_timer();
 
-    void remove_session_file();
     void update_session_field(update::type update_type, std::string const& value);
 
     chat::completion_handler bind_to_write_handler();

@@ -130,16 +130,22 @@ bool unescape_string(std::string const& input, std::string& output)
 std::string combine_url_path(std::string const& path1, std::string const& path2)
 {
     if(!boost::starts_with(path1, strings::slash))
+    {
         return combine_url_path(strings::slash + path1, path2);
+    }
 
     bool has_end_slash = boost::ends_with(path1, strings::slash);
     bool has_start_slash = boost::starts_with(path2, strings::slash);
 
     if(!(has_end_slash || has_start_slash))
+    {
         return path1 + strings::slash + path2;
+    }
 
     if(has_end_slash && has_start_slash)
+    {
         return path1 + path2.substr(1);
+    }
 
     return path1 + path2;
 }

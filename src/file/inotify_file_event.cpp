@@ -59,12 +59,16 @@ void inotify_file_event::initialize()
         inotify_fd_ = ::inotify_init();
 
         if(inotify_fd_ < 0)
+        {
             throw std::runtime_error(util::errno_to_string("inotify_init", errno));
+        }
 
         file_wd_ = ::inotify_add_watch(inotify_fd_, file_.filename().c_str(), IN_MODIFY);
 
         if(file_wd_ < 0)
+        {
             throw std::runtime_error(util::errno_to_string("inotify_add_watch", errno));
+        }
     }
 }
 
@@ -88,7 +92,9 @@ bool inotify_file_event::wait()
     LOG_COMP_TRACE_FUNCTION(inotify_file_event);
 
     if(::read(inotify_fd_, buffer_, sizeof(buffer_)) > 0)
+    {
         return event_->mask & IN_MODIFY == IN_MODIFY;
+    }
 
     return false;
 }

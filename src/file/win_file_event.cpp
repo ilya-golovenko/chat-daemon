@@ -59,10 +59,12 @@ void win_file_event::initialize()
         terminated_ = false;
 
         std::string const path = util::path::remove_filespec(file_.filename());
-        change_handle_ = ::FindFirstChangeNotification(path.c_str(), FALSE, FILE_NOTIFY_CHANGE_SIZE);
+        change_handle_ = ::FindFirstChangeNotificationA(path.c_str(), FALSE, FILE_NOTIFY_CHANGE_SIZE);
 
         if(INVALID_HANDLE_VALUE == change_handle_)
+        {
             throw std::runtime_error(util::win::error_to_string("FindFirstChangeNotification", ::GetLastError()));
+        }
     }
 }
 
@@ -90,7 +92,9 @@ bool win_file_event::wait()
         if(!terminated_)
         {
             if(!::FindNextChangeNotification(change_handle_))
+            {
                 throw std::runtime_error(util::win::error_to_string("FindNextChangeNotification", GetLastError()));
+            }
 
             return true;
         }

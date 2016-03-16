@@ -22,7 +22,7 @@
 #include <app/application.hpp>
 #include <app/version.hpp>
 #include <chat/server.hpp>
-#include <chat/server_context.hpp>
+#include <chat/config_manager.hpp>
 #include <misc/file_utils.hpp>
 #include <misc/path_utils.hpp>
 
@@ -55,9 +55,6 @@ application::application() :
 
 int application::run(int argc, char* argv[])
 {
-    //TODO: temporary, for debugging purposes
-    std::cin.get();
-
     try
     {
         return run_application(argc, argv);
@@ -199,7 +196,7 @@ bool application::parse_command_line(int argc, char* argv[])
     {
         parse_config_file(config_filename_.string());
     }
-    catch(config_error const& e)
+    catch(std::exception const& e)
     {
         std::cout << "cannot parse configuration file: " << e.what() << std::endl;
 
@@ -216,7 +213,7 @@ bool application::parse_command_line(int argc, char* argv[])
 
 void application::parse_config_file(std::string const& filename)
 {
-    config_manager_.load_configuration(filename);
+    config_manager().load_configuration(filename, config_);
 }
 
 void application::configure_logging_library()
@@ -237,14 +234,15 @@ void application::configure_logging_library()
         .max_file_index(5)
         .add_writer();
 
-#if defined(DEBUG) || defined(_DEBUG)
-    missio::logging::file_options(missio::logging::trace)
-        .filename("spdaemon_trace.log")
-        .format("%MessageID%\t%TimeStamp%\t%Severity%\t%ProcessID%\t%ThreadID%\t[%Component%]\t[%Function% @ %File%:%Line%] %Message%\n")
-        .max_file_size(1000000)
-        .max_file_index(5)
-        .add_writer();
-#endif  // defined(DEBUG) || defined(_DEBUG)
+    if(LOG_MAX_SEVERITY >= missio::logging::trace)
+    {
+        missio::logging::file_options(missio::logging::trace)
+            .filename("spdaemon_trace.log")
+            .format("%MessageID%\t%TimeStamp%\t%Severity%\t%ProcessID%\t%ThreadID%\t[%Component%]\t[%Function% @ %File%:%Line%] %Message%\n")
+            .max_file_size(1000000)
+            .max_file_index(5)
+            .add_writer();
+    }
 
 #if defined(CHAT_PLATFORM_POSIX)
     missio::logging::syslog_options(missio::logging::error)
@@ -298,19 +296,23 @@ void application::save_pid_file()
     LOG_COMP_INFO(application, "saving application pid to file: ", pid_filename_);
 
     if(boost::filesystem::exists(pid_filename_))
+    {
         LOG_COMP_WARNING(application, "application terminated unexpectedly during the previous start");
+    }
 
     boost::filesystem::ofstream pid_file(pid_filename_, std::ios::trunc);
 
     if(!pid_file.is_open())
+    {
         throw std::runtime_error("cannot save application pid");
+    }
 
     pid_file << ::getpid();
 }
 
 void application::delete_pid_file()
 {
-    LOG_COMP_INFO("removing application pid file: ", pid_filename_);
+    LOG_COMP_INFO(application, "removing application pid file: ", pid_filename_);
 
     boost::filesystem::remove(pid_filename_);
 }
@@ -319,7 +321,7 @@ void application::handle_signal(asio::error_code const& error, int signal)
 {
     if(!error)
     {
-        LOG_COMP_INFO("received signal from operating system: ", signal);
+        LOG_COMP_INFO(application, "received signal from operating system: ", signal);
 
         stop();
     }

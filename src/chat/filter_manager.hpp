@@ -90,6 +90,10 @@ private:
 
     std::size_t max_list_size_;
 
+    std::size_t admin_view_ip_;
+
+    std::string server_path_;
+
     host_list hosts_;
     rule_vector rules_;
 

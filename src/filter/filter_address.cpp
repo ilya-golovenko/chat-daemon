@@ -111,14 +111,10 @@ filter_address::filter_address(asio::ip::address const& address):
 void filter_address::set_netmask(asio::ip::address const& netmask)
 {
     if(netmask.is_v6())
-    {
         throw std::runtime_error("invalid IPv4 netmask: " + netmask.to_string());
-    }
 
     if(address_.is_v6())
-    {
         throw std::runtime_error("cannot set netmask for IPv6 address");
-    }
 
     netmask_ = netmask.to_v4();
     prefix_length_ = boost::none;
@@ -129,12 +125,10 @@ void filter_address::set_prefix_length(std::size_t prefix_length)
     if(address_.is_v4())
     {
         if(prefix_length > 32)
-        {
             throw std::runtime_error("invalid IPv4 prefix length: " + std::to_string(prefix_length));
-        }
 
-        unsigned int const shift = prefix_length < 32 ? 32 - prefix_length : 0;
-        unsigned long const netmask = shift < 32 ? ~((1u << shift) - 1) : 0;
+        std::size_t const shift = prefix_length < 32 ? 32 - prefix_length : 0;
+        unsigned long const netmask = shift < 32 ? ~((1UL << shift) - 1) : 0UL;
 
         netmask_ = asio::ip::address_v4( netmask );
         prefix_length_ = boost::none;
@@ -142,9 +136,7 @@ void filter_address::set_prefix_length(std::size_t prefix_length)
     else
     {
         if(prefix_length > 128)
-        {
             throw std::runtime_error("invalid IPv6 prefix length: " + std::to_string(prefix_length));
-        }
 
         prefix_length_ = prefix_length;
         netmask_ = boost::none;

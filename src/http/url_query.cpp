@@ -43,7 +43,9 @@ std::string const& url_query::get(std::string const& name) const
     parameter_map::const_iterator it = parameters_.find(name);
 
     if(it == parameters_.end())
+    {
         throw std::runtime_error("cannot find parameter: " + name);
+    }
 
     return it->second;
 }

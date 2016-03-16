@@ -27,7 +27,7 @@
 // MISSIO headers
 #include <missio/logging/common.hpp>
 
-// BOOST headers
+// STL headers
 #include <functional>
 #include <tuple>
 
@@ -71,7 +71,9 @@ void frontend_manager::configure(server_config const& config)
     }
 
     if(!enabled_)
+    {
         LOG_COMP_NOTICE(frontend_manager, "disabled");
+    }
 }
 
 void frontend_manager::start()

@@ -77,10 +77,7 @@ struct hash<std::pair<chat::session_id, chat::session_id>> : std::unary_function
 {
     std::size_t operator()(std::pair<chat::session_id, chat::session_id> const& value) const
     {
-        std::size_t const first_hash = std::hash<chat::session_id>()(value.first);
-        std::size_t const second_hash = std::hash<chat::session_id>()(value.second);
-
-        return first_hash ^ (second_hash << 1);
+        return std::hash<chat::session_id>()(value.first) ^ std::hash<chat::session_id>()(value.second);
     }
 };
 

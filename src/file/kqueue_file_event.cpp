@@ -57,12 +57,16 @@ void kqueue_file_event::initialize()
         kqueue_fd_ = ::kqueue();
 
         if(kqueue_fd_ < 0)
+        {
             throw std::runtime_error(util::errno_to_string("kqueue", errno));
+        }
 
         EV_SET(&event_, file_, EVFILT_VNODE, EV_ADD | EV_CLEAR, NOTE_WRITE, 0, 0);
 
         if(::kevent(kqueue_fd_, &event_, 1, 0, 0, 0) < 0)
+        {
             throw std::runtime_error(util::errno_to_string("kevent", errno));
+        }
 
         ::bzero(&event_, sizeof(event_));
     }

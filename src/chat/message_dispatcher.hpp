@@ -29,11 +29,11 @@
 #include <chat/forwards.hpp>
 #include <chat/common.hpp>
 
-// STL headers
-#include <string>
-
 // BOOST headers
 #include <boost/circular_buffer.hpp>
+
+// STL headers
+#include <string>
 
 
 namespace chat

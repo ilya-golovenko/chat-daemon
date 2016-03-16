@@ -51,7 +51,9 @@ std::string freebsd_operating_system_info::get_name()
     struct utsname name;
 
     if(::uname(&name) < 0)
+    {
         throw std::runtime_error(util::errno_to_string("uname", errno));
+    }
 
     std::string str;
 
@@ -67,7 +69,9 @@ std::time_t freebsd_operating_system_info::get_uptime()
     int mib[2] = { CTL_KERN, KERN_BOOTTIME };
 
     if(::sysctl(mib, 2, &boot_time, &size, 0, 0) < 0)
+    {
         throw std::runtime_error(util::errno_to_string("sysctl", errno));
+    }
 
     return static_cast<std::time_t>(std::time(nullptr) - boot_time.tv_sec);
 }
@@ -79,7 +83,9 @@ std::array<double, 3> freebsd_operating_system_info::get_loadavg()
     int const nelem = ::getloadavg(loadavg.data(), 3);
 
     if(nelem < 3)
+    {
         throw std::runtime_error(util::errno_to_string("getloadavg", errno));
+    }
 
     return loadavg;
 }

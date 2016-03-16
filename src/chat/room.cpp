@@ -86,7 +86,7 @@ void room::accept(user_ptr user, connection_ptr connection)
         // Start user session
         user->start(connection);
 
-        user->deliver(substitute_name(config.join_room_message));
+        //TODO: user->deliver(substitute_name(config.join_room_message));
 
         // Deliver chat user list
         user->deliver(get_user_list(user));
@@ -99,7 +99,7 @@ void room::accept(user_ptr user, connection_ptr connection)
         // Deliver recent messages
         message_dispatcher_.deliver_recent_messages(user);
 
-        user->deliver(config.end_of_buffer_message);
+        //TODO: user->deliver(config.end_of_buffer_message);
 
         // Deliver chat topic
         user->deliver(context_.get_room_manager().get_chat_topic());
@@ -124,7 +124,9 @@ void room::leave(user_ptr user, std::time_t time, std::string const& text)
 
         // Remove room if it is empty and is not persistent
         if(!persistent_ && users_.empty())
+        {
             context_.get_room_manager().remove(name_);
+        }
 
         // Stop user session
         user->stop();
@@ -142,12 +144,14 @@ void room::change_user_room(user_ptr user, room_ptr room)
 
         // Remove room if it is empty and is not persistent
         if(!persistent_ && users_.empty())
+        {
             context_.get_room_manager().remove(name_);
+        }
 
-        deliver_leave_message(user, std::time(nullptr), room->substitute_name(config.change_room_message));
+        //TODO: deliver_leave_message(user, std::time(nullptr), room->substitute_name(config.change_room_message));
 
         // Deliver script which will force the browser to refresh
-        user->deliver(config.reload_this_frame_script);
+        //TODO: user->deliver(config.reload_this_frame_script);
 
         room->join(user, std::time(nullptr));
         user->set_room(room);
@@ -169,7 +173,9 @@ user_ptr room::get_user(session_id const& id) const
     user_map::const_iterator it = users_.find(id);
 
     if(it == users_.end())
+    {
         throw exception("no user with session ", id, " found in room ", name_);
+    }
 
     return it->second;
 }
@@ -200,15 +206,19 @@ std::string room::get_user_list(user_ptr user) const
     for(user_map::const_iterator it = begin; it != end; ++it)
     {
         if(it != users_.begin())
+        {
             users << ',';
+        }
 
         users << '[' << it->second->get_session()->to_string() << ']';
     }
 
     users << scripts::userlist_end;
 
-    if(user->get_access() >= config.admin_view_ip)
+    if(user->get_access() >= 100 /*TODO: config.admin_view_ip*/)
+    {
         return chat::message::get_admin_text(users.str());
+    }
 
     return chat::message::get_user_text(users.str());
 }
@@ -225,7 +235,9 @@ std::string room::get_lost_users() const
     for(user_map::const_iterator it = begin; it != end; ++it)
     {
         if(!it->second->is_connected() && !it->second->is_bot())
+        {
             users << it->second->get_update_message(update::connection, status::lost);
+        }
     }
 
     return users.str();

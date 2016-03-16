@@ -106,7 +106,9 @@ void cron_connection::handle_timer(asio::error_code const& error)
     LOG_COMP_TRACE_FUNCTION(cron_connection);
 
     if(!error)
+    {
         connection_->send_request(cron_script_request_, bind_to_completion_hander());
+    }
 }
 
 void cron_connection::handle_complete(asio::error_code const& error)
@@ -118,7 +120,9 @@ void cron_connection::handle_complete(asio::error_code const& error)
         http::response const& response = connection_->get_response();
 
         if(response.get_status() != http::status::ok)
+        {
             LOG_COMP_WARNING(cron_connection, "cannot access cron script: ", response.get_status());
+        }
     }
     else if(error != asio::error::operation_aborted)
     {

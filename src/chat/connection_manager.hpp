@@ -72,6 +72,7 @@ private:
 private:
     server_context& context_;
     std::string session_name_;
+    std::string session_path_;
     http::buffer chat_header_;
     http::buffer daemon_banner_;
     http::buffer reload_irc_frame_;

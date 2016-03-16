@@ -31,9 +31,6 @@
 namespace chat
 {
 
-//TODO: remove! temporary workaround!
-server_config config; 
-
 server::server() :
     context_(io_service_),
     cron_connection_(context_)
@@ -116,7 +113,7 @@ void server::deliver_stop_message()
 
     LOG_COMP_DEBUG(server, "delivering stop message");
 
-    context_.get_room_manager().deliver_message(config.server_shutdown_message);
+    //TODO: context_.get_room_manager().deliver_message(config.server_shutdown_message);
 }
 
 }   // namespace chat

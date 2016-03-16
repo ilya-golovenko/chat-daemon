@@ -49,7 +49,9 @@ freebsd_process_cpu_usage::freebsd_process_cpu_usage() :
     last_process_time_(get_process_time())
 {
     if(std::time(&last_update_time_) < 0)
+    {
         throw std::runtime_error(util::errno_to_string("time", errno));
+    }
 }
 
 unsigned int freebsd_process_cpu_usage::get_value()
@@ -57,7 +59,9 @@ unsigned int freebsd_process_cpu_usage::get_value()
     std::time_t this_update_time;
 
     if(std::time(&this_update_time) < 0)
+    {
         throw std::runtime_error(util::errno_to_string("time", errno));
+    }
 
     if(this_update_time - last_update_time_ >= 60)
     {
@@ -93,14 +97,16 @@ unsigned int freebsd_process_cpu_usage::get_cpu_count()
     size_t size = sizeof(count);
 
     if(::sysctlbyname("hw.ncpu", &cpu_count, &size, 0, 0) < 0)
+    {
         throw std::runtime_error(util::errno_to_string("sysctlbyname", errno));
+    }
 
     return cpu_count;
 }
 
 long long freebsd_process_cpu_usage::get_system_time()
 {
-    return 0; // ???
+    return 0; //TODO: ???
 }
 
 long long freebsd_process_cpu_usage::get_process_time()
@@ -108,7 +114,9 @@ long long freebsd_process_cpu_usage::get_process_time()
     struct rusage usage;
 
     if(::getrusage(RUSAGE_SELF, &usage) < 0)
+    {
         throw std::runtime_error(util::errno_to_string("rusage", errno));
+    }
 
     long long const user_time = time_to_ticks(usage.ru_utime);
     long long const sys_time = time_to_ticks(usage.ru_stime);

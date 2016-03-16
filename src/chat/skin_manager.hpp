@@ -78,6 +78,8 @@ private:
 private:
     server_context& context_;
 
+    std::string skin_path_;
+
     message_map user_join_messages_;
     message_map male_join_messages_;
     message_map female_join_messages_;

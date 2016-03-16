@@ -43,7 +43,9 @@ win_process_cpu_usage::win_process_cpu_usage() :
     last_process_time_(get_process_time())
 {
     if(std::time(&last_update_time_) < 0)
+    {
         throw std::runtime_error(util::errno_to_string("time", errno));
+    }
 }
 
 unsigned int win_process_cpu_usage::get_value()
@@ -51,7 +53,9 @@ unsigned int win_process_cpu_usage::get_value()
     std::time_t this_update_time;
 
     if(std::time(&this_update_time) < 0)
+    {
         throw std::runtime_error(util::errno_to_string("time", errno));
+    }
 
     if(this_update_time - last_update_time_ >= 60)
     {
@@ -66,7 +70,9 @@ unsigned int win_process_cpu_usage::get_value()
             __int64 percent = 100 * process_diff / system_diff;
 
             if(cpu_count_ > 1)
+            {
                 percent /= static_cast<__int64>(cpu_count_);
+            }
 
             cpu_usage_ = static_cast<unsigned int>(percent);
         }
@@ -95,7 +101,9 @@ __int64 win_process_cpu_usage::get_system_time()
     FILETIME sys_user_time;
 
     if(!::GetSystemTimes(&sys_idle_time, &sys_kernel_time, &sys_user_time))
+    {
         throw std::runtime_error(util::win::error_to_string("GetSystemTimes", ::GetLastError()));
+    }
 
     LARGE_INTEGER kernel_time;
     LARGE_INTEGER user_time;
@@ -116,7 +124,9 @@ __int64 win_process_cpu_usage::get_process_time()
     FILETIME sys_user_time;
 
     if(!::GetProcessTimes(::GetCurrentProcess(), &sys_creation_time, &sys_exit_time, &sys_kernel_time, &sys_user_time))
+    {
         throw std::runtime_error(util::win::error_to_string("GetProcessTimes", ::GetLastError()));
+    }
 
     LARGE_INTEGER kernel_time;
     LARGE_INTEGER user_time;

@@ -50,6 +50,8 @@ void skin_manager::configure(server_config const& config)
 
     LOG_COMP_NOTICE(skin_manager, "configuring");
 
+    skin_path_ = util::path::combine(config.php_path, config.skin_path);
+
     load_skin(default_skin);
 }
 
@@ -77,9 +79,7 @@ void skin_manager::load_skin(std::string const& skin)
 
     LOG_COMP_NOTICE(skin_manager, "loading chat skin: ", skin);
 
-    std::string skin_path = util::path::combine(config.php_path, config.skin_path);
-
-    load_message_files(skin, util::path::combine(skin_path, skin));
+    load_message_files(skin, util::path::combine(skin_path_, skin));
 }
 
 std::string const& skin_manager::get_join_message(user_ptr user) const
@@ -176,7 +176,9 @@ std::string const& skin_manager::get_message(message_map const& messages, std::s
     message_map::const_iterator it = messages.find(skin);
 
     if(it == messages.end() || it->second.empty())
+    {
         it = messages.find(default_skin);
+    }
 
     return get_random_message(it->second);
 }

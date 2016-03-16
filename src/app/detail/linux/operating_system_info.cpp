@@ -56,7 +56,9 @@ std::string linux_operating_system_info::get_name()
     struct utsname name;
 
     if(::uname(&name) < 0)
+    {
         throw std::runtime_error(util::errno_to_string("uname", errno));
+    }
 
     std::string str;
 
@@ -70,7 +72,9 @@ std::time_t linux_operating_system_info::get_uptime()
     struct sysinfo info;
 
     if(::sysinfo(&info) < 0)
+    {
         throw std::runtime_error(util::errno_to_string("sysinfo", errno));
+    }
 
     return static_cast<std::time_t>(info.uptime);
 }
@@ -97,7 +101,9 @@ std::vector<symbol_info> linux_operating_system_info::get_backtrace()
     int const stack_size = ::backtrace(stack_frames, max_stack_size);
 
     if(stack_size < 0)
+    {
         throw std::runtime_error(util::errno_to_string("backtrace", errno));
+    }
 
     std::vector<symbol_info> stack_trace;
 
@@ -108,7 +114,9 @@ std::vector<symbol_info> linux_operating_system_info::get_backtrace()
         symbol_info.address = reinterpret_cast<std::uint64_t>(stack_frames[i]);
 
         if(char const* symbol = get_symbol_string(stack_frames[i]))
+        {
             symbol_info.name = demangle_symbol(symbol);
+        }
 
         stack_trace.push_back(symbol_info);
     }
@@ -121,7 +129,9 @@ char const* linux_operating_system_info::get_symbol_string(void* address)
     Dl_info dl_info;
 
     if(nullptr != ::dladdr(address, &dl_info))
+    {
         return dl_info.dli_sname;
+    }
 
     return nullptr;
 }

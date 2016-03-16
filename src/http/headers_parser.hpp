@@ -28,9 +28,6 @@
 #include <http/parser.hpp>
 #include <http/message.hpp>
 
-// BOOST headers
-#include <boost/logic/tribool.hpp>
-
 // STL headers
 #include <string>
 
@@ -48,10 +45,7 @@ public:
 
     void reset();
 
-    boost::tribool consume(message& message, char c);
-
-private:
-    void set_message_header(message& message);
+    parse_result consume(message& message, char c);
 
 private:
     enum

@@ -28,6 +28,8 @@
 #include <chat/message.hpp>
 #include <chat/room.hpp>
 #include <chat/user.hpp>
+#include <misc/file_utils.hpp>
+#include <misc/path_utils.hpp>
 
 // MISSIO headers
 #include <missio/logging/common.hpp>
@@ -47,6 +49,7 @@ void user_manager::configure(server_config const& config)
 
     LOG_COMP_NOTICE(user_manager, "configuring");
 
+    session_path_ = config.sess_path;
 }
 
 void user_manager::start()
@@ -81,7 +84,9 @@ void user_manager::accept(connection_ptr connection)
     session_id const& id = connection->get_session_id();
 
     if(contains(id))
+    {
         accept(get_user(id), connection);
+    }
 }
 
 void user_manager::accept(user_ptr user, connection_ptr connection)
@@ -112,7 +117,9 @@ void user_manager::join(session_id const& id, std::time_t time, std::string cons
     LOG_COMP_TRACE_FUNCTION(user_manager);
 
     if(!contains(id))
+    {
         join(chat::session::create(id, session_info), time);
+    }
 }
 
 void user_manager::change_room(user_ptr user, std::string const& room_name)
@@ -129,7 +136,9 @@ void user_manager::change_room(session_id const& id, std::string const& room_nam
     LOG_COMP_TRACE_FUNCTION(user_manager);
 
     if(contains(id))
+    {
         change_room(get_user(id), room_name);
+    }
 }
 
 void user_manager::leave(user_ptr user, std::time_t time, std::string const& text)
@@ -147,7 +156,9 @@ void user_manager::leave(session_id const& id, std::time_t time, std::string con
     LOG_COMP_TRACE_FUNCTION(user_manager);
 
     if(contains(id))
+    {
         leave(get_user(id), time, text);
+    }
 }
 
 void user_manager::update(user_ptr user, update::type update_type, std::string const& text)
@@ -162,7 +173,9 @@ void user_manager::update(session_id const& id, update::type update_type, std::s
     LOG_COMP_TRACE_FUNCTION(user_manager);
 
     if(contains(id))
+    {
         update(get_user(id), update_type, text);
+    }
 }
 
 void user_manager::deliver_common_message(user_ptr user, std::string const& text)
@@ -184,7 +197,9 @@ void user_manager::deliver_common_message(session_id const& id, std::string cons
     LOG_COMP_TRACE_FUNCTION(user_manager);
 
     if(contains(id))
+    {
         deliver_common_message(get_user(id), text);
+    }
 }
 
 void user_manager::deliver_personal_message(user_ptr user, std::string const& text, bool not_buffered)
@@ -206,7 +221,9 @@ void user_manager::deliver_personal_message(session_id const& id, std::string co
     LOG_COMP_TRACE_FUNCTION(user_manager);
 
     if(contains(id))
+    {
         deliver_personal_message(get_user(id), text, not_buffered);
+    }
 }
 
 void user_manager::register_bot(user_ptr user)
@@ -221,7 +238,9 @@ void user_manager::register_bot(session_id const& id)
     LOG_COMP_TRACE_FUNCTION(user_manager);
 
     if(contains(id))
+    {
         register_bot(get_user(id));
+    }
 }
 
 bool user_manager::contains(session_id const& id) const
@@ -234,7 +253,9 @@ user_ptr user_manager::get_user(session_id const& id) const
     user_map::const_iterator it = users_.find(id);
 
     if(it == users_.end())
+    {
         throw exception("cannot find user with session: ", id);
+    }
 
     return it->second;
 }
@@ -244,9 +265,29 @@ std::string const& user_manager::resolve(session_id const& id) const
     user_map::const_iterator it = users_.find(id);
 
     if(it != users_.end())
+    {
         return it->second->get_nickname();
+    }
 
     return id.str();
+}
+
+void user_manager::remove_session_file(session_id const& id)
+{
+    try
+    {
+        std::string filename = util::path::combine(session_path_, id.str());
+
+        if(util::file::exists(filename))
+        {
+            util::file::remove(filename);
+        }
+    }
+    catch(std::exception const& e)
+    {
+        LOG_COMP_WARNING(user, e);
+    }
+
 }
 
 std::size_t user_manager::get_connection_count() const
@@ -256,7 +297,9 @@ std::size_t user_manager::get_connection_count() const
     for(auto const& user : users_)
     {
         if(user.second->is_connected())
+        {
             ++connection_count;
+        }
     }
 
     return connection_count;
@@ -269,7 +312,9 @@ std::size_t user_manager::get_connection_count(asio::ip::address const& address)
     for(auto const& user : users_)
     {
         if(user.second->is_connected_from(address))
+        {
             ++connection_count;
+        }
     }
 
     return connection_count;

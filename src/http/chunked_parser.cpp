@@ -40,10 +40,12 @@ void chunked_parser::reset()
     chunk_size_ = 0u;
 }
 
-boost::tribool chunked_parser::consume(char c)
+parse_result chunked_parser::consume(char c)
 {
     if(++size_ > max_chunk_size_length)
-        return false;
+    {
+        return parse_result::error;
+    }
 
     switch(state_)
     {
@@ -52,11 +54,11 @@ boost::tribool chunked_parser::consume(char c)
             {
                 chunk_size_ = hex_to_int(c);
                 state_ = state_chunk_size;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             else if(c == '\r' || c == '\n')
             {
-                return boost::indeterminate;
+                return parse_result::more;
             }
             break;
 
@@ -66,12 +68,12 @@ boost::tribool chunked_parser::consume(char c)
                 chunk_size_ = chunk_size_ << 4;
                 chunk_size_ += hex_to_int(c);
                 state_ = state_chunk_size;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             else if(c == '\r')
             {
                 state_ = state_expecting_newline_1;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             break;
 
@@ -80,12 +82,12 @@ boost::tribool chunked_parser::consume(char c)
             {
                 if(chunk_size_ > 0)
                 {
-                    return true;
+                    return parse_result::ok;
                 }
                 else
                 {
                     state_ = state_expecting_newline_2;
-                    return boost::indeterminate;
+                    return parse_result::more;
                 }
             }
             break;
@@ -94,19 +96,19 @@ boost::tribool chunked_parser::consume(char c)
             if(c == '\r')
             {
                 state_ = state_expecting_newline_3;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             break;
 
         case state_expecting_newline_3:
             if(c == '\n')
             {
-                return true;
+                return parse_result::ok;
             }
             break;
     }
 
-    return false;
+    return parse_result::error;
 }
 
 std::size_t chunked_parser::get_chunk_size() const

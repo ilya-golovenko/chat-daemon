@@ -21,7 +21,6 @@
 // Application headers
 #include <chat/message.hpp>
 #include <chat/user.hpp>
-#include <chat/server_config.hpp> //TODO: remove! temporary workaround
 #include <app/constants.hpp>
 
 // BOOST headers
@@ -97,7 +96,7 @@ session_ptr message::get_recipient() const
 
 http::buffer const& message::get_text(std::size_t access) const
 {
-    return access >= config.admin_view_ip ? admin_text_ : user_text_;
+    return access >= 100 /*config.admin_view_ip*/ ? admin_text_ : user_text_;
 }
 
 message::message(std::string const& text) :

@@ -1,20 +1,20 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2009 Ilya Golovenko
-//    This file is part of libsphttp.
+//    Copyright (C) 2009 - 2016 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
-//    libsphttp is free software: you can redistribute it and/or modify
+//    spchatd is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
 //    (at your option) any later version.
 //
-//    libsphttp is distributed in the hope that it will be useful,
+//    spchatd is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with libsphttp. If not, see <http://www.gnu.org/licenses/>.
+//    along with spchatd. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 #ifndef _http_request_parser_hpp
@@ -29,9 +29,6 @@
 #include <http/request.hpp>
 #include <http/version_parser.hpp>
 #include <http/headers_parser.hpp>
-
-// BOOST headers
-#include <boost/logic/tribool.hpp>
 
 // STL headers
 #include <string>
@@ -50,7 +47,7 @@ public:
 
     void reset();
 
-    boost::tribool consume(request& request, char c);
+    parse_result consume(request& request, char c);
 
 private:
     void set_request_method(request& request);

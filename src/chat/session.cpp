@@ -137,7 +137,9 @@ void session::set(field::type field_type, std::string const& value)
 std::string const& session::to_string() const
 {
     if(changed_)
+    {
         rebuild_session_string();
+    }
 
     return session_;
 }
@@ -166,22 +168,34 @@ void session::rebuild_session_string() const
         bool quoted_field = field::is_quoted(index);
 
         if(fields_[index].empty())
+        {
             quoted_field = true;
+        }
 
         if(index > 0)
+        {
             buffer << ',';
+        }
 
         if(quoted_field)
+        {
             buffer << '\"';
+        }
         else if(admin_field)
+        {
             buffer << "\"<\x07";
+        }
 
         buffer << fields_[index];
 
         if(quoted_field)
+        {
             buffer << '\"';
+        }
         else if(admin_field)
+        {
             buffer << "\x07>\"";
+        }
     }
 
     session_ = buffer.str();

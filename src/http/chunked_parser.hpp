@@ -28,9 +28,6 @@
 #include <http/parser.hpp>
 #include <http/message.hpp>
 
-// BOOST headers
-#include <boost/logic/tribool.hpp>
-
 // STL headers
 #include <string>
 
@@ -48,12 +45,9 @@ public:
 
     void reset();
 
-    boost::tribool consume(char c);
+    parse_result consume(char c);
 
     std::size_t get_chunk_size() const;
-
-private:
-    void append_chunk_size_char(int c);
 
 private:
     enum

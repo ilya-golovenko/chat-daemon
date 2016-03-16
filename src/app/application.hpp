@@ -26,7 +26,6 @@
 
 // Application headers
 #include <chat/server.hpp>
-#include <config/config_manager.hpp>
 
 // BOOST headers
 #include <boost/filesystem/path.hpp>
@@ -79,9 +78,6 @@ private:
 
     /// Server configuration
     chat::server_config config_;
-
-    /// Manages server configuration
-    config_manager config_manager_;
 
     /// I/O service
     asio::io_service io_service_;

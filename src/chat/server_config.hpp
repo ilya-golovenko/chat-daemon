@@ -24,9 +24,6 @@
 #pragma once
 #endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-// BOOST headers
-#include <boost/filesystem/path.hpp>
-
 // ASIO headers
 #include <asio.hpp>
 
@@ -147,9 +144,6 @@ struct server_config
         std::vector<asio::ip::address> addresses;
     } frontend;
 };
-
-//TODO: remove! temporary workaround!
-extern server_config config; 
 
 }   // namespace chat
 

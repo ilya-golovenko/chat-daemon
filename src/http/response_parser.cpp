@@ -41,29 +41,31 @@ void response_parser::reset()
     headers_parser_.reset();
 }
 
-boost::tribool response_parser::consume(response& response, char c)
+parse_result response_parser::consume(response& response, char c)
 {
     if(++size_ > max_message_size)
-        return false;
-
-    boost::tribool result;
+    {
+        return parse_result::error;
+    }
 
     switch(state_)
     {
         case state_version:
-            result = version_parser_.consume(response, c);
+            switch(version_parser_.consume(response, c))
+            {
+                case parse_result::ok:
+                    if(c == ' ')
+                    {
+                        state_ = state_status_code_start;
+                        return parse_result::more;
+                    }
+                    break;
 
-            if(result)
-            {
-                if(c == ' ')
-                {
-                    state_ = state_status_code_start;
-                    return boost::indeterminate;
-                }
-            }
-            else
-            {
-                return result;
+                case parse_result::more:
+                    return parse_result::more;
+
+                default:
+                    ;
             }
             break;
 
@@ -72,7 +74,7 @@ boost::tribool response_parser::consume(response& response, char c)
             {
                 status_ = c - '0';
                 state_ = state_status_code;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             break;
 
@@ -81,12 +83,12 @@ boost::tribool response_parser::consume(response& response, char c)
             {
                 set_response_status(response);
                 state_ = state_status_reason;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             else if(is_digit(c))
             {
                 status_ = status_ * 10 + c - '0';
-                return boost::indeterminate;
+                return parse_result::more;
             }
             break;
 
@@ -94,11 +96,11 @@ boost::tribool response_parser::consume(response& response, char c)
             if(c == '\r')
             {
                 state_ = state_expecting_newline;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             else if(is_char(c))
             {
-                return boost::indeterminate;
+                return parse_result::more;
             }
             break;
 
@@ -106,7 +108,7 @@ boost::tribool response_parser::consume(response& response, char c)
             if(c == '\n')
             {
                 state_ = state_headers;
-                return boost::indeterminate;
+                return parse_result::more;
             }
             break;
 
@@ -114,7 +116,7 @@ boost::tribool response_parser::consume(response& response, char c)
             return headers_parser_.consume(response, c);
     }
 
-    return false;
+    return parse_result::error;
 }
 
 void response_parser::set_response_status(response& response)

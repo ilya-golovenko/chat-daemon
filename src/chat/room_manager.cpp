@@ -56,7 +56,9 @@ void room_manager::configure(server_config const& config)
 
     reload_chat_topic(true);
 
-    std::string filename = util::path::combine(config.php_path, files::rooms);
+    config_path_ = config.conf_path;
+
+    std::string filename = util::path::combine(config_path_, files::rooms);
 
     std::vector<std::string> rooms;
     read_rooms_file(filename, rooms);
@@ -87,7 +89,9 @@ void room_manager::create(std::string const& room_name, bool persistent)
     LOG_COMP_TRACE_FUNCTION(room_manager);
 
     if(rooms_.emplace(room_name, chat::room::create(context_, room_name, persistent)).second)
+    {
         LOG_COMP_NOTICE(room_manager, "created ", persistent ? "persistent" : "temporary", " chat room: ", room_name);
+    }
 }
 
 void room_manager::remove(std::string const& room_name)
@@ -95,7 +99,9 @@ void room_manager::remove(std::string const& room_name)
     LOG_COMP_TRACE_FUNCTION(room_manager);
 
     if(rooms_.erase(room_name) > 0)
+    {
         LOG_COMP_NOTICE(room_manager, "removed chat room: ", room_name);
+    }
 }
 
 bool room_manager::contains(std::string const& room_name) const
@@ -108,7 +114,9 @@ room_ptr room_manager::get_room(std::string const& room_name) const
     room_map::const_iterator it = rooms_.find(room_name);
 
     if(it == rooms_.end())
+    {
         throw exception("chat room does not exist: ", room_name);
+    }
 
     return it->second;
 }
@@ -126,7 +134,9 @@ void room_manager::deliver_message(std::string const& message, bool not_buffered
     LOG_COMP_TRACE_FUNCTION(room_manager);
 
     if(!message.empty())
+    {
         deliver_message(chat::message::create(message), not_buffered);
+    }
 }
 
 void room_manager::clear_room_history()
@@ -147,10 +157,12 @@ void room_manager::reload_chat_topic(bool force)
 
         try
         {
-            std::string filename = util::path::combine(config.conf_path, files::topic);
+            std::string filename = util::path::combine(config_path_, files::topic);
 
             if(util::file::exists(filename))
+            {
                 chat_topic_ = util::file::read_text(filename);
+            }
         }
         catch(std::exception const& e)
         {
@@ -207,7 +219,9 @@ void room_manager::read_rooms_file(std::string const& filename, std::vector<std:
                     pos = line.find_first_of('|');
 
                     if(pos != std::string::npos)
+                    {
                         line.erase(pos, line.size());
+                    }
 
                     rooms.push_back(line);
                 }
@@ -218,7 +232,9 @@ void room_manager::read_rooms_file(std::string const& filename, std::vector<std:
     file.close();
 
     if(rooms.empty())
+    {
         throw exception("rooms file is empty: ", filename);
+    }
 }
 
 }   // namespace chat

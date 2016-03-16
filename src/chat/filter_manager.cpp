@@ -65,6 +65,10 @@ void filter_manager::configure(server_config const& config)
         rules_.emplace_back(rule.name, address, rule.max_connection_count, rule.connections_per_minute, rule.block_duration);
     }
 
+    server_path_ = config.server_path;
+
+    admin_view_ip_ = config.admin_view_ip;
+
     max_list_size_ = config.filter.max_list_size;
 
     address_blocked_message_ = config.address_blocked_message;
@@ -228,7 +232,7 @@ void filter_manager::update_ignorelist_file(bool force)
 
         try
         {
-            std::string filename = util::path::combine(config.server_path, ::files::ignorelist);
+            std::string filename = util::path::combine(server_path_, ::files::ignorelist);
 
             util::file::write_text(filename, buffer.str());
         }
@@ -314,7 +318,7 @@ void filter_manager::deliver_address_blocked_message(asio::ip::address const& ad
 
         missio::format::print(message, address_blocked_message_, address, std::time(nullptr));
 
-        context_.get_message_parser().deliver_admin_message(message, config.admin_view_ip);
+        context_.get_message_parser().deliver_admin_message(message, admin_view_ip_);
     }
 }
 

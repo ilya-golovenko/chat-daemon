@@ -75,10 +75,14 @@ void file_handle::open(std::string const& filename)
 
 #if defined(CHAT_PLATFORM_WINDOWS)
     if((filedesc_ = ::sopen(filename_.c_str(), O_RDWR | O_BINARY, SH_DENYNO)) < 0)
+    {
         throw std::runtime_error(util::errno_to_string("sopen", filename_, errno));
+    }
 #else
     if((filedesc_ = ::open(filename_.c_str(), O_RDWR)) < 0)
+    {
         throw std::runtime_error(util::errno_to_string("open", filename_, errno));
+    }
 #endif  // defined(CHAT_PLATFORM_WINDOWS)
 
     seek_impl(0, SEEK_END);
@@ -143,10 +147,14 @@ void file_handle::truncate()
 
 #if defined(CHAT_PLATFORM_WINDOWS)
     if(::chsize(filedesc_, 0) < 0)
+    {
         throw std::runtime_error(util::errno_to_string("chsize", filename_, errno));
+    }
 #else
     if(::ftruncate(filedesc_, 0) < 0)
+    {
         throw std::runtime_error(util::errno_to_string("ftruncate", filename_, errno));
+    }
 #endif  // defined(CHAT_PLATFORM_WINDOWS)
 
     seek_impl(0, SEEK_SET);
@@ -161,7 +169,9 @@ bool file_handle::read_char(char& ch)
             invalidate_read_buffer();
 
             if((buffer_end_ = ::read(filedesc_, buffer_, sizeof(buffer_))) < 0)
+            {
                 throw std::runtime_error(util::errno_to_string("read", filename_, errno));
+            }
         }
     }
 
@@ -195,7 +205,9 @@ std::size_t file_handle::write(void const* buffer, std::size_t size)
     long const count = ::write(filedesc_, buffer, static_cast<unsigned int>(size)); 
 
     if(count < 0)
+    {
         throw std::runtime_error(util::errno_to_string("write", filename_, errno));
+    }
 
     return static_cast<std::size_t>(count);
 }
@@ -219,7 +231,9 @@ long file_handle::seek_impl(long offset, int origin)
     long const pos = ::lseek(filedesc_, offset, origin);
 
     if(pos < 0)
+    {
         throw std::runtime_error(util::errno_to_string("lseek", filename_, errno));
+    }
 
     return pos;
 }

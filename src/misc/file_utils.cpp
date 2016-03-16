@@ -54,7 +54,9 @@ bool exists(std::string const& filename)
     if(!::stat(filename.c_str(), &file_stat))
     {
         if((file_stat.st_mode & S_IFREG) == S_IFREG)
+        {
             return true;
+        }
     }
 
     return false;
@@ -67,10 +69,14 @@ std::size_t size(std::string const& filename)
     struct stat file_stat;
 
     if(::stat(filename.c_str(), &file_stat) < 0)
+    {
         throw std::runtime_error(util::errno_to_string("stat", filename, errno));
+    }
 
     if((file_stat.st_mode & S_IFREG) != S_IFREG)
+    {
         throw std::runtime_error("target is not a file: " + filename);
+    }
 
     return static_cast<std::size_t>(file_stat.st_size);
 }
@@ -123,24 +129,30 @@ std::string read_text(std::string const& filename)
 {
     LOG_TRACE_FUNCTION();
 
-    LOG_DEBUG("reading text file: ", filename);
+    LOG_TRACE("reading text file: ", filename);
 
     std::size_t const file_size = size(filename);
 
     if(!file_size)
+    {
         return std::string();
+    }
 
     util::file_handle file(::open(filename.c_str(), O_RDONLY));
 
     if(file < 0)
+    {
         throw std::runtime_error(util::errno_to_string("open", filename, errno));
+    }
 
     std::unique_ptr<char[]> content(new char[file_size]);
 
     int const count = ::read(file, content.get(), static_cast<unsigned int>(file_size));
 
     if(count < 0)
+    {
         throw std::runtime_error(util::errno_to_string("read", filename, errno));
+    }
 
     return std::string(content.get(), static_cast<std::size_t>(count));
 }
@@ -149,15 +161,19 @@ void write_text(std::string const& filename, std::string const& text, mode_t mod
 {
     LOG_TRACE_FUNCTION();
 
-    LOG_DEBUG("writing text file: ", filename);
+    LOG_TRACE("writing text file: ", filename);
 
     util::file_handle file(::creat(filename.c_str(), mode));
 
     if(file < 0)
+    {
         throw std::runtime_error(util::errno_to_string("creat", filename, errno));
+    }
 
     if(::write(file, text.c_str(), static_cast<unsigned int>(text.size())) < 0)
+    {
         throw std::runtime_error(util::errno_to_string("write", filename, errno));
+    }
 }
 
 }   // namespace file

@@ -82,7 +82,9 @@ command::type to_type(std::string const& string)
     for(std::size_t i = 0; i < boost::size(strings); ++i)
     {
         if(string == strings[i])
+        {
             return static_cast<command::type>(i);
+        }
     }
 
     throw exception("cannot parse command: ", string);

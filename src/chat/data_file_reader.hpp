@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2014 Ilya Golovenko
+//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
 //    spdaemon is free software: you can redistribute it and/or modify
@@ -73,6 +73,7 @@ private:
 
     std::string filename_;
     std::size_t max_file_size_;
+    bool clean_data_file_;
 
     std::thread worker_thread_;
 };

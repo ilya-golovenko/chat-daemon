@@ -50,7 +50,9 @@ unsigned int win_process_memory_usage::get_value()
     std::time_t this_update_time;
 
     if(std::time(&this_update_time) < 0)
+    {
         throw std::runtime_error(util::errno_to_string("time", errno));
+    }
 
     if(this_update_time - last_update_time_ >= 60)
     {
@@ -58,7 +60,9 @@ unsigned int win_process_memory_usage::get_value()
         unsigned __int64 const system_size = get_total_system_memory_size();
 
         if(system_size > 0)
+        {
             memory_usage_ = static_cast<unsigned int>(100 * process_size / system_size);
+        }
     }
 
     return memory_usage_;
@@ -71,7 +75,9 @@ unsigned __int64 win_process_memory_usage::get_process_memory_size()
     proc_mem_counters.cb = sizeof(PROCESS_MEMORY_COUNTERS);
 
     if(!::GetProcessMemoryInfo(::GetCurrentProcess(), &proc_mem_counters, sizeof(PROCESS_MEMORY_COUNTERS)))
+    {
         throw std::runtime_error(util::win::error_to_string("GetProcessMemoryInfo", ::GetLastError()));
+    }
 
     return proc_mem_counters.WorkingSetSize;
 }
@@ -83,7 +89,9 @@ unsigned __int64 win_process_memory_usage::get_free_system_memory_size()
     memory_status.dwLength = sizeof(MEMORYSTATUSEX);
 
     if(!::GlobalMemoryStatusEx(&memory_status))
+    {
         throw std::runtime_error(util::win::error_to_string("GlobalMemoryStatusEx", ::GetLastError()));
+    }
 
     return memory_status.ullAvailPhys;
 }
@@ -95,7 +103,9 @@ unsigned __int64 win_process_memory_usage::get_total_system_memory_size()
     memory_status.dwLength = sizeof(MEMORYSTATUSEX);
 
     if(!::GlobalMemoryStatusEx(&memory_status))
+    {
         throw std::runtime_error(util::win::error_to_string("GlobalMemoryStatusEx", ::GetLastError()));
+    }
 
     return memory_status.ullTotalPhys;
 }

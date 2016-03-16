@@ -53,23 +53,29 @@ namespace detail
 std::string win_operating_system_info::get_name()
 {
     std::string os_name;
-    OSVERSIONINFO version_info;
+    OSVERSIONINFOA version_info;
 
-    ::ZeroMemory(&version_info, sizeof(OSVERSIONINFO));
-    version_info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    ::ZeroMemory(&version_info, sizeof(OSVERSIONINFOA));
+    version_info.dwOSVersionInfoSize = sizeof(OSVERSIONINFOA);
 
-    if(!::GetVersionEx(&version_info))
+    if(!::GetVersionExA(&version_info))
+    {
         throw std::runtime_error(util::win::error_to_string("GetVersionEx", ::GetLastError()));
+    }
 
     missio::format::write(os_name, "Windows ");
 
     if(VER_PLATFORM_WIN32_NT == version_info.dwPlatformId)
+    {
         missio::format::write(os_name, "NT ");
+    }
 
     missio::format::write(os_name, version_info.dwMajorVersion, ".", version_info.dwMinorVersion);
 
     if(std::strlen(version_info.szCSDVersion))
+    {
         missio::format::write(os_name, " ", version_info.szCSDVersion);
+    }
 
     return os_name;
 }
@@ -112,7 +118,9 @@ std::vector<symbol_info> win_operating_system_info::get_backtrace()
             symbol_info.address = reinterpret_cast<std::uint64_t>(stack_frames[i]);
 
             if(::SymFromAddr(::GetCurrentProcess(), symbol_info.address, 0, symbol))
+            {
                 symbol_info.name = std::string(symbol->Name, symbol->NameLen);
+            }
 
             stack_trace.push_back(symbol_info);
         }
@@ -128,7 +136,9 @@ win_operating_system_info::init_dbghelp_library::init_dbghelp_library()
     ::SymSetOptions(SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS);
 
     if(!::SymInitialize(::GetCurrentProcess(), 0, TRUE))
+    {
         throw std::runtime_error(util::win::error_to_string("SymInitialize", ::GetLastError()));
+    }
 }
 
 win_operating_system_info::init_dbghelp_library::~init_dbghelp_library()
