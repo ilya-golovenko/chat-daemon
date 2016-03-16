@@ -17,52 +17,33 @@
 //    along with spchatd. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
-#ifndef _chat_filter_address_hpp
-#define _chat_filter_address_hpp
+#ifndef _chat_config_manager_hpp
+#define _chat_config_manager_hpp
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
 #pragma once
 #endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-// BOOST headers
-#include <boost/optional.hpp>
-
-// ASIO headers
-#include <asio.hpp>
-
 // STL headers
-#include <cstdint>
 #include <string>
 
 
 namespace chat
 {
 
-class filter_address
+struct server_config;
+
+class config_manager
 {
 public:
-    static filter_address from_string(std::string const& str);
+    config_manager() = default;
 
-public:
-    explicit filter_address(asio::ip::address const& address);
+    config_manager(config_manager const&) = delete;
+    config_manager& operator=(config_manager const&) = delete;
 
-    filter_address(filter_address const&) = default;
-    filter_address& operator=(filter_address const&) = default;
-
-    filter_address(filter_address&&) = default;
-    filter_address& operator=(filter_address&&) = default;
-
-    void set_netmask(asio::ip::address const& netmask);
-    void set_prefix_length(std::size_t prefix_length);
-
-    bool satisfies(asio::ip::address const& address) const;
-
-private:
-    asio::ip::address address_;
-    boost::optional<std::size_t> prefix_length_;
-    boost::optional<asio::ip::address_v4> netmask_;
+    void load_configuration(std::string const& filename, server_config& config) const;
 };
 
 }   // namespace chat
 
-#endif  // _chat_filter_address_hpp
+#endif  // _chat_config_manager_hpp

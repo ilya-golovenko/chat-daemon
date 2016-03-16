@@ -1,20 +1,20 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2008, 2009, 2015 Ilya Golovenko
+//    Copyright (C) 2008 - 2016 Ilya Golovenko
 //    This file is part of Chat.Daemon project
 //
-//    spdaemon is free software: you can redistribute it and/or modify
+//    spchatd is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
 //    (at your option) any later version.
 //
-//    spdaemon is distributed in the hope that it will be useful,
+//    spchatd is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with spdaemon. If not, see <http://www.gnu.org/licenses/>.
+//    along with spchatd. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -61,7 +61,7 @@ int application::run(int argc, char* argv[])
     }
     catch(std::exception const& e)
     {
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
     }
 
     return EXIT_FAILURE;
@@ -157,7 +157,7 @@ bool application::parse_command_line(int argc, char* argv[])
 
     if(options.count("help"))
     {
-        std::cout << "usage: spdaemon [options]" << std::endl;
+        std::cout << "usage: spchatd [options]" << std::endl;
         std::cout << description << std::endl;
         return false;
     }
@@ -180,15 +180,15 @@ bool application::parse_command_line(int argc, char* argv[])
     }
     catch(po::required_option const& e)
     {
-        std::cout << "required option missing: " + e.get_option_name() << std::endl;
-        std::cout << "usage: spdaemon [options]" << std::endl;
+        std::cerr << "required option missing: " + e.get_option_name() << std::endl;
+        std::cout << "usage: spchatd [options]" << std::endl;
         std::cout << description << std::endl;
         return false;
     }
 
     if(!boost::filesystem::exists(config_filename_))
     {
-        std::cout << "configuration file does not exist: " << config_filename_ << std::endl;
+        std::cerr << "configuration file does not exist: " << config_filename_ << std::endl;
         return false;
     }
 
@@ -198,7 +198,7 @@ bool application::parse_command_line(int argc, char* argv[])
     }
     catch(std::exception const& e)
     {
-        std::cout << "cannot parse configuration file: " << e.what() << std::endl;
+        std::cerr << "cannot parse configuration file: " << e.what() << std::endl;
 
         return false;
     }
