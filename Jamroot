@@ -62,7 +62,7 @@ project /chat/daemon
         <toolset>msvc:<cxxflags>/wd4522
         <toolset>msvc:<exception-handling>on
         <toolset>msvc:<asynch-exceptions>on
-        <toolset>gcc:<cxxflags>-std=c++14
+        <toolset>gcc:<cxxflags>-std=c++17
         <toolset>gcc:<cxxflags>-Wempty-body
         <toolset>gcc:<cxxflags>-Wsign-compare
         <toolset>gcc:<cxxflags>-Wtype-limits
