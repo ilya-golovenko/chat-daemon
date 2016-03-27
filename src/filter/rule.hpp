@@ -17,15 +17,16 @@
 //    along with spchatd. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
-#ifndef _chat_filter_address_hpp
-#define _chat_filter_address_hpp
+#ifndef _chat_filter_rule_hpp
+#define _chat_filter_rule_hpp
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
 #pragma once
 #endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-// BOOST headers
-#include <boost/optional.hpp>
+// Application headers
+#include <filter/address.hpp>
+#include <filter/host.hpp>
 
 // ASIO headers
 #include <asio.hpp>
@@ -33,36 +34,41 @@
 // STL headers
 #include <cstdint>
 #include <string>
+#include <ctime>
 
 
 namespace chat
 {
+namespace filter
+{
 
-class filter_address
+class rule
 {
 public:
-    static filter_address from_string(std::string const& str);
+    rule(std::string const& name,
+         address const& address,
+         std::size_t max_connection_count,
+         std::size_t connections_per_minute,
+         std::chrono::seconds block_duration);
 
-public:
-    explicit filter_address(asio::ip::address const& address);
+    rule(rule const&) = default;
+    rule& operator=(rule const&) = default;
 
-    filter_address(filter_address const&) = default;
-    filter_address& operator=(filter_address const&) = default;
+    std::string const& get_name() const;
 
-    filter_address(filter_address&&) = default;
-    filter_address& operator=(filter_address&&) = default;
+    std::chrono::seconds get_block_duration() const;
 
-    void set_netmask(asio::ip::address const& netmask);
-    void set_prefix_length(std::size_t prefix_length);
-
-    bool satisfies(asio::ip::address const& address) const;
+    bool satisfies(host const& host, std::size_t connection_count) const;
 
 private:
-    asio::ip::address address_;
-    boost::optional<std::size_t> prefix_length_;
-    boost::optional<asio::ip::address_v4> netmask_;
+    std::string name_;
+    address address_;
+    std::size_t max_connection_count_;
+    std::size_t connections_per_minute_;
+    std::chrono::seconds block_duration_;
 };
 
+}   // namespace filter
 }   // namespace chat
 
-#endif  // _chat_filter_address_hpp
+#endif  // _chat_filter_rule_hpp

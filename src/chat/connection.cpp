@@ -25,15 +25,11 @@
 #include <chat/common.hpp>
 #include <http/response.hpp>
 #include <http/utilities.hpp>
-#include <http/mime_types.hpp>
 #include <http/common.hpp>
 #include <app/version.hpp>
 
 // MISSIO headers
 #include <missio/logging/common.hpp>
-
-// BOOST headers
-#include <boost/lexical_cast.hpp>
 
 // STL headers
 #include <functional>
@@ -92,38 +88,38 @@ void connection::stop()
     }
 }
 
-void connection::stop(http::status const& status, completion_handler const& handler)
+void connection::stop(http::status const& status, completion_handler&& handler)
 {
     LOG_COMP_TRACE_FUNCTION(connection);
 
-    connection_->write_stock_response(status, build_version_text(), handler);
+    connection_->write_stock_response(status, build_version_text(), std::forward<completion_handler>(handler));
 
     stop();
 }
 
-void connection::stop(std::string const& message, completion_handler const& handler)
+void connection::stop(std::string const& message, completion_handler&& handler)
 {
     LOG_COMP_TRACE_FUNCTION(connection);
 
-    write(message, handler);
+    write(message, std::forward<completion_handler>(handler));
 
     stop();
 }
 
-void connection::write(http::buffer const& message, completion_handler const& handler)
+void connection::write(http::buffer const& message, completion_handler&& handler)
 {
     LOG_COMP_TRACE_FUNCTION(connection);
 
-    connection_->write_buffer(message, handler);
+    connection_->write_buffer(message, std::forward<completion_handler>(handler));
 
     context_.get_statistics_manager().add_output_message(message.size());
 }
 
-void connection::write(std::string const& message, const chat::completion_handler& handler)
+void connection::write(std::string const& message, completion_handler&& handler)
 {
     LOG_COMP_TRACE_FUNCTION(connection);
 
-    write(http::buffer(message), handler);
+    write(http::buffer(message), std::forward<completion_handler>(handler));
 }
 
 bool connection::is_open() const

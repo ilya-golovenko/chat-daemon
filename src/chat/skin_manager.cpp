@@ -117,7 +117,9 @@ void skin_manager::read_message_file(std::string const& filename, message_vector
     file.open(filename.c_str());
 
     if(!file.is_open())
+    {
         throw exception("cannot open message file: ", filename);
+    }
 
     messages.clear();
 
@@ -127,10 +129,9 @@ void skin_manager::read_message_file(std::string const& filename, message_vector
         {
             boost::algorithm::trim(line);
 
-            if(!line.empty())
+            if(!line.empty() && line[0] != '#')
             {
-                if(line[0] != '#')
-                    messages.push_back(replace_quotes(line));
+                messages.push_back(replace_quotes(line));
             }
         }
     }
@@ -138,7 +139,9 @@ void skin_manager::read_message_file(std::string const& filename, message_vector
     file.close();
 
     if(messages.empty())
+    {
         throw exception("message file is empty: ", filename);
+    }
 }
 
 std::string const& skin_manager::get_join_message(sex::type sex, std::string const& skin) const

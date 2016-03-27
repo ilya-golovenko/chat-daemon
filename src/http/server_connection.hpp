@@ -1,20 +1,20 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2009 Ilya Golovenko
-//    This file is part of libsphttp.
+//    Copyright (C) 2009 - 2016 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
-//    libsphttp is free software: you can redistribute it and/or modify
+//    spchatd is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
 //    (at your option) any later version.
 //
-//    libsphttp is distributed in the hope that it will be useful,
+//    spchatd is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with libsphttp. If not, see <http://www.gnu.org/licenses/>.
+//    along with spchatd. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 #ifndef _http_server_connection_hpp
@@ -53,10 +53,10 @@ public:
     typedef std::shared_ptr<server_connection> pointer;
 
 public:
-    static pointer create(tcp_connection::pointer tcp_connection);
+    static pointer create(tcp::connection&& connection);
 
 public:
-    explicit server_connection(tcp_connection::pointer tcp_connection);
+    explicit server_connection(tcp::connection&& connection);
     ~server_connection();
 
     server_connection(server_connection const&) = delete;
@@ -64,7 +64,7 @@ public:
 
     request const& get_request() const;
 
-    tcp_connection::pointer get_tcp_connection() const;
+    tcp::connection& get_tcp_connection();
 
     bool has_custom_remote_endpoint() const;
     asio::ip::tcp::endpoint const& get_remote_endpoint() const;
@@ -73,18 +73,18 @@ public:
     std::uint16_t get_remote_port() const;
     asio::ip::address get_remote_address() const;
 
-    void read_request(completion_handler const& handler);
-    void read_request(completion_handler const& handler, std::chrono::seconds const& timeout);
+    void read_request(completion_handler&& handler);
+    void read_request(completion_handler&& handler, std::chrono::seconds timeout);
 
-    void write_stock_response(status const& status, std::string const& server, completion_handler const& handler);
+    void write_stock_response(status const& status, std::string const& server, completion_handler&& handler);
 
-    void write_response(response const& response, completion_handler const& handler);
-    void write_buffer(buffer const& buffer, completion_handler const& handler);
+    void write_response(response const& response, completion_handler&& handler);
+    void write_buffer(buffer const& buffer, completion_handler&& handler);
 
-    void close(status const& status, std::string const& server, completion_handler const& handler);
+    void close(status const& status, std::string const& server, completion_handler&& handler);
 
-    void close(response const& response, completion_handler const& handler);
-    void close(buffer const& buffer, completion_handler const& handler);
+    void close(response const& response, completion_handler&& handler);
+    void close(buffer const& buffer, completion_handler&& handler);
 
     void close(bool force);
     bool is_open() const;
@@ -107,7 +107,9 @@ private:
     void handle_write(asio::error_code const& error, std::size_t bytes_transferred);
 
 private:
-    bool reading_body_;
+    tcp::connection connection_;
+
+    bool reading_content_;
     bool writing_response_;
     bool closing_connection_;
     bool chunked_encoding_;
@@ -118,7 +120,6 @@ private:
     request request_;
     response response_;
 
-    tcp_connection::pointer tcp_connection_;
     asio::ip::tcp::endpoint remote_endpoint_;
 
     std::queue<buffer> write_buffers_;

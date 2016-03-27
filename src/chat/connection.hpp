@@ -63,11 +63,11 @@ public:
     void start();
     void stop();
 
-    void stop(http::status const& status, completion_handler const& handler);
-    void stop(std::string const& message, completion_handler const& handler);
+    void stop(http::status const& status, completion_handler&& handler);
+    void stop(std::string const& message, completion_handler&& handler);
 
-    void write(http::buffer const& message, completion_handler const& handler);
-    void write(std::string const& message, completion_handler const& handler);
+    void write(http::buffer const& message, completion_handler&& handler);
+    void write(std::string const& message, completion_handler&& handler);
 
     bool is_open() const;
 

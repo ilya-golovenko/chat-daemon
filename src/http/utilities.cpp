@@ -1,20 +1,20 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2009 Ilya Golovenko
-//    This file is part of libsphttp.
+//    Copyright (C) 2009 - 2016 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
-//    libsphttp is free software: you can redistribute it and/or modify
+//    spchatd is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
 //    (at your option) any later version.
 //
-//    libsphttp is distributed in the hope that it will be useful,
+//    spchatd is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with libsphttp. If not, see <http://www.gnu.org/licenses/>.
+//    along with spchatd. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -28,14 +28,19 @@
 // STL headers
 #include <stdexcept>
 #include <algorithm>
+#include <iterator>
 
 
 namespace http
 {
 
-static char const hex_chars[] = "0123456789ABCDEF";
+static char const hex_chars[] =
+{
+    '0', '1', '2', '3', '4', '5', '6', '7',
+    '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+};
 
-static std::uint8_t const url_escape_table[] =
+static char const escape_table[] =
 {
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -47,95 +52,104 @@ static std::uint8_t const url_escape_table[] =
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1
 };
 
-std::uint8_t hex_to_int(std::uint8_t hex)
+static int hex_to_int(int c)
 {
-    hex = hex - '0';
-
-    if(hex > 9)
+    if(c >= '0' && c <= '9')
     {
-        hex = (hex + '0' - 1) | 0x20;
-        hex = hex - 'a' + 11;
+        return c - '0';
     }
 
-    if(hex > 15)
-        hex = 0xFF;
+    if(c >= 'a' && c <= 'f')
+    {
+        return c - 'a' + 10;
+    }
 
-    return hex;
+    if(c >= 'A' && c <= 'F')
+    {
+        return c - 'A' + 10;
+    }
+
+    return -1;
 }
 
-std::string escape_string(std::string const& input)
+static bool should_escape_char(unsigned char c)
 {
-    std::ostringstream output;
+    return c < std::size(escape_table) && escape_table[c];
+}
 
-    for(std::uint8_t const c : input)
+std::string escape_string(std::string const& str)
+{
+    std::string result;
+
+    for(unsigned char const c : str)
     {
-        if(c > 127 || url_escape_table[c])
+        if(should_escape_char(c))
         {
-            output << '%' << hex_chars[c >> 4];
-            output << hex_chars[c & 0x0F]; 
+            result.push_back('%');
+            result.push_back(hex_chars[c >> 4]);
+            result.push_back(hex_chars[c & 0xF]); 
         }
         else
         {
-            output << static_cast<char>(c);
+            result.push_back(c);
         }
     }
 
-    return output.str();
+    return result;
 }
 
-bool unescape_string(std::string const& input, std::string& output)
+std::string unescape_string(std::string const& str)
 {
-    std::ostringstream temp;
+    std::string result;
 
-    for(std::size_t index = 0; index < input.size(); ++index)
+    for(std::size_t i = 0; i < str.size(); ++i)
     {
-        if('%' == input[index])
+        switch(str[i])
         {
-            if(index + 2 < input.size())
-            {
-                std::uint8_t high = hex_to_int(input[index + 1]);
-                std::uint8_t low = hex_to_int(input[index + 2]);
-
-                if(high != 0xFF && low != 0xFF)
+            case '%':
+                if(i + 2 < str.size())
                 {
-                    std::uint8_t result = (high << 4) | low;
+                    int const h = hex_to_int(str[++i]);
+                    int const l = hex_to_int(str[++i]);
 
-                    if(result >= 32 && result != 127)
+                    if(h >= 0 && l >= 0)
                     {
-                        temp << static_cast<char>(result);
+                        int const v = (h << 4) | l;
 
-                        index += 2;
-                        continue;
+                        if(v >= 32 && v != 127)
+                        {
+                            result.push_back(char(v));
+                        }
                     }
                 }
-            }
+                else
+                {
+                    // ignore invalid sequence
+                    result.push_back('%');
+                }
+                break;
 
-            return false;
-        }
-        else if('+' == input[index])
-        {
-            temp << ' ';
-        }
-        else
-        {
-            temp << input[index];
+            case '+':
+                result.push_back(' ');
+                break;
+
+            default:
+                result.push_back(str[i]);
         }
     }
 
-    output = temp.str();
-
-    return true;
+    return result;
 }
 
 std::string combine_url_path(std::string const& path1, std::string const& path2)
 {
-    if(!boost::starts_with(path1, strings::slash))
+    if(!boost::algorithm::starts_with(path1, strings::slash))
     {
         return combine_url_path(strings::slash + path1, path2);
     }
 
-    bool has_end_slash = boost::ends_with(path1, strings::slash);
-    bool has_start_slash = boost::starts_with(path2, strings::slash);
+    bool has_end_slash = boost::algorithm::ends_with(path1, strings::slash);
+    bool has_start_slash = boost::algorithm::starts_with(path2, strings::slash);
 
     if(!(has_end_slash || has_start_slash))
     {

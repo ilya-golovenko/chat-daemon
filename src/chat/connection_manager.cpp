@@ -126,7 +126,7 @@ void connection_manager::process_connection(http::server_connection::pointer con
 
         if(!blocked)
         {
-            connection->get_tcp_connection()->set_option(asio::ip::tcp::no_delay(true));
+            connection->get_tcp_connection().set_option(asio::ip::tcp::no_delay(true));
             connection->read_request(bind_to_read_handler(connection), connect_timeout_);
         }
         else
@@ -149,7 +149,7 @@ void connection_manager::create_client_http_response()
     client_response_.set_keep_alive(false);
     client_response_.set_status(http::status::ok);
     client_response_.set_server(build_version_text());
-    client_response_.set_content_type(http::mime_types::text_html);
+    client_response_.set_content_type(http::mime::text_html);
     client_response_.set(http::header_names::pragma, http::cache_tokens::no_cache);
     client_response_.set(http::header_names::cache_control, http::cache_tokens::no_cache);
 }

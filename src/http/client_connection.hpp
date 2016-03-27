@@ -1,20 +1,20 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2009 Ilya Golovenko
-//    This file is part of libsphttp.
+//    Copyright (C) 2009 - 2016 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
-//    libsphttp is free software: you can redistribute it and/or modify
+//    spchatd is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
 //    (at your option) any later version.
 //
-//    libsphttp is distributed in the hope that it will be useful,
+//    spchatd is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with libsphttp. If not, see <http://www.gnu.org/licenses/>.
+//    along with spchatd. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 #ifndef _http_client_connection_hpp
@@ -62,14 +62,14 @@ public:
     client_connection(client_connection const&) = delete;
     client_connection& operator=(client_connection const&) = delete;
 
-    tcp_connection::pointer get_tcp_connection() const;
+    tcp::connection& get_tcp_connection();
 
     request const& get_request() const;
     response const& get_response() const;
 
     void set_proxy_server(std::string const& hostname, std::uint16_t port);
 
-    void send_request(request const& request, completion_handler const& handler);
+    void send_request(request const& request, completion_handler&& handler);
 
     bool is_open() const;
     void close();
@@ -112,7 +112,7 @@ private:
     bool use_proxy_server_;
 
     bool keep_alive_;
-    bool reading_body_;
+    bool reading_content_;
     bool chunked_encoding_;
 
     std::size_t chunk_size_;
@@ -124,10 +124,10 @@ private:
     request request_;
     response response_;
 
+    tcp::connection connection_;
+
     asio::ip::tcp::resolver resolver_;
     asio::steady_timer worker_timer_;
-
-    tcp_connection::pointer connection_;
 
     chunked_parser chunked_parser_;
     response_parser response_parser_;

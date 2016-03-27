@@ -60,7 +60,7 @@ void filter_manager::configure(server_config const& config)
     {
         LOG_COMP_INFO(filter_manager, "creating filter rule: ", rule.name);
 
-        filter_address const address = filter_address::from_string(rule.address);
+        filter::address const address = filter::address::from_string(rule.address);
 
         rules_.emplace_back(rule.name, address, rule.max_connection_count, rule.connections_per_minute, rule.block_duration);
     }
@@ -263,7 +263,7 @@ void filter_manager::add_tracked_host(asio::ip::address const& address)
     tracked_hosts_.emplace(address, hosts_.emplace(hosts_.end(), address));
 }
 
-void filter_manager::block_host(host_map::iterator host, filter_rule const& rule)
+void filter_manager::block_host(host_map::iterator host, filter::rule const& rule)
 {
     LOG_COMP_TRACE_FUNCTION(filter_manager);
 
@@ -285,7 +285,7 @@ filter_manager::rule_vector::iterator filter_manager::find_rule(host_map::iterat
 
     std::size_t const connection_count = context_.get_user_manager().get_connection_count(host->first);
 
-    return std::find_if(rules_.begin(), rules_.end(), [=](filter_rule const& rule){ return rule.satisfies(*host->second, connection_count); });
+    return std::find_if(rules_.begin(), rules_.end(), [=](filter::rule const& rule){ return rule.satisfies(*host->second, connection_count); });
 }
 
 filter_manager::host_map::iterator filter_manager::find_blocked_host(asio::ip::address const& address)

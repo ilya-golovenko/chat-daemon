@@ -260,7 +260,9 @@ void message_parser::parse_message(std::string const& str) const
         message_type const message_type = message_codes::to_type(str);
 
         if(!boost::xpressive::regex_search(str, what, regexes::from_type(message_type)))
+        {
             throw exception("cannot parse message: ", str);
+        }
 
         switch(message_type)
         {

@@ -19,7 +19,7 @@
 //---------------------------------------------------------------------------
 
 // Application headers
-#include <filter/filter_address.hpp>
+#include <filter/address.hpp>
 
 // BOOST headers
 #include <boost/lexical_cast.hpp>
@@ -40,6 +40,20 @@ asio::ip::address parse_address_string(std::string const& str)
     if(error_code)
     {
         throw std::runtime_error("invalid IP address: " + str);
+    }
+
+    return address;
+}
+
+asio::ip::address_v4 parse_address_v4_string(std::string const& str)
+{
+    asio::error_code error_code;
+
+    asio::ip::address_v4 const address = asio::ip::address_v4::from_string(str, error_code);
+
+    if(error_code)
+    {
+        throw std::runtime_error("invalid IPv4 address: " + str);
     }
 
     return address;
@@ -75,14 +89,16 @@ bool is_same_subnet(asio::ip::address_v6 const& address1, asio::ip::address_v6 c
 
 namespace chat
 {
+namespace filter
+{
 
-filter_address filter_address::from_string(std::string const& str)
+address address::from_string(std::string const& str)
 {
     std::size_t const pos = str.find('/');
 
     std::string const address_string = str.substr(0, pos);
 
-    filter_address address(::parse_address_string(address_string));
+    address address(::parse_address_string(address_string));
 
     if(pos != std::string::npos)
     {
@@ -92,7 +108,7 @@ filter_address filter_address::from_string(std::string const& str)
 
         if(!boost::conversion::try_lexical_convert(prefix_string, prefix_length))
         {
-            address.set_netmask(::parse_address_string(prefix_string));
+            address.set_netmask(::parse_address_v4_string(prefix_string));
         }
         else
         {
@@ -103,29 +119,30 @@ filter_address filter_address::from_string(std::string const& str)
     return address;
 }
 
-filter_address::filter_address(asio::ip::address const& address):
+address::address(asio::ip::address const& address):
     address_(address)
 {
 }
 
-void filter_address::set_netmask(asio::ip::address const& netmask)
+void address::set_netmask(asio::ip::address_v4 const& netmask)
 {
-    if(netmask.is_v6())
-        throw std::runtime_error("invalid IPv4 netmask: " + netmask.to_string());
-
     if(address_.is_v6())
+    {
         throw std::runtime_error("cannot set netmask for IPv6 address");
+    }
 
-    netmask_ = netmask.to_v4();
+    netmask_ = netmask;
     prefix_length_ = boost::none;
 }
 
-void filter_address::set_prefix_length(std::size_t prefix_length)
+void address::set_prefix_length(std::size_t prefix_length)
 {
     if(address_.is_v4())
     {
-        if(prefix_length > 32)
+        if(prefix_length > 32u)
+        {
             throw std::runtime_error("invalid IPv4 prefix length: " + std::to_string(prefix_length));
+        }
 
         std::size_t const shift = prefix_length < 32 ? 32 - prefix_length : 0;
         unsigned long const netmask = shift < 32 ? ~((1UL << shift) - 1) : 0UL;
@@ -135,15 +152,17 @@ void filter_address::set_prefix_length(std::size_t prefix_length)
     }
     else
     {
-        if(prefix_length > 128)
+        if(prefix_length > 128u)
+        {
             throw std::runtime_error("invalid IPv6 prefix length: " + std::to_string(prefix_length));
+        }
 
         prefix_length_ = prefix_length;
         netmask_ = boost::none;
     }
 }
 
-bool filter_address::satisfies(asio::ip::address const& address) const
+bool address::satisfies(asio::ip::address const& address) const
 {
     if(address_.is_v4())
     {
@@ -178,4 +197,5 @@ bool filter_address::satisfies(asio::ip::address const& address) const
     return address_ == address;
 }
 
+}   // namespace filter
 }   // namespace chat

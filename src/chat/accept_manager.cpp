@@ -48,7 +48,9 @@ void accept_manager::configure(server_config const& config)
     endpoints_.clear();
 
     if(config.endpoints.empty())
+    {
         throw exception("no listen endpoints specified");
+    }
 
     for(auto const& endpoint : config.endpoints)
     {
@@ -114,7 +116,9 @@ void accept_manager::resolve_endpoint(std::string const& hostname, std::uint16_t
         if(!error)
         {
             while(it != end)
+            {
                 add_endpoint(*it++);
+            }
         }
         else
         {
@@ -152,27 +156,28 @@ void accept_manager::accept_connection(asio::ip::tcp::acceptor& acceptor)
 {
     LOG_COMP_TRACE_FUNCTION(accept_manager);
 
-    http::tcp_connection::pointer connection = http::tcp_connection::create(context_.get_io_service());
+    tcp::connection connection(context_.get_io_service());
+    asio::ip::tcp::socket& socket(connection.get_socket());
 
-    acceptor.async_accept(connection->get_socket(), std::bind(&accept_manager::handle_accept, this, std::ref(acceptor), connection, std::placeholders::_1));
+    acceptor.async_accept(socket, std::bind(&accept_manager::handle_accept, this, std::ref(acceptor), std::move(connection), std::placeholders::_1));
 }
 
-void accept_manager::pass_connection_to_connection_manager(http::server_connection::pointer connection)
+void accept_manager::handle_connection(http::server_connection::pointer connection)
 {
     LOG_COMP_TRACE_FUNCTION(accept_manager);
 
     context_.get_connection_manager().process_connection(connection);
 }
 
-void accept_manager::handle_accept(asio::ip::tcp::acceptor& acceptor, http::tcp_connection::pointer connection, asio::error_code const& error)
+void accept_manager::handle_accept(asio::ip::tcp::acceptor& acceptor, tcp::connection& connection, asio::error_code const& error)
 {
     LOG_COMP_TRACE_FUNCTION(accept_manager);
 
     if(!error)
     {
-        LOG_COMP_TRACE(accept_manager, "accepted connection from ", connection->get_remote_endpoint());
+        LOG_COMP_TRACE(accept_manager, "accepted connection from ", connection.get_remote_endpoint());
 
-        pass_connection_to_connection_manager(http::server_connection::create(connection));
+        handle_connection(http::server_connection::create(std::move(connection)));
 
         accept_connection(acceptor);
     }

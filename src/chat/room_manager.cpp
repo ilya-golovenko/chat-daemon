@@ -212,19 +212,16 @@ void room_manager::read_rooms_file(std::string const& filename, std::vector<std:
         {
             boost::algorithm::trim_left(line);
 
-            if(!line.empty())
+            if(!line.empty() && line[0] != '#')
             {
-                if(line[0] != '#')
+                pos = line.find_first_of('|');
+
+                if(pos != std::string::npos)
                 {
-                    pos = line.find_first_of('|');
-
-                    if(pos != std::string::npos)
-                    {
-                        line.erase(pos, line.size());
-                    }
-
-                    rooms.push_back(line);
+                    line.erase(pos, line.size());
                 }
+
+                rooms.push_back(line);
             }
         }
     }

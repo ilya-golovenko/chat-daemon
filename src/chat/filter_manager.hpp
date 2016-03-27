@@ -25,8 +25,8 @@
 #endif  // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 // Application headers
-#include <filter/filter_host.hpp>
-#include <filter/filter_rule.hpp>
+#include <filter/host.hpp>
+#include <filter/rule.hpp>
 #include <misc/hash_utils.hpp>
 
 // ASIO headers
@@ -63,8 +63,8 @@ public:
     void remove_block(asio::ip::address const& address);
 
 private:
-    typedef std::list<filter_host> host_list;
-    typedef std::vector<filter_rule> rule_vector;
+    typedef std::list<filter::host> host_list;
+    typedef std::vector<filter::rule> rule_vector;
 
     typedef std::unordered_map<asio::ip::address, host_list::iterator> host_map;
 
@@ -77,7 +77,7 @@ private:
 
     void add_host_connection(host_map::iterator host);
     void add_tracked_host(asio::ip::address const& address);
-    void block_host(host_map::iterator host, filter_rule const& rule);
+    void block_host(host_map::iterator host, filter::rule const& rule);
 
     rule_vector::iterator find_rule(host_map::iterator host);
 

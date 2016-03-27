@@ -1,20 +1,20 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2009 Ilya Golovenko
-//    This file is part of libsphttp.
+//    Copyright (C) 2009 - 2016 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
-//    libsphttp is free software: you can redistribute it and/or modify
+//    spchatd is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
 //    (at your option) any later version.
 //
-//    libsphttp is distributed in the hope that it will be useful,
+//    spchatd is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with libsphttp. If not, see <http://www.gnu.org/licenses/>.
+//    along with spchatd. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -25,6 +25,26 @@
 
 namespace http
 {
+
+static std::uint8_t hex_to_int(std::uint8_t c)
+{
+    if(c >= '0' && c <= '9')
+    {
+        return c - '0';
+    }
+
+    if(c >= 'a' && c <= 'f')
+    {
+        return c - 'a' + 10;
+    }
+
+    if(c >= 'A' && c <= 'F')
+    {
+        return c - 'A' + 10;
+    }
+
+    return 0;
+}
 
 chunked_parser::chunked_parser() :
     state_(state_chunk_size_start),

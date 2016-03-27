@@ -19,7 +19,7 @@
 //---------------------------------------------------------------------------
 
 // Application headers
-#include <filter/filter_rule.hpp>
+#include <filter/rule.hpp>
 
 // MISSIO headers
 #include <missio/logging/common.hpp>
@@ -27,12 +27,14 @@
 
 namespace chat
 {
+namespace filter
+{
 
-filter_rule::filter_rule(std::string const& name,
-                         filter_address const& address,
-                         std::size_t max_connection_count,
-                         std::size_t connections_per_minute,
-                         std::chrono::seconds const& block_duration) :
+rule::rule(std::string const& name,
+           address const& address,
+           std::size_t max_connection_count,
+           std::size_t connections_per_minute,
+           std::chrono::seconds block_duration) :
     name_(name),
     address_(address),
     max_connection_count_(max_connection_count),
@@ -41,19 +43,19 @@ filter_rule::filter_rule(std::string const& name,
 {
 }
 
-std::string const& filter_rule::get_name() const
+std::string const& rule::get_name() const
 {
     return name_;
 }
 
-std::chrono::seconds const& filter_rule::get_block_duration() const
+std::chrono::seconds rule::get_block_duration() const
 {
     return block_duration_;
 }
 
-bool filter_rule::satisfies(filter_host const& host, std::size_t connection_count) const
+bool rule::satisfies(host const& host, std::size_t connection_count) const
 {
-    LOG_COMP_TRACE_FUNCTION(filter_rule);
+    LOG_COMP_TRACE_FUNCTION(filter::rule);
 
     asio::ip::address const& address = host.get_address();
 
@@ -61,14 +63,14 @@ bool filter_rule::satisfies(filter_host const& host, std::size_t connection_coun
     {
         if(connection_count >= max_connection_count_)
         {
-            LOG_COMP_WARNING(filter_rule, "too many simultaneous connections from host: ", address);
+            LOG_COMP_WARNING(filter::rule, "too many simultaneous connections from host: ", address);
             return true;
         }
 
         if(host.get_connection_count() >= connections_per_minute_ &&
            host.get_connections_per_minute() >= connections_per_minute_)
         {
-            LOG_COMP_WARNING(filter_rule, "too many connections per minute from host: ", address);
+            LOG_COMP_WARNING(filter::rule, "too many connections per minute from host: ", address);
             return true;
         }
     }
@@ -76,4 +78,5 @@ bool filter_rule::satisfies(filter_host const& host, std::size_t connection_coun
     return false;
 }
 
+}   // namespace filter
 }   // namespace chat

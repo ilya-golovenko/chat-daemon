@@ -29,11 +29,9 @@
 #include <chat/forwards.hpp>
 #include <chat/common.hpp>
 
-// BOOST headers
-#include <boost/circular_buffer.hpp>
-
 // STL headers
 #include <string>
+#include <deque>
 
 
 namespace chat
@@ -62,8 +60,7 @@ private:
     bool is_user_ignored_by_user(user_ptr user, session_id const& id) const;
 
 private:
-    //TODO: probably replace with std::deque?
-    typedef boost::circular_buffer<message_ptr> message_buffer;
+    typedef std::deque<message_ptr> message_buffer;
 
 private:
     server_context& context_;

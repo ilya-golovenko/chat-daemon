@@ -35,8 +35,7 @@ namespace chat
 
 message_dispatcher::message_dispatcher(server_context& context, user_map& users) :
     context_(context),
-    users_(users),
-    recent_messages_(50) //TODO: config.message_history
+    users_(users)
 {
 }
 
@@ -72,6 +71,11 @@ void message_dispatcher::deliver_message(message_ptr message, bool not_buffered)
 void message_dispatcher::buffer_message(message_ptr message)
 {
     LOG_COMP_TRACE_FUNCTION(message_dispatcher);
+
+    while(recent_messages_.size() >= 50) //TODO: config.message_history
+    {
+        recent_messages_.pop_front();
+    }
 
     recent_messages_.push_back(message);
 }

@@ -1,20 +1,20 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2009 Ilya Golovenko
-//    This file is part of libsphttp.
+//    Copyright (C) 2009 - 2016 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
-//    libsphttp is free software: you can redistribute it and/or modify
+//    spchatd is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
 //    (at your option) any later version.
 //
-//    libsphttp is distributed in the hope that it will be useful,
+//    spchatd is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with libsphttp. If not, see <http://www.gnu.org/licenses/>.
+//    along with spchatd. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -28,10 +28,6 @@ namespace http
 
 message::message(version const& version) :
     version_(version)
-{
-}
-
-message::~message()
 {
 }
 
@@ -83,9 +79,9 @@ void message::set_version(std::uint8_t major, std::uint8_t minor)
     version_ = version(major, minor);
 }
 
-void message::set_body_content_length()
+void message::set_content_length()
 {
-    set_content_length(get_body_size());
+    set_content_length(content_.size());
 }
 
 void message::set_content_length(std::size_t length)
@@ -125,6 +121,16 @@ boost::optional<std::string> message::get_transfer_encoding() const
     return get(header_names::transfer_encoding);
 }
 
+void message::set_connection(std::string const& connection)
+{
+    set(header_names::connection, connection);
+}
+
+boost::optional<std::string> message::get_connection() const
+{
+    return get(header_names::connection);
+}
+
 bool message::is_keep_alive() const
 {
     boost::optional<std::string> value = get(header_names::content_length);
@@ -153,7 +159,7 @@ bool message::is_keep_alive() const
 
         if(value)
         {
-            return boost::iequals(*value, connection_tokens::keep_alive);
+            return boost::algorithm::iequals(*value, connection_tokens::keep_alive);
         }
 
         return version::http_1_1 == version_;
@@ -167,39 +173,39 @@ void message::set_keep_alive(bool keep_alive)
     set(header_names::connection, keep_alive ? connection_tokens::keep_alive : connection_tokens::close);
 }
 
-bool message::is_body_empty() const
+bool message::content_empty() const
 {
-    return body_data_.empty();
+    return content_.empty();
 }
 
-std::size_t message::get_body_size() const
+std::size_t message::content_size() const
 {
-    return body_data_.size();
+    return content_.size();
 }
 
-std::string const& message::get_body() const
+std::string const& message::content() const
 {
-    return body_data_;
+    return content_;
 }
 
-void message::assign_body(std::string const& data)
+void message::set_content(std::string const& data)
 {
-    body_data_.assign(data);
+    content_.assign(data);
 }
 
-void message::append_body(std::string const& data)
+void message::add_content(std::string const& data)
 {
-    body_data_.append(data);
+    content_.append(data);
 }
 
-void message::clear_body()
+void message::clear_content()
 {
-    body_data_.clear();
+    content_.clear();
 }
 
 void message::to_buffers(buffers& buffers) const
 {
-    for(header_map::value_type const& header : headers_)
+    for(auto const& header : headers_)
     {
         buffers.push_back(asio::buffer(header.first));
         buffers.push_back(asio::buffer(strings::separator));
@@ -208,12 +214,12 @@ void message::to_buffers(buffers& buffers) const
     }
 
     buffers.push_back(asio::buffer(strings::crlf));
-    buffers.push_back(asio::buffer(body_data_));
+    buffers.push_back(asio::buffer(content_));
 }
 
 void message::dump(std::ostream& os) const
 {
-    for(header_map::value_type const& header : headers_)
+    for(auto const& header : headers_)
     {
         os << header.first;
         os << strings::separator;
@@ -222,7 +228,7 @@ void message::dump(std::ostream& os) const
     }
 
     os << std::endl;
-    os << body_data_;
+    os << content_;
 }
 
 }   // namespace http

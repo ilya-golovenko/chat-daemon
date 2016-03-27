@@ -151,7 +151,8 @@ session::session(session_id const& id, std::string const& info) :
     std::vector<std::string> fields;
     fields.reserve(field::count);
 
-    boost::split(fields, info, boost::is_any_of("\x02"));
+    boost::algorithm::split(fields, info, boost::algorithm::is_any_of("\x02"));
+
     std::copy(fields.begin(), fields.end(), fields_.begin());
 
     access_ = std::stoul(get(field::access));

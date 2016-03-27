@@ -1,20 +1,20 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2009 Ilya Golovenko
-//    This file is part of libsphttp.
+//    Copyright (C) 2009 - 2016 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
-//    libsphttp is free software: you can redistribute it and/or modify
+//    spchatd is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
 //    (at your option) any later version.
 //
-//    libsphttp is distributed in the hope that it will be useful,
+//    spchatd is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with libsphttp. If not, see <http://www.gnu.org/licenses/>.
+//    along with spchatd. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 #ifndef _http_message_hpp
@@ -54,10 +54,13 @@ public:
 
     explicit message(version const& version);
 
-    virtual ~message();
+    virtual ~message() = default;
 
     message(message const&) = default;
     message& operator=(message const&) = default;
+
+    message(message&&) = default;
+    message& operator=(message&&) = default;
 
     void add(std::string const& name, std::string const& value);
 
@@ -81,7 +84,7 @@ public:
     void set_version(version const& version);
     void set_version(std::uint8_t major, std::uint8_t minor);
 
-    void set_body_content_length();
+    void set_content_length();
 
     void set_content_length(std::size_t length);
     boost::optional<std::size_t> get_content_length() const;
@@ -92,23 +95,26 @@ public:
     void set_transfer_encoding(std::string const& encoding);
     boost::optional<std::string> get_transfer_encoding() const;
 
+    void set_connection(std::string const& connection);
+    boost::optional<std::string> get_connection() const;
+
     bool is_keep_alive() const;
     void set_keep_alive(bool keep_alive);
 
-    bool is_body_empty() const;
-    std::size_t get_body_size() const;
-    std::string const& get_body() const;
+    bool content_empty() const;
+    std::size_t content_size() const;
+    std::string const& content() const;
 
-    void assign_body(std::string const& data);
-    void append_body(std::string const& data);
-
-    template <typename Iterator>
-    void assign_body(Iterator first, Iterator last);
+    void set_content(std::string const& data);
+    void add_content(std::string const& data);
 
     template <typename Iterator>
-    void append_body(Iterator first, Iterator last);
+    void set_content(Iterator first, Iterator last);
+    
+    template <typename Iterator>
+    void add_content(Iterator first, Iterator last);
 
-    void clear_body();
+    void clear_content();
 
     void to_buffers(buffers& buffers) const;
     void dump(std::ostream& os) const;
@@ -119,7 +125,7 @@ protected:
 protected:
     version version_;
     header_map headers_;
-    std::string body_data_;
+    std::string content_;
 };
 
 template <typename T>
@@ -146,15 +152,15 @@ boost::optional<T> message::get(std::string const& name) const
 }
 
 template <typename Iterator>
-void message::assign_body(Iterator first, Iterator last)
+void message::set_content(Iterator first, Iterator last)
 {
-    body_data_.assign(first, last);
+    content_.assign(first, last);
 }
 
 template <typename Iterator>
-void message::append_body(Iterator first, Iterator last)
+void message::add_content(Iterator first, Iterator last)
 {
-    body_data_.append(first, last);
+    content_.append(first, last);
 }
 
 }   // namespace http

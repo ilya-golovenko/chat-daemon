@@ -1,20 +1,20 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2009 Ilya Golovenko
-//    This file is part of libsphttp.
+//    Copyright (C) 2009 - 2016 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
-//    libsphttp is free software: you can redistribute it and/or modify
+//    spchatd is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
 //    (at your option) any later version.
 //
-//    libsphttp is distributed in the hope that it will be useful,
+//    spchatd is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with libsphttp. If not, see <http://www.gnu.org/licenses/>.
+//    along with spchatd. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 
@@ -49,17 +49,17 @@ client_connection::client_connection(asio::io_service& io_service, std::string c
     proxy_port_(0u),
     use_proxy_server_(false),
     keep_alive_(false),
-    reading_body_(false),
+    reading_content_(false),
     chunked_encoding_(false),
     chunk_size_(0u),
     bytes_read_(0u),
     redirect_count_(0u),
     content_length_(0u),
     buffer_(8192u),
+    connection_(io_service),
     resolver_(io_service),
     worker_timer_(io_service)
 {
-    connection_ = tcp_connection::create(io_service);
 }
 
 client_connection::~client_connection()
@@ -67,7 +67,7 @@ client_connection::~client_connection()
     stop_connection();
 }
 
-tcp_connection::pointer client_connection::get_tcp_connection() const
+tcp::connection& client_connection::get_tcp_connection()
 {
     return connection_;
 }
@@ -93,12 +93,13 @@ void client_connection::set_proxy_server(std::string const& hostname, std::uint1
     use_proxy_server_ = true;
 }
 
-void client_connection::send_request(request const& request, completion_handler const& handler)
+void client_connection::send_request(request const& request, completion_handler&& handler)
 {
     LOG_COMP_TRACE_FUNCTION(client_connection);
 
     request_ = request;
-    handler_ = handler;
+
+    handler_ = std::forward<completion_handler>(handler);
 
     if(use_proxy_server_)
     {
@@ -115,7 +116,7 @@ void client_connection::send_request(request const& request, completion_handler 
 
 bool client_connection::is_open() const
 {
-    return connection_->is_open();
+    return connection_.is_open();
 }
 
 void client_connection::close()
@@ -132,9 +133,9 @@ void client_connection::start_connection(bool redirected)
     stop_worker_timer();
 
     response_.clear();
-    response_.clear_body();
+    response_.clear_content();
 
-    reading_body_ = false;
+    reading_content_ = false;
     chunked_encoding_ = false;
 
     chunk_size_ = 0u;
@@ -155,13 +156,13 @@ void client_connection::start_connection(bool redirected)
         port = proxy_port_;
     }
 
-    if(connection_->is_open() && keep_alive_ && hostname == hostname_ && port == port_)
+    if(connection_.is_open() && keep_alive_ && hostname == hostname_ && port == port_)
     {
         message::buffers buffers;
         request_.to_buffers(buffers);
 
         LOG_COMP_DEBUG(client_connection, "writing request to http server using existing connection");
-        connection_->write(buffers, bind_to_write_handler());
+        connection_.write(buffers, bind_to_write_handler());
     }
     else
     {
@@ -184,7 +185,7 @@ void client_connection::start_connection(bool redirected)
 
             asio::ip::tcp::resolver::iterator iterator;
 
-            connection_->connect(endpoint, /*bind_to_connect_handler()*/ std::bind(&client_connection::handle_connect, shared_from_this(), std::placeholders::_1, iterator));
+            connection_.connect(endpoint, /*bind_to_connect_handler()*/ std::bind(&client_connection::handle_connect, shared_from_this(), std::placeholders::_1, iterator));
         }
         else
         {
@@ -200,11 +201,11 @@ void client_connection::stop_connection()
 {
     LOG_COMP_TRACE_FUNCTION(client_connection);
 
-    if(connection_->is_open())
+    if(connection_.is_open())
     {
         LOG_COMP_DEBUG(client_connection, "closing connection to http server");
 
-        connection_->close();
+        connection_.close();
         stop_worker_timer();
 
         keep_alive_ = false;
@@ -215,10 +216,7 @@ bool client_connection::redirect_to_response_location()
 {
     LOG_COMP_TRACE_FUNCTION(client_connection);
 
-    status const& status = response_.get_status();
-
-    if(status == status::moved_permanently ||
-       status == status::moved_temporarily)
+    if(response_.get_status().is_redirected())
     {
         if(++redirect_count_ < max_redirect_count)
         {
@@ -243,10 +241,7 @@ bool client_connection::redirect_to_response_location()
 
                 if(hostname != hostname_ || port != port_)
                 {
-                    if(connection_->is_open())
-                    {
-                        connection_->close();
-                    }
+                    connection_.close();
 
                     hostname_ = hostname;
                     port_ = port;
@@ -385,7 +380,7 @@ void client_connection::handle_resolve(asio::error_code const& error, asio::ip::
         asio::ip::tcp::endpoint endpoint = *endpoint_iterator;
         LOG_COMP_DEBUG(client_connection, "connecting to http server: ", endpoint);
 
-        connection_->connect(endpoint, /*bind_to_connect_handler()*/ std::bind(&client_connection::handle_connect, shared_from_this(), std::placeholders::_1, ++endpoint_iterator));
+        connection_.connect(endpoint, /*bind_to_connect_handler()*/ std::bind(&client_connection::handle_connect, shared_from_this(), std::placeholders::_1, ++endpoint_iterator));
     }
     else
     {
@@ -406,7 +401,7 @@ void client_connection::handle_connect(asio::error_code const& error, asio::ip::
         request_.to_buffers(buffers);
 
         LOG_COMP_DEBUG(client_connection, "writing request to http server");
-        connection_->write(buffers, bind_to_write_handler());
+        connection_.write(buffers, bind_to_write_handler());
     }
     else
     {
@@ -414,15 +409,12 @@ void client_connection::handle_connect(asio::error_code const& error, asio::ip::
 
         if(endpoint_iterator != asio::ip::tcp::resolver::iterator())
         {
-            if(connection_->is_open())
-            {
-                connection_->close();
-            }
+            connection_.close();
 
             asio::ip::tcp::endpoint endpoint = *endpoint_iterator;
             LOG_COMP_DEBUG(client_connection, "connecting to http server: ", endpoint);
 
-            connection_->connect(endpoint, /*bind_to_connect_handler()*/ std::bind(&client_connection::handle_connect, shared_from_this(), std::placeholders::_1, ++endpoint_iterator));
+            connection_.connect(endpoint, /*bind_to_connect_handler()*/ std::bind(&client_connection::handle_connect, shared_from_this(), std::placeholders::_1, ++endpoint_iterator));
         }
         else
         {
@@ -443,10 +435,7 @@ void client_connection::handle_write(asio::error_code const& error, std::size_t 
     {
         LOG_COMP_DEBUG(client_connection, "keep-alive connection has been aborted: ", error);
 
-        if(connection_->is_open())
-        {
-            connection_->close();
-        }
+        connection_.close();
 
         // try to restart keep-alive connection
         start_connection(false);
@@ -458,7 +447,7 @@ void client_connection::handle_write(asio::error_code const& error, std::size_t 
         start_read_timeout_timer();
 
         LOG_COMP_DEBUG(client_connection, "reading response from http server");
-        connection_->read(buffer_, bind_to_read_handler());
+        connection_.read(buffer_, bind_to_read_handler());
     }
     else
     {
@@ -479,10 +468,7 @@ void client_connection::handle_read(asio::error_code const& error, std::size_t b
     {
         LOG_COMP_DEBUG(client_connection, "keep-alive connection has been aborted: ", error);
 
-        if(connection_->is_open())
-        {
-            connection_->close();
-        }
+        connection_.close();
 
         // try to restart keep-alive connection
         start_connection(false);
@@ -494,7 +480,7 @@ void client_connection::handle_read(asio::error_code const& error, std::size_t b
         char const* begin = buffer_.data();
         char const* end = begin + bytes_transferred;
 
-        if(!reading_body_)
+        if(!reading_content_)
         {
             std::tie(result, begin) = response_parser_.parse(response_, begin, end);
 
@@ -508,7 +494,7 @@ void client_connection::handle_read(asio::error_code const& error, std::size_t b
                 else
                 {
                     LOG_COMP_DEBUG(client_connection, "reading response from http server");
-                    connection_->read(buffer_, bind_to_read_handler());
+                    connection_.read(buffer_, bind_to_read_handler());
                 }
             }
             else if(result == parse_result::error)
@@ -519,7 +505,7 @@ void client_connection::handle_read(asio::error_code const& error, std::size_t b
             else
             {
                 chunk_size_ = 0u;
-                reading_body_ = true;
+                reading_content_ = true;
 
                 stop_worker_timer();
                 setup_connection(error);
@@ -529,7 +515,7 @@ void client_connection::handle_read(asio::error_code const& error, std::size_t b
             }
         }
 
-        if(reading_body_)
+        if(reading_content_)
         {
             if(chunked_encoding_)
             {
@@ -546,7 +532,7 @@ void client_connection::handle_read(asio::error_code const& error, std::size_t b
 
                         if(size > 0)
                         {
-                            response_.append_body(begin, begin + size);
+                            response_.add_content(begin, begin + size);
                         }
 
                         begin += size;
@@ -567,7 +553,7 @@ void client_connection::handle_read(asio::error_code const& error, std::size_t b
                             LOG_COMP_DEBUG(client_connection, "cannot parse response from http server");
                             call_completion_handler(asio::error::invalid_argument);
                         }
-                        else if(result)
+                        else if(result == parse_result::ok)
                         {
                             chunk_size_ = chunked_parser_.get_chunk_size();
 
@@ -593,7 +579,7 @@ void client_connection::handle_read(asio::error_code const& error, std::size_t b
                     else
                     {
                         LOG_COMP_TRACE(client_connection, "reading data from http server");
-                        connection_->read(buffer_, bind_to_read_handler());
+                        connection_.read(buffer_, bind_to_read_handler());
                     }
                 }
             }
@@ -602,7 +588,7 @@ void client_connection::handle_read(asio::error_code const& error, std::size_t b
                 if(begin != end)
                 {
                     bytes_read_ += end - begin;
-                    response_.append_body(begin, end);
+                    response_.add_content(begin, end);
                 }
 
                 if(is_reading_completed(error))
@@ -621,7 +607,7 @@ void client_connection::handle_read(asio::error_code const& error, std::size_t b
                 else
                 {
                     LOG_COMP_TRACE(client_connection, "reading data from http server");
-                    connection_->read(buffer_, bind_to_read_handler());
+                    connection_.read(buffer_, bind_to_read_handler());
                 }
             }
         }

@@ -72,6 +72,8 @@ project /chat/daemon
         <toolset>gcc:<cxxflags>-fdiagnostics-show-option
         <toolset>gcc,<target-os>linux:<cxxflags>-rdynamic
         <toolset>gcc,<target-os>linux:<cxxflags>-export-dynamic
+        <runtime-link>static:<boost-link>static
+        <runtime-link>shared:<boost-link>shared
     :
         default-build
         release debug

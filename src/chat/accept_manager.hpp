@@ -64,8 +64,9 @@ private:
     void create_acceptor(asio::ip::tcp::endpoint const& endpoint);
     void accept_connection(asio::ip::tcp::acceptor& acceptor);
 
-    void pass_connection_to_connection_manager(http::server_connection::pointer connection);
-    void handle_accept(asio::ip::tcp::acceptor& acceptor, http::tcp_connection::pointer connection, asio::error_code const& error);
+    void handle_connection(http::server_connection::pointer connection);
+
+    void handle_accept(asio::ip::tcp::acceptor& acceptor, tcp::connection& connection, asio::error_code const& error);
 
 private:
     server_context& context_;

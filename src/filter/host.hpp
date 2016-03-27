@@ -34,18 +34,20 @@
 
 namespace chat
 {
+namespace filter
+{
 
-class filter_host
+class host
 {
 public:
-    explicit filter_host(asio::ip::address const& address);
+    explicit host(asio::ip::address const& address);
 
-    filter_host(filter_host const&) = delete;
-    filter_host& operator=(filter_host const&) = delete;
+    host(host const&) = delete;
+    host& operator=(host const&) = delete;
 
     void add_connection();
 
-    void block(std::chrono::seconds const& duration);
+    void block(std::chrono::seconds duration);
 
     asio::ip::address const& get_address() const;
 
@@ -70,6 +72,7 @@ private:
     asio::ip::address address_;
 };
 
+}   // namespace filter
 }   // namespace chat
 
 #endif  // _chat_filter_host_hpp

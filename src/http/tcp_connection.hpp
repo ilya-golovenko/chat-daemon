@@ -1,20 +1,20 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2009 Ilya Golovenko
-//    This file is part of libsphttp.
+//    Copyright (C) 2009 - 2016 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
-//    libsphttp is free software: you can redistribute it and/or modify
+//    spchatd is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
 //    (at your option) any later version.
 //
-//    libsphttp is distributed in the hope that it will be useful,
+//    spchatd is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with libsphttp. If not, see <http://www.gnu.org/licenses/>.
+//    along with spchatd. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 #ifndef _http_tcp_connection_hpp
@@ -28,25 +28,22 @@
 #include <asio.hpp>
 
 // STL headers
-#include <memory>
+#include <utility>
 
 
-namespace http
+namespace tcp
 {
 
-class tcp_connection
+class connection
 {
 public:
-    typedef std::shared_ptr<tcp_connection> pointer;
+    explicit connection(asio::io_service& io_service);
 
-public:
-    static pointer create(asio::io_service& io_service);
+    connection(connection const&) = delete;
+    connection& operator=(connection const&) = delete;
 
-public:
-    explicit tcp_connection(asio::io_service& io_service);
-
-    tcp_connection(tcp_connection const&) = delete;
-    tcp_connection& operator=(tcp_connection const&) = delete;
+    connection(connection&&) = default;
+    connection& operator=(connection&&) = default;
 
     asio::ip::tcp::socket& get_socket();
     asio::io_service& get_io_service();
@@ -62,13 +59,13 @@ public:
     void get_option(GettableSocketOption& option) const;
 
     template <typename ConnectHandler>
-    void connect(asio::ip::tcp::endpoint const& endpoint, ConnectHandler const& handler);
+    void connect(asio::ip::tcp::endpoint const& endpoint, ConnectHandler&& handler);
 
     template <typename MutableBufferSequence, typename ReadHandler>
-    void read(MutableBufferSequence const& buffers, ReadHandler const& handler);
+    void read(MutableBufferSequence const& buffers, ReadHandler&& handler);
 
     template <typename ConstBufferSequence, typename WriteHandler>
-    void write(ConstBufferSequence const& buffers, WriteHandler const& handler);
+    void write(ConstBufferSequence const& buffers, WriteHandler&& handler);
 
     bool is_open() const;
     void close();
@@ -78,35 +75,35 @@ private:
 };
 
 template <typename SettableSocketOption>
-void tcp_connection::set_option(SettableSocketOption const& option)
+void connection::set_option(SettableSocketOption const& option)
 {
     socket_.set_option(option);
 }
 
 template <typename GettableSocketOption>
-void tcp_connection::get_option(GettableSocketOption& option) const
+void connection::get_option(GettableSocketOption& option) const
 {
     socket_.get_option(option);
 }
 
 template <typename ConnectHandler>
-void tcp_connection::connect(asio::ip::tcp::endpoint const& endpoint, ConnectHandler const& handler)
+void connection::connect(asio::ip::tcp::endpoint const& endpoint, ConnectHandler&& handler)
 {
-    socket_.async_connect(endpoint, handler);
+    socket_.async_connect(endpoint, std::forward<ConnectHandler>(handler));
 }
 
 template <typename MutableBufferSequence, typename ReadHandler>
-void tcp_connection::read(MutableBufferSequence const& buffers, ReadHandler const& handler)
+void connection::read(MutableBufferSequence const& buffers, ReadHandler&& handler)
 {
-    socket_.async_read_some(buffers, handler);
+    socket_.async_read_some(buffers, std::forward<ReadHandler>(handler));
 }
 
 template <typename ConstBufferSequence, typename WriteHandler>
-void tcp_connection::write(ConstBufferSequence const& buffers, WriteHandler const& handler)
+void connection::write(ConstBufferSequence const& buffers, WriteHandler&& handler)
 {
-    socket_.async_write_some(buffers, handler);
+    socket_.async_write_some(buffers, std::forward<WriteHandler>(handler));
 }
 
-}   // namespace http
+}   // namespace tcp
 
 #endif  // _http_tcp_connection_hpp

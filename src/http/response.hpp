@@ -1,20 +1,20 @@
 //---------------------------------------------------------------------------
 //
-//    Copyright (C) 2009 Ilya Golovenko
-//    This file is part of libsphttp.
+//    Copyright (C) 2009 - 2016 Ilya Golovenko
+//    This file is part of Chat.Daemon project
 //
-//    libsphttp is free software: you can redistribute it and/or modify
+//    spchatd is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
 //    the Free Software Foundation, either version 3 of the License, or
 //    (at your option) any later version.
 //
-//    libsphttp is distributed in the hope that it will be useful,
+//    spchatd is distributed in the hope that it will be useful,
 //    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //    GNU General Public License for more details.
 //
 //    You should have received a copy of the GNU General Public License
-//    along with libsphttp. If not, see <http://www.gnu.org/licenses/>.
+//    along with spchatd. If not, see <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
 #ifndef _http_response_hpp
@@ -47,10 +47,13 @@ public:
     explicit response(status const& status);
     response(version const& version, status const& status);
 
-    virtual ~response();
+    virtual ~response() = default;
 
     response(response const&) = default;
     response& operator=(response const&) = default;
+
+    response(response&&) = default;
+    response& operator=(response&&) = default;
 
     status const& get_status() const;
     void set_status(status const& status);
@@ -64,7 +67,7 @@ public:
     void to_buffers(buffers& buffers) const;
     void dump(std::ostream& os) const;
 
-    static response get_stock_response(status const& status, std::string const& server);
+    static response make_stock_response(status const& status, std::string const& server);
 
 private:
     status status_;

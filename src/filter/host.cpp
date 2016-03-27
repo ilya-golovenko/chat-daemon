@@ -19,7 +19,7 @@
 //---------------------------------------------------------------------------
 
 // Application headers
-#include <filter/filter_host.hpp>
+#include <filter/host.hpp>
 
 // MISSIO headers
 #include <missio/logging/common.hpp>
@@ -27,8 +27,10 @@
 
 namespace chat
 {
+namespace filter
+{
 
-filter_host::filter_host(asio::ip::address const& address) :
+host::host(asio::ip::address const& address) :
     first_conn_time_(clock::now()),
     connections_per_minute_(0),
     connection_count_(1u),
@@ -36,9 +38,9 @@ filter_host::filter_host(asio::ip::address const& address) :
 {
 }
 
-void filter_host::add_connection()
+void host::add_connection()
 {
-    LOG_COMP_TRACE_FUNCTION(filter_host);
+    LOG_COMP_TRACE_FUNCTION(filter::host);
 
     ++connection_count_;
 
@@ -51,41 +53,42 @@ void filter_host::add_connection()
     }
 }
 
-void filter_host::block(std::chrono::seconds const& duration)
+void host::block(std::chrono::seconds duration)
 {
-    LOG_COMP_TRACE_FUNCTION(filter_host);
+    LOG_COMP_TRACE_FUNCTION(filter::host);
 
     block_end_time_ = clock::now() + duration;
 }
 
-asio::ip::address const& filter_host::get_address() const
+asio::ip::address const& host::get_address() const
 {
     return address_;
 }
 
-std::chrono::seconds filter_host::get_block_duration() const
+std::chrono::seconds host::get_block_duration() const
 {
     return std::chrono::duration_cast<std::chrono::seconds>(clock::now() - block_end_time_);
 }
 
-std::size_t filter_host::get_connections_per_minute() const
+std::size_t host::get_connections_per_minute() const
 {
     return static_cast<std::size_t>(connections_per_minute_);
 }
 
-std::size_t filter_host::get_connection_count() const
+std::size_t host::get_connection_count() const
 {
     return connection_count_;
 }
 
-bool filter_host::is_tracking_expired() const
+bool host::is_tracking_expired() const
 {
     return clock::now() > last_conn_time_ + std::chrono::hours(6);
 }
 
-bool filter_host::is_block_expired() const
+bool host::is_block_expired() const
 {
     return clock::now() >= block_end_time_;
 }
 
+}   // namespace filter
 }   // namespace chat
